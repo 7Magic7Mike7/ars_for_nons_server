@@ -34,7 +34,10 @@ app.get('/', (req, res) => {
     res.send("Welcome to setting up Node.js project tutorial!");
 });
 app.get('/stats', (req, res) => {
-    res.send("Num of buffered data elements: " + simManager.numOfBufferedData());
+    const val = simManager.numOfBufferedData();
+    console.log("Value = ");
+    console.log(val);
+    res.send("Num of buffered data elements: ");
     //res.sendFile('views/test.html', {root: __dirname })
 });
 const server = app.listen(port, function () {
