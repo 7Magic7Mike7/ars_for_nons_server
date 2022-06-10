@@ -139,9 +139,10 @@ manager.set("sim", new SimManager(0));
 
 function numOfBufferedData() {
     let counter = 0;
-    manager.get("sim").sims.forEach((value) => {
-        counter += value.bufferLevel;
-    });
+    const simManager = manager.get("sim")
+    for (const sim in simManager.sims) {
+        counter += simManager.sims[sim].bufferLevel;
+    }
     return counter;
 }
 
