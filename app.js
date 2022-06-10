@@ -35,9 +35,8 @@ app.get('/', (req, res) => {
 });
 app.get('/stats', (req, res) => {
     const val = simManager.numOfBufferedData();
-    console.log("Value = ");
-    console.log(val);
-    res.send("Num of buffered data elements: ");
+    console.log("Value = %s", val);
+    res.send("Num of buffered data elements: " + val);
     //res.sendFile('views/test.html', {root: __dirname })
 });
 const server = app.listen(port, function () {
