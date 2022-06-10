@@ -14,8 +14,13 @@ const simManager = require('../scripts/sim_manager');
 router.post('/login', (req, res) => {
     console.log("login route");
     addCorsHeader(res);
-    const key = simManager.login(req);
-    res.status(200).json({ key: key });
+    const response = simManager.login(req);
+    const key = response[0];
+    const success = response[1];
+    if (success)
+        res.status(200).json({ key: key });
+    else
+        res.status(400).json();
 });
 
 /**Updates the simulation corresponding to the given key with the given data
@@ -28,9 +33,12 @@ router.post('/login', (req, res) => {
  */
 router.post('/update', (req, res) => {
     console.log("update route");
-    simManager.update(req);
     addCorsHeader(res);
-    res.status(200).json();
+    const success = simManager.update(req);
+    if (success)
+        res.status(200).json();
+    else
+        res.status(400).json();
 });
 
 /**Logs out a client of its simulation
@@ -44,8 +52,13 @@ router.post('/update', (req, res) => {
 router.post('/logout', (req, res) => {
     console.log("logout route");
     addCorsHeader(res);
-    const key = simManager.logout(req);
-    res.status(200).json({ key: key });
+    const response = simManager.logout(req);
+    const key = response[0];
+    const success = response[1];
+    if (success)
+        res.status(200).json({ key: key });
+    else
+        res.status(400).json();
 });
 
 /**Sends back some data items
@@ -60,12 +73,19 @@ router.get('/retrieve', (req, res) => {
     console.log("retrieve route");
     addCorsHeader(res);
 
-    res.status(200).json({ key: key });
+    const response = simManager.retrieve(req);
+    const data = response[0];
+    const success = response[1];
+    if (success)
+        res.status(200).json({ data: data });
+    else
+        res.status(400).json();
 });
 
 
 function addCorsHeader(res) {
     return;
+    /*
     const headers = res.header;
     // use your domain or ip address instead of "*".
     // Using "*" is allowing access from every one
@@ -76,6 +96,7 @@ function addCorsHeader(res) {
     headers.Add("Vary", "Access-Control-Request-Headers")
     headers.Add("Access-Control-Allow-Headers", "Content-Type, Origin, Accept, token")
     headers.Add("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+    */
 }
 
 module.exports = router;
