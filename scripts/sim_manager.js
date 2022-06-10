@@ -49,6 +49,10 @@ class Simulation {
         return this._running;
     }
 
+    get bufferLevel() {
+        return this._data.length;
+    }
+
     update(data) {
         console.log("updating sim#" + this._id + " with data: " + data);
         this._data.enqueue(data);
@@ -132,6 +136,14 @@ class SimManager {
 
 const manager = new Map();
 manager.set("sim", new SimManager(0));
+
+function numOfBufferedData() {
+    let counter = 0;
+    manager["sim"].sims.forEach((value) => {
+        counter += value.bufferLevel;
+    });
+    return counter;
+}
 
 /**Creates a key based on the requester's ip address and a random value
  *
@@ -317,3 +329,4 @@ module.exports.login = login;
 module.exports.logout = logout;
 module.exports.update = update;
 module.exports.retrieve = retrieve;
+module.exports.numOfBufferedData = numOfBufferedData;

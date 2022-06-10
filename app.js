@@ -4,6 +4,7 @@ const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 
 const indexRouter = require('./routes/index');
+const simManager = require('./scripts/sim_manager.js')
 
 //const cors = require("cors");   //for flutter-compatability
 
@@ -30,8 +31,11 @@ module.exports = app;
 
 const port = 5000;
 app.get('/', (req, res) => {
-    //res.send("Welcome to setting up Node.js project tutorial!");
-    res.sendFile('views/test.html', {root: __dirname })
+    res.send("Welcome to setting up Node.js project tutorial!");
+});
+app.get('/stats', (req, res) => {
+    res.send("Num of buffered data elements: " + simManager.numOfBufferedData());
+    //res.sendFile('views/test.html', {root: __dirname })
 });
 const server = app.listen(port, function () {
     const host = server.address().address
