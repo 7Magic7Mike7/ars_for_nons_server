@@ -139,7 +139,7 @@ manager.set("sim", new SimManager(0));
 
 function numOfBufferedData() {
     let counter = 0;
-    manager["sim"].sims.forEach((value) => {
+    manager.get("sim").sims.forEach((value) => {
         counter += value.bufferLevel;
     });
     return counter;
@@ -217,10 +217,10 @@ function _getSimId(req) {
     return simId;
 }
 
-/**Retrieves the simulation id based on the request.
+/**Retrieves an integer argument named "num" from a request.
  *
  * @param req request of a client-call to the server
- * @returns {string} the key to access the simulation associated with the requester
+ * @returns {int} value of "num" in the request
  */
 function _getNumOfItems(req) {
     let num;
