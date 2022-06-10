@@ -30,7 +30,8 @@ module.exports = app;
 
 const port = 5000;
 app.get('/', (req, res) => {
-    res.send("Welcome to setting up Node.js project tutorial!");
+    //res.send("Welcome to setting up Node.js project tutorial!");
+    res.sendFile('views/test.html', {root: __dirname })
 });
 const server = app.listen(port, function () {
     const host = server.address().address
