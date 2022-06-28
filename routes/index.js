@@ -12,7 +12,6 @@ const simManager = require('../scripts/sim_manager');
  *
  */
 router.post('/login', (req, res) => {
-    console.log("login route");
     addCorsHeader(res);
     const response = simManager.login(req);
     const key = response[0];
@@ -32,7 +31,6 @@ router.post('/login', (req, res) => {
  *
  */
 router.post('/update', (req, res) => {
-    console.log("update route");
     addCorsHeader(res);
     const success = simManager.update(req);
     if (success)
@@ -50,7 +48,6 @@ router.post('/update', (req, res) => {
  *
  */
 router.post('/logout', (req, res) => {
-    console.log("logout route");
     addCorsHeader(res);
     const response = simManager.logout(req);
     const key = response[0];
@@ -70,7 +67,6 @@ router.post('/logout', (req, res) => {
  *
  */
 router.get('/retrieve', (req, res) => {
-    console.log("retrieve route");
     addCorsHeader(res);
 
     const response = simManager.retrieve(req);
