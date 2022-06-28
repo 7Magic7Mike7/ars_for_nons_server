@@ -34,27 +34,49 @@ class Queue {
     }
 }
 
+const DEACTIVATION_DURATION = 30_000;    // how many milliseconds without a request it takes to make an active Simulation passive
 class Simulation {
     constructor(id) {
         this._id = id;
-        this._running = false;
         this._data = new Queue(100);
+
+        this._clientKey = null;
+        this._lastActiveRequest = 0;    // timestamp for last request of an active client (login, data update,
+                                        // timestamp update - no data retrieval)
     }
 
     get id() {
         return this._id;
     }
 
-    get running() {
-        return this._running;
+    get clientKey() {
+        return this._clientKey;
+    }
+
+    get isActive() {
+        const stamp = _getTimeStamp();
+        const diff = stamp - this._lastActiveRequest;
+        return stamp - this._lastActiveRequest < DEACTIVATION_DURATION;
     }
 
     get bufferLevel() {
         return this._data.length;
     }
 
+    setClient(key) {
+        this._lastActiveRequest = _getTimeStamp();
+        this._clientKey = key;
+        console.log("registered client #" + this._clientKey + " for simulation #" + this._id);
+    }
+
+    resetClient() {
+        console.log("logged out client #" + this._clientKey);
+        this._clientKey = null;
+    }
+
     update(data) {
-        console.log("updating sim#" + this._id + " with data: " + data);
+        this._lastActiveRequest = _getTimeStamp();
+        console.log("client #" + this._clientKey + " updates sim#" + this._id + " with data: " + data);
         this._data.enqueue(data);
     }
 
@@ -63,37 +85,16 @@ class Simulation {
         console.log("retrieving \"" + item + "\"from sim#" + this._id);
         return item;
     }
-
-    start() {
-        this._running = true;
-    }
-
-    pause() {
-        this._running = false;
-    }
-
-    continue() {
-        this._running = true;
-    }
-
-    stop() {
-        this._running = false;
-        this.reset();
-    }
-
-    reset() {
-        this._running = false;
-    }
 }
 
 const NUM_OF_SIMULATIONS = 3;
 class SimManager {
     constructor(objCode) {
         this._objCode = objCode;
-        this._data = new Map();
-        this._sims = new Map();
+        this._activeSims = new Map();   // are currently accessed by clients
+        this._allSims = new Map();  //are currently not used by clients
         for (let i = 0; i < NUM_OF_SIMULATIONS; i++) {
-            this._sims[i] = new Simulation(i);
+            this._allSims[i] = new Simulation(i);
         }
     }
 
@@ -101,36 +102,48 @@ class SimManager {
         return this._objCode;
     }
 
-    get data() {
-        return this._data;
+    get activeSims() {
+        return this._activeSims;
     }
 
-    get sims() {
-        return this._sims;
+    get allSims() {
+        return this._allSims;
+    }
+
+    _logout(simulation) {
+        if (simulation.clientKey in this._activeSims) {
+            this._activeSims.delete(simulation.clientKey);
+            simulation.resetClient();
+        }
     }
 
     login(simId, key) {
-        if (simId in this._sims) {
-            const simulation = this._sims[simId];
-            this._data[key] = simulation;
-            console.log(
-                "registered client #" + key + " for simulation #" + simulation.id
-            );
+        if (simId in this._allSims) {
+            const simulation = this._allSims[simId];
+            if(simulation.isActive) {
 
-            if (simulation.running) {
-                simulation.continue();
-            } else {
-                simulation.start();
             }
-            return true;
+            else {
+                this._logout(simulation);
+
+                simulation.setClient(key);
+                this._activeSims[simulation.clientKey] = simulation;
+                return true;
+            }
         }
         return false;
     }
 
-    logout(key) {
-        const simulation = this._data[key];
-        simulation.pause();
-        this._data.delete(key);
+    update(data, key) {
+        if (key in this._activeSims) {
+            const simulation = this._activeSims[key];
+            if (simulation.isActive) {
+                simulation.update(data);
+                return true;
+            }
+            this._logout(simulation);
+        }
+        return false;
     }
 }
 
@@ -254,7 +267,7 @@ function _getTargetManager(req) {
 /**Logs in the requester by registering them to a corresponding simulation.
  *
  * @param req request of a client-call to the server
- * @returns {string} the key to allow the requester access to the simulation they registered for
+ * @returns {[string, boolean]} the key to allow the requester access to the simulation they registered for
  */
 function login(req) {
     const simId = _getSimId(req);
@@ -264,7 +277,9 @@ function login(req) {
     for (const item of manager) {
         //item: [key, value]
         const m = item[1];
-        m.login(simId, key);
+        if (!m.login(simId, key)) {
+            return [key, false];
+        }
     }
     return [key, true];
 }
@@ -272,7 +287,7 @@ function login(req) {
 /**Logs out the requester by registering them to a corresponding simulation.
  *
  * @param req request of a client-call to the server
- * @returns {string} the key to allow the requester access to the simulation they registered for
+ * @returns {[string, boolean]} the key to allow the requester access to the simulation they registered for
  */
 function logout(req) {
     const key = _getKey(req);
@@ -289,18 +304,14 @@ function logout(req) {
 /**Adds data to the simulation associated with the requester if one exists.
  *
  * @param req request of a client-call to the server
- * @returns
+ * @returns true if the update was successfully, false otherwise
  */
 function update(req) {
     const key = _getKey(req);
     const data = _getData(req);
     const simManager = _getTargetManager(req);
-    const sim = simManager.data[key];
-    if (sim) {
-        sim.update(data);
-        return true;
-    }
-    else return false;
+
+    return simManager.update(data, key)
 }
 
 /**Returns data items of the simulation that is associated with the requester if one exists. (else null is returned)
@@ -312,7 +323,7 @@ function retrieve(req) {
     const simId = _getSimId(req);
     const numOfItems = _getNumOfItems(req);
     const simManager = _getTargetManager(req);
-    const sim = simManager.sims[simId];
+    const sim = simManager.allSims[simId];
 
     if (sim) {
         let data = [];
@@ -325,7 +336,7 @@ function retrieve(req) {
     else return [null, false];
 }
 
-//external scripts may only login/start, logout/pause, update simulations or retrieve data
+//external scripts may only log in/start, log out/pause, update simulations or retrieve data
 module.exports.login = login;
 module.exports.logout = logout;
 module.exports.update = update;
