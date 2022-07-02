@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ArsForNons Debug Util</title>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>This page is only for debugging/testing.</h1>
+
+    <label>
+        Number of data items to retrieve (1-10):
+        <br>
+        <input id="numOfRetrievedItems" type="number" min="1" max="10" value="1">
+        <button onclick="getData()">Retrieve data</button>
+    </label>
+    <h4 id="retrievedData"></h4>
+
+    <br>
+    <br>
+    <br>
+    <label>
+        <input id="dataToPost" type="number" min="1">
+        <br>
+        <button onclick="getRandomDataItem()">Fill randomly</button>
+        <button onclick="postData()">Post data</button>
+    </label>
+
+    <script>
+        const decoder = new TextDecoder();
+        const retrievedData = document.getElementById("retrievedData");
+        const numOfRetrievedItems = document.getElementById("numOfRetrievedItems");
+        const dataToPost = document.getElementById("dataToPost");
+
+        function getData() {
+            fetch("/retrieve?simId=debug&num=" + numOfRetrievedItems.value, {
+                mode: "cors",
+            })
+                .then((r) => {
+                    console.log("Status code of response: " + r.statusCode);
+                    const reader = r.body.getReader();
+                    reader.read().then((result) => {
+                        const obj = JSON.parse(decoder.decode(result.value || new Uint8Array(result.value.length), {
+                            stream: !result.done,
+                        }));
+
+                        let text = "";
+                        for (let i in obj.data) {
+                            if (obj.data[i] != null) {
+                                text += obj.data[i] + ", ";
+                            }
+                        }
+                        if (text.length >= 2) text = text.substring(0, text.length - 2);    // remove trailing ", "
+
+                        if (text.length > 0) retrievedData.innerText = text;
+                        else retrievedData.innerText = "!no data returned!";
+                    });
+                })
+                .catch(() => {
+                    console.log("error?");
+                });
+        }
+
+        function postData() {
+            if (dataToPost.value == null || dataToPost.value <= 0) {
+                console.log("Illegal data value!");
+                return;
+            }
+
+            const call = jQuery.ajax({
+                type: 'POST',
+                url: 'update',
+                data: { key: 'debug', data: dataToPost.value },
+                success: (res) => {
+                    console.log(res);
+                    dataToPost.value = "";
+                }
+            });
+            call.fail((res) => {
+                // todo: find out why http code 200 leads to the catch-clause
+                console.log("error :(");
+            });
+        }
+
+        function getRandomDataItem() {
+            const maxGene = 10_000;     // 5 digits
+            const genomeLength = 20;
+            let dataItem = "";
+            for (let i = 0; i < genomeLength; i++) {
+                dataItem += Math.round(Math.random() * maxGene);
+            }
+            dataToPost.value = dataItem;
+        }
+    </script>
+</body>
+</html>

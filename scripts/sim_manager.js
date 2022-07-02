@@ -87,6 +87,17 @@ class Simulation {
     }
 }
 
+const DEBUG_ID = 'debug';
+class DebugSimulation extends Simulation {
+    constructor() {
+        super(-1);
+    }
+
+    get isActive() {
+        return true;
+    }
+}
+
 const NUM_OF_SIMULATIONS = 3;
 class SimManager {
     constructor(objCode) {
@@ -96,18 +107,25 @@ class SimManager {
         for (let i = 0; i < NUM_OF_SIMULATIONS; i++) {
             this._allSims[i] = new Simulation(i);
         }
+        this._allSims[DEBUG_ID] = new DebugSimulation();    // static simulation used for debugging/testing
     }
 
     get objCode() {
         return this._objCode;
     }
 
-    get activeSims() {
-        return this._activeSims;
-    }
+    getSimulation(key, isActive = true) {
+        if (key === DEBUG_ID) return this._allSims[key];
 
-    get allSims() {
-        return this._allSims;
+        if (isActive) {
+            if (key in this._activeSims) {
+                return this._activeSims[key];
+            }
+        }
+        else if (key in this._allSims) {
+            return this._allSims[key];
+        }
+        return null;
     }
 
     _logout(simulation) {
@@ -118,31 +136,30 @@ class SimManager {
     }
 
     login(simId, key) {
-        if (simId in this._allSims) {
-            const simulation = this._allSims[simId];
-            if(simulation.isActive) {
+        const simulation = this.getSimulation(simId, false);
+        if (simulation == null) return false;
 
-            }
-            else {
-                this._logout(simulation);
-
-                simulation.setClient(key);
-                this._activeSims[simulation.clientKey] = simulation;
-                return true;
-            }
+        if(simulation.isActive) {
+            return false;
         }
-        return false;
+        else {
+            this._logout(simulation);
+
+            simulation.setClient(key);
+            this._activeSims[simulation.clientKey] = simulation;
+            return true;
+        }
     }
 
     update(data, key) {
-        if (key in this._activeSims) {
-            const simulation = this._activeSims[key];
-            if (simulation.isActive) {
-                simulation.update(data);
-                return true;
-            }
-            this._logout(simulation);
+        const simulation = this.getSimulation(key, true);
+        if (simulation == null) return false;
+
+        if (simulation.isActive) {
+            simulation.update(data);
+            return true;
         }
+        this._logout(simulation);
         return false;
     }
 }
@@ -323,7 +340,7 @@ function retrieve(req) {
     const simId = _getSimId(req);
     const numOfItems = _getNumOfItems(req);
     const simManager = _getTargetManager(req);
-    const sim = simManager.allSims[simId];
+    const sim = simManager.getSimulation(simId, false);
 
     if (sim) {
         let data = [];
