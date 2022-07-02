@@ -295,7 +295,7 @@ function login(req) {
         //item: [key, value]
         const m = item[1];
         if (!m.login(simId, key)) {
-            return [key, false];
+            return [null, false];
         }
     }
     return [key, true];
