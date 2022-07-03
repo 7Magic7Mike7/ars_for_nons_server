@@ -11,8 +11,9 @@
 
     <label>
         Number of data items to retrieve (1-10):
-        <br>
         <input id="numOfRetrievedItems" type="number" min="1" max="10" value="1">
+        <br>
+        Simulation:<input id="simToRetrieveFrom" type="number" min="-1" max="2" value="-1">
         <button onclick="getData()">Retrieve data</button>
     </label>
     <h4 id="retrievedData"></h4>
@@ -30,11 +31,14 @@
     <script>
         const decoder = new TextDecoder();
         const retrievedData = document.getElementById("retrievedData");
+        const simToRetrieveFrom = document.getElementById("simToRetrieveFrom");
         const numOfRetrievedItems = document.getElementById("numOfRetrievedItems");
         const dataToPost = document.getElementById("dataToPost");
 
         function getData() {
-            fetch("/retrieve?simId=debug&num=" + numOfRetrievedItems.value, {
+            let simId = simToRetrieveFrom.value;
+            if (simId === -1) simId = "debug";
+            fetch("/retrieve?simId=" + simId + "&num=" + numOfRetrievedItems.value, {
                 mode: "cors",
             })
                 .then((r) => {
