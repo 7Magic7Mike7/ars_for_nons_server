@@ -33159,7 +33159,7 @@ mO(a){this.d=a+" [count="+ ++this.x+"]"
 this.e=B.Jl},
 MD(a,b){var s=this,r=a.d
 if(r==null)A.ce().$1("[ERROR] Failed to scan Barcode")
-else if(B.c.aY(r,"http://localhost:5000/"))switch(s.a.d.d.a){case 0:s.Mc(r)
+else if(B.c.aY(r,"https://a4n-test.herokuapp.com/"))switch(s.a.d.d.a){case 0:s.Mc(r)
 break
 case 1:s.OJ(0,r)
 break
@@ -33438,7 +33438,7 @@ o=new A.H1()
 o.wI(7)
 q=new A.L7(q,o,p)
 q.Hz(7)
-return new A.ts(new A.pz(s,new A.GW(n,n,1/0,56),n),A.Ly(new A.pl(new A.Tn(B.kM),new A.LW("http://localhost:5000/",new A.KV(A.aJ(t.sZ)),B.d3),q,r,n),n,n),n)}}
+return new A.ts(new A.pz(s,new A.GW(n,n,1/0,56),n),A.Ly(new A.pl(new A.Tn(B.kM),new A.LW("https://a4n-test.herokuapp.com/",new A.KV(A.aJ(t.sZ)),B.d3),q,r,n),n,n),n)}}
 A.YN.prototype={
 vA(a){var s=0,r=A.X(t.z)
 var $async$vA=A.Y(function(b,c){if(b===1)return A.U(c,r)
