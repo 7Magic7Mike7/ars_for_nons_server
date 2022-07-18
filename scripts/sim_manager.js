@@ -98,7 +98,7 @@ class DebugSimulation extends Simulation {
     }
 }
 
-const NUM_OF_SIMULATIONS = 3;
+const NUM_OF_SIMULATIONS = 10;
 class SimManager {
     constructor(objCode) {
         this._objCode = objCode;
@@ -132,6 +132,13 @@ class SimManager {
         if (simulation.clientKey in this._activeSims) {
             this._activeSims.delete(simulation.clientKey);
             simulation.resetClient();
+        }
+    }
+
+    logout(clientKey) {
+        if (clientKey in this._activeSims) {
+            const simulation = this._activeSims[clientKey];
+            this._logout(simulation);
         }
     }
 
@@ -337,6 +344,7 @@ function update(req) {
  * @returns {list[string]} data items
  */
 function retrieve(req) {
+    // todo: key?
     const simId = _getSimId(req);
     const numOfItems = _getNumOfItems(req);
     const simManager = _getTargetManager(req);
