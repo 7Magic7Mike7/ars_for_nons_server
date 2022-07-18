@@ -100,7 +100,7 @@ function setupConfig(replacementMode) {
             ],
             to: [
                 //config.debug,
-                config.serverRoot,
+                "\"" + config.serverRoot + "\"",
                 config.calculationsPerUpdate,
                 config.loginPeriod,
                 config.maxSeed,
