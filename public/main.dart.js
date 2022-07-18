@@ -7821,7 +7821,7 @@ m=new A.M6()
 $.f_=m
 p=m
 try{J.ax(n,"debug")
-p.b="https://a4n-test.herokuapp.com/"
+p.b=J.ax(n,"serverRoot")
 p.c=7
 p.d=2000
 p.e=1000000000

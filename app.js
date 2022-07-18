@@ -90,7 +90,7 @@ function setupConfig(replacementMode) {
             files: scriptFileName,
             from: [
                 //"J.ax(n,\"debug\")",
-                "J.ax(n,\"serverRoot\")",
+                //"J.ax(n,\"serverRoot\")",
                 "J.ax(n,\"calculationsPerUpdate\")",
                 "J.ax(n,\"loginPeriod\")",
                 "J.ax(n,\"maxSeed\")",
@@ -100,7 +100,7 @@ function setupConfig(replacementMode) {
             ],
             to: [
                 //config.debug,
-                "\"" + config.serverRoot + "\"",
+                //"\"" + config.serverRoot + "\"",
                 config.calculationsPerUpdate,
                 config.loginPeriod,
                 config.maxSeed,
