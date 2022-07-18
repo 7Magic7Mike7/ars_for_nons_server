@@ -1,5 +1,8 @@
-const express = require('express');
+
+const fs = require('fs');
+const replace = require('replace-in-file');
 const path = require('path');
+const express = require('express');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 
@@ -47,3 +50,88 @@ const server = app.listen(port, function () {
 
     console.log("Example app listening at http://%s:%s", host, port)
 })
+
+
+function setupConfig(replacementMode) {
+    const scriptFileName = path.join("public", "main.dart.js");
+    const configFileName = path.join("public", "assets", "assets", "afn_client-config.json");
+
+    // read contents of the file
+    const configStr = fs.readFileSync(configFileName, 'UTF-8');
+    const config = JSON.parse(configStr);
+
+    // const script = fs.readFileSync(configFileName, 'UTF-8');
+
+    /*
+    const rl = readline.createInterface({
+        input: fs.createReadStream(scriptFileName),
+        output: process.stdout,
+        terminal: false
+    });
+
+    rl.on('line', (line) => {
+        if (line.includes("J.ax(n,")) {
+            const start = line.indexOf("\"");
+            if (start < 0) return;
+            const end = line.lastIndexOf("\"");
+            const content = line.substring(start+1, end);
+            if (configStr.includes(content)) {
+                let debug = true;
+            }
+        }
+    });
+    */
+
+
+    if (replacementMode === 0)
+    {
+        // replace in freshly copied flutter build
+        const options = {
+            files: scriptFileName,
+            from: [
+                //"J.ax(n,\"debug\")",
+                "J.ax(n,\"serverRoot\")",
+                "J.ax(n,\"calculationsPerUpdate\")",
+                "J.ax(n,\"loginPeriod\")",
+                "J.ax(n,\"maxSeed\")",
+                "J.ax(n,\"cacheSize\")",
+                "J.ax(n,\"geneLength\")",
+                "J.ax(n,\"numOfGenes\")",
+            ],
+            to: [
+                //config.debug,
+                config.serverRoot,
+                config.calculationsPerUpdate,
+                config.loginPeriod,
+                config.maxSeed,
+                config.cacheSize,
+                config.geneLength,
+                config.numOfGenes,
+            ],
+        };
+        replace(options)
+            .then(results => {
+                //console.log('Replacement results:', results);
+                console.log("Done");
+            })
+            .catch(error => {
+                console.error('Error occurred:', error);
+            });
+    }
+    else if (replacementMode === 1) {
+        console.log("You have to manually update the values! (~line 7823 of main.dart.js)");
+        /*
+        try{J.ax(n,"debug")
+        p.b=J.ax(n,"serverRoot")
+        p.c=J.ax(n,"calculationsPerUpdate")
+        p.d=J.ax(n,"loginPeriod")
+        p.e=J.ax(n,"maxSeed")
+        p.f=J.ax(n,"cacheSize")
+        p.r=J.ax(n,"geneLength")
+        p.w=J.ax(n,"numOfGenes")
+         */
+    }
+
+    let debug = "Begin";
+}
+setupConfig(0);
