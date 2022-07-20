@@ -2,6 +2,7 @@
   "debug": false,
   "serverRoot": "https://a4n-test.herokuapp.com/",
 
+  "updatePeriod": 100,
   "calculationsPerUpdate": 7,
   "loginPeriod": 2000,
 
