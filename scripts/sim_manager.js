@@ -38,7 +38,7 @@ const DEACTIVATION_DURATION = 30_000;    // how many milliseconds without a requ
 class Simulation {
     constructor(id) {
         this._id = id;
-        this._data = new Queue(100);
+        this._data = new Queue(1000);
 
         this._clientKey = null;
         this._lastActiveRequest = 0;    // timestamp for last request of an active client (login, data update,
