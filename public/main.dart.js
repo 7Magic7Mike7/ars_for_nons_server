@@ -7823,7 +7823,7 @@ $.es=k
 l=k
 J.ax(m,"debug")
 l.b=J.ax(m,"serverRoot")
-l.c=J.ax(m,"updatePeriod")
+l.c=100
 l.d=J.ax(m,"calculationsPerUpdate")
 l.e=J.ax(m,"loginPeriod")
 l.f=J.ax(m,"maxSeed")

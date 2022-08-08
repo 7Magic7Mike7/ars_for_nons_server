@@ -91,6 +91,7 @@ function setupConfig(replacementMode) {
             from: [
                 //"J.ax(n,\"debug\")",
                 //"J.ax(n,\"serverRoot\")",
+                "J.ax(n,\"updatePeriod\")",
                 "J.ax(n,\"calculationsPerUpdate\")",
                 "J.ax(n,\"loginPeriod\")",
                 "J.ax(n,\"maxSeed\")",
@@ -101,6 +102,7 @@ function setupConfig(replacementMode) {
             to: [
                 //config.debug,
                 //"\"" + config.serverRoot + "\"",
+                config.updatePeriod,
                 config.calculationsPerUpdate,
                 config.loginPeriod,
                 config.maxSeed,
