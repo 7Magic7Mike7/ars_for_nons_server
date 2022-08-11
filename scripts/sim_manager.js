@@ -1,5 +1,8 @@
 //const data = new Map(); //saves the QDDVis-objects needed for simulation
 
+const EvolSim = require("evolution_simulation");
+
+
 class Queue {
     constructor(maxLength) {
         this._maxLength = maxLength;
@@ -34,11 +37,12 @@ class Queue {
     }
 }
 
-const DEACTIVATION_DURATION = 30_000;    // how many milliseconds without a request it takes to make an active Simulation passive
-class Simulation {
+const DEACTIVATION_DURATION = 30_000;    // how many milliseconds without a request it takes to make an active CommunicationHandler passive
+class CommunicationHandler {
     constructor(id) {
         this._id = id;
         this._data = new Queue(1000);
+        this._sim = EvolSim();
 
         this._clientKey = null;
         this._lastActiveRequest = 0;    // timestamp for last request of an active client (login, data update,
@@ -88,7 +92,7 @@ class Simulation {
 }
 
 const DEBUG_ID = 'debug';
-class DebugSimulation extends Simulation {
+class DebugCommHandler extends CommunicationHandler {
     constructor() {
         super(-1);
     }
@@ -105,9 +109,9 @@ class SimManager {
         this._activeSims = new Map();   // are currently accessed by clients
         this._allSims = new Map();  //are currently not used by clients
         for (let i = 0; i < NUM_OF_SIMULATIONS; i++) {
-            this._allSims[i] = new Simulation(i);
+            this._allSims[i] = new CommunicationHandler(i);
         }
-        this._allSims[DEBUG_ID] = new DebugSimulation();    // static simulation used for debugging/testing
+        this._allSims[DEBUG_ID] = new DebugCommHandler();    // static simulation used for debugging/testing
     }
 
     get objCode() {
