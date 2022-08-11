@@ -3,7 +3,7 @@
   "serverRoot": "https://a4n-test.herokuapp.com/",
 
   "updatePeriod": 100,
-  "calculationsPerUpdate": 7,
+  "calculationsPerUpdate": 2,
   "loginPeriod": 2000,
 
   "maxSeed": 1000000000,
