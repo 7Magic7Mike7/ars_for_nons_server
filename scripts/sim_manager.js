@@ -1,6 +1,7 @@
 //const data = new Map(); //saves the QDDVis-objects needed for simulation
 
-const EvolSim = require("evolution_simulation");
+const Config = require("./util/config");
+const EvolSim = require("./evolution_simulation");
 
 
 class Queue {

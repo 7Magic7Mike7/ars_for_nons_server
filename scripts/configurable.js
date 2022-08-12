@@ -1,4 +1,6 @@
 
+const Config = require("./util/config");
+
 class Configurable {
     constructor(config) {
         if (this.constructor === Configurable) {

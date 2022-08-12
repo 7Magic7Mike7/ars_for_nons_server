@@ -1,5 +1,5 @@
 
-const Coordinate = require("coordinate");
+const Coordinate = require("./coordinate");
 
 function toCoordinate(c = null, x = null, y = null) {
     if (c !== null) {

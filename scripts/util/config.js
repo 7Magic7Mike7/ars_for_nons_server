@@ -1,6 +1,6 @@
 
-const Coordinate = require("coordinate");
-const uf = require("util_functions");
+const Coordinate = require("./coordinate");
+const uf = require("./util_functions");
 const seedrandom = require('seedrandom');
 
 class Config {
