@@ -4,9 +4,13 @@ const uf = require("./util_functions");
 const seedrandom = require('seedrandom');
 
 class Config {
-    constructor(seed, worldSize, mutationChance, minMaxEnergy, maxEnergyBonus,
-                stepsPerPopulateCall, populateCallsPerCreatureSpawn, populateCallsPerFoodSpawn, eggIncubationTime,
-                foodSpoilTime, allowEggEating) {
+    constructor(seed,
+                worldSize = 100,
+                mutationChance = 0.01,
+                minMaxEnergy = 100, maxEnergyBonus = 100,
+                stepsPerPopulateCall = 10, populateCallsPerCreatureSpawn = 10, populateCallsPerFoodSpawn = 10,
+                eggIncubationTime = 10,
+                foodSpoilTime = 10, allowEggEating = false) {
         // todo numOfSensors, numOfNeurons, numOfActuators, geneLength, numOfGenes, weightSize, targetSize, sourceSize
         this._seed = seed;
         this._worldSize = worldSize;
