@@ -38,55 +38,30 @@ class Queue {
     }
 }
 
-const DEACTIVATION_DURATION = 30_000;    // how many milliseconds without a request it takes to make an active CommunicationHandler passive
 class CommunicationHandler {
     constructor(id) {
         this._id = id;
         this._data = new Queue(1000);
-        this._sim = EvolSim();
 
-        this._clientKey = null;
-        this._lastActiveRequest = 0;    // timestamp for last request of an active client (login, data update,
-                                        // timestamp update - no data retrieval)
+        const conf = new Config(7);
+        this._sim = new EvolSim(conf);
     }
 
     get id() {
         return this._id;
     }
 
-    get clientKey() {
-        return this._clientKey;
-    }
-
-    get isActive() {
-        const stamp = _getTimeStamp();
-        const diff = stamp - this._lastActiveRequest;
-        return stamp - this._lastActiveRequest < DEACTIVATION_DURATION;
-    }
-
     get bufferLevel() {
         return this._data.length;
     }
 
-    setClient(key) {
-        this._lastActiveRequest = _getTimeStamp();
-        this._clientKey = key;
-        console.log("registered client #" + this._clientKey + " for simulation #" + this._id);
-    }
-
-    resetClient() {
-        console.log("logged out client #" + this._clientKey);
-        this._clientKey = null;
-    }
-
-    update(data) {
-        this._lastActiveRequest = _getTimeStamp();
-        console.log("client #" + this._clientKey + " updates sim#" + this._id + " with data: " + data);
-        this._data.enqueue(data);
+    update(data, clientKey) {
+        console.log("client #" + clientKey + " updates sim#" + this._id + " with data: " + data);
+        this._sim.addData(data, clientKey);
     }
 
     retrieve() {
-        const item = this._data.dequeue();
+        const item = this._sim.toChannelTriple();
         console.log("retrieving \"" + item + "\"from sim#" + this._id);
         return item;
     }
@@ -97,82 +72,38 @@ class DebugCommHandler extends CommunicationHandler {
     constructor() {
         super(-1);
     }
-
-    get isActive() {
-        return true;
-    }
 }
 
 const NUM_OF_SIMULATIONS = 10;
 class SimManager {
-    constructor(objCode) {
-        this._objCode = objCode;
-        this._activeSims = new Map();   // are currently accessed by clients
-        this._allSims = new Map();  //are currently not used by clients
+    constructor(id) {
+        this._id = id;
+        this._commHandlers = new Map();  //are currently not used by clients
         for (let i = 0; i < NUM_OF_SIMULATIONS; i++) {
-            this._allSims[i] = new CommunicationHandler(i);
+            this._commHandlers[i] = new CommunicationHandler(i);
         }
-        this._allSims[DEBUG_ID] = new DebugCommHandler();    // static simulation used for debugging/testing
+        this._commHandlers[DEBUG_ID] = new DebugCommHandler();    // static simulation used for debugging/testing
     }
 
-    get objCode() {
-        return this._objCode;
+    getIds() {
+        return this._commHandlers.keys();
     }
 
-    getSimulation(key, isActive = true) {
-        if (key === DEBUG_ID) return this._allSims[key];
+    getCommHandler(id) {
+        if (id === DEBUG_ID) return this._commHandlers[id];
 
-        if (isActive) {
-            if (key in this._activeSims) {
-                return this._activeSims[key];
-            }
-        }
-        else if (key in this._allSims) {
-            return this._allSims[key];
+        if (id in this._commHandlers) {
+            return this._commHandlers[id];
         }
         return null;
     }
 
-    _logout(simulation) {
-        if (simulation.clientKey in this._activeSims) {
-            this._activeSims.delete(simulation.clientKey);
-            simulation.resetClient();
-        }
-    }
+    update(id, data, key) {
+        const commHandler = this.getCommHandler(id);
+        if (commHandler == null) return false;
 
-    logout(clientKey) {
-        if (clientKey in this._activeSims) {
-            const simulation = this._activeSims[clientKey];
-            this._logout(simulation);
-        }
-    }
-
-    login(simId, key) {
-        const simulation = this.getSimulation(simId, false);
-        if (simulation == null) return false;
-
-        if(simulation.isActive) {
-            return false;
-        }
-        else {
-            this._logout(simulation);
-
-            simulation.setClient(key);
-            this._activeSims[simulation.clientKey] = simulation;
-            return true;
-        }
-    }
-
-    update(data, key) {
-        const simulation = this.getSimulation(key, true);
-        if (simulation == null) return false;
-
-        if (simulation.isActive) {
-            simulation.update(data);
-            return true;
-        }
-        this._logout(simulation);
-        return false;
+        commHandler.update(data, key);
+        return true;
     }
 }
 
@@ -299,17 +230,7 @@ function _getTargetManager(req) {
  * @returns {[string, boolean]} the key to allow the requester access to the simulation they registered for
  */
 function login(req) {
-    const simId = _getSimId(req);
     const key = _createKey(req);
-
-    //create an object in every simManager the requester might need
-    for (const item of manager) {
-        //item: [key, value]
-        const m = item[1];
-        if (!m.login(simId, key)) {
-            return [null, false];
-        }
-    }
     return [key, true];
 }
 
@@ -320,13 +241,6 @@ function login(req) {
  */
 function logout(req) {
     const key = _getKey(req);
-
-    //create an object in every simManager the requester might need
-    for (const item of manager) {
-        //item: [key, value]
-        const m = item[1];
-        m.logout(key);
-    }
     return [key, true];
 }
 
@@ -336,11 +250,12 @@ function logout(req) {
  * @returns true if the update was successfully, false otherwise
  */
 function update(req) {
-    const key = _getKey(req);
+    const simId = _getSimId(req);
     const data = _getData(req);
+    const key = _getKey(req);
     const simManager = _getTargetManager(req);
 
-    return simManager.update(data, key)
+    return simManager.update(simId, data, key)
 }
 
 /**Returns data items of the simulation that is associated with the requester if one exists. (else null is returned)
@@ -353,7 +268,7 @@ function retrieve(req) {
     const simId = _getSimId(req);
     const numOfItems = _getNumOfItems(req);
     const simManager = _getTargetManager(req);
-    const sim = simManager.getSimulation(simId, false);
+    const sim = simManager.getCommHandler(simId);
 
     if (sim) {
         let data = [];
