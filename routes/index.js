@@ -13,13 +13,7 @@ const simManager = require('../scripts/sim_manager');
  */
 router.post('/login', (req, res) => {
     addCorsHeader(res);
-    const response = simManager.login(req);
-    const key = response[0];
-    const success = response[1];
-    if (success)
-        res.status(200).json({ key: key });
-    else
-        res.status(400).json();
+    res.status(400).json({msg: "Explicit login no longer supported!"});
 });
 
 /**Updates the simulation corresponding to the given key with the given data
@@ -49,13 +43,7 @@ router.post('/update', (req, res) => {
  */
 router.post('/logout', (req, res) => {
     addCorsHeader(res);
-    const response = simManager.logout(req);
-    const key = response[0];
-    const success = response[1];
-    if (success)
-        res.status(200).json({ key: key });
-    else
-        res.status(400).json();
+    res.status(400).json({msg: "Explicit logout no longer supported!"});
 });
 
 /**Sends back some data items
