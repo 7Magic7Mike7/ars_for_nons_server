@@ -17,6 +17,7 @@
     "jquery": "^3.6.0",
     "math.js": "^1.1.46",
     "morgan": "^1.10.0",
+    "plotly.js-dist": "^2.14.0",
     "replace-in-file": "^6.3.5",
     "seedrandom": "^3.0.5"
   },

@@ -8,6 +8,7 @@ const logger = require('morgan');
 
 const indexRouter = require('./routes/index');
 const debugRouter = require('./routes/debug');
+const simRouter = require('./routes/simulations');
 const simManager = require('./scripts/sim_manager.js')
 
 //const cors = require("cors");   //for flutter-compatability
@@ -30,6 +31,7 @@ app.use(function(req, res, next) {
 
 app.use('/', indexRouter);
 app.use('/debug', debugRouter);
+app.use('/simulations', simRouter);
 //app.use('/users', usersRouter);
 
 module.exports = app;

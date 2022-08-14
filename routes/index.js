@@ -78,6 +78,24 @@ router.get('/retrieve', (req, res) => {
         res.status(400).json();
 });
 
+/**Sends back tile info for plotting
+ *
+ * Params: id of the simulation we want to access
+ * Sends: {
+ *
+ * }
+ *
+ */
+router.get('/getplot', (req, res) => {
+    addCorsHeader(res);
+
+    const response = simManager.getPlotData(req);
+    if (response === null)
+        res.status(400).json();
+    else
+        res.status(200).json({ data: response });
+});
+
 
 function addCorsHeader(res) {
     return;

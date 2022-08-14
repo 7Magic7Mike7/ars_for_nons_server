@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Ars For Nons</title>
+    <!-- Load plotly.js into the DOM -->
+    <script src="https://cdn.plot.ly/plotly-2.14.0.min.js"></script>
+</head>
+<body>
+<label>
+    <input id="simId" type="number" value="0" min="0" max="9">
+    <br>
+    <button onclick="update()">Redraw</button>
+</label>
+<div id="graph"></div>
+
+<script>
+    const decoder = new TextDecoder();
+    const graph = document.getElementById("graph");
+    const simToRetrieveFrom = document.getElementById("simId");
+
+    Plotly.newPlot("graph", /* JSON object */ {
+        "data": [],
+        "layout": { "width": 600, "height": 400}
+    });
+
+    function update() {
+        let simId = simToRetrieveFrom.value;
+        if (simId === -1) simId = "debug";
+        fetch("/getplot?simId=" + simId, {
+            mode: "cors",
+        })
+        .then((r) => {
+            const reader = r.body.getReader();
+            reader.read().then((result) => {
+                const obj = JSON.parse(decoder.decode(result.value || new Uint8Array(result.value.length), {
+                    stream: !result.done,
+                }));
+
+                const xs = [];
+                const ys = [];
+                const colors = [];
+                const texts = [];
+                for (const i in obj.data) {
+                    if (obj.data[i] != null) {
+                        xs.push(obj.data[i].x);
+                        ys.push(obj.data[i].y);
+                        colors.push(obj.data[i].color[0]);
+                        colors.push("rgb(" + obj.data[i].color[0] + "," + obj.data[i].color[1] + ","
+                            + obj.data[i].color[2] + ")");
+                        texts.push("#" + obj.data[i].id + " from " + obj.data[i].creator);
+                    }
+                }
+                createPlot(simId, xs, ys, colors, texts);
+            });
+        })
+        .catch(() => {
+            console.log("error?");
+        });
+    }
+
+    function createPlot(simId, xs, ys, colors, texts) {
+        const trace1 = {
+            x: xs,
+            y: ys,
+            mode: 'markers',
+            text: texts,
+            marker: {
+                size: 40,
+                color: colors
+            }
+        };
+        const data = [trace1];
+        const layout = {
+            title: 'Simulation #' + simId,
+            //width: 600,
+            //height: 400,
+        };
+        const config = {
+            scrollZoom: true,
+            editable: false,
+            responsive: true,
+        }
+        Plotly.newPlot('graph', data, layout, config);
+    }
+</script>
+</body>
+</html>
