@@ -65,6 +65,10 @@ class CommunicationHandler {
         console.log("retrieving \"" + item + "\"from sim#" + this._id);
         return item;
     }
+
+    getPlotData() {
+        return this._sim.getPlotData();
+    }
 }
 
 const DEBUG_ID = 'debug';
@@ -281,9 +285,21 @@ function retrieve(req) {
     else return [null, false];
 }
 
+function getPlotData(req) {
+    const simId = _getSimId(req);
+    const simManager = _getTargetManager(req);
+    const sim = simManager.getCommHandler(simId);
+
+    if (sim) {
+        return sim.getPlotData();
+    }
+    else return null;
+}
+
 //external scripts may only log in/start, log out/pause, update simulations or retrieve data
 module.exports.login = login;
 module.exports.logout = logout;
 module.exports.update = update;
 module.exports.retrieve = retrieve;
 module.exports.numOfBufferedData = numOfBufferedData;
+module.exports.getPlotData = getPlotData;
