@@ -1,0 +1,14 @@
+
+const Genome = require("../world/inhabitants/genome");
+
+function getRandomCacheData() {
+    let data = "";
+    for (let i = 0; i < Genome.NUM_OF_GENES; i++) {
+        for (let j = 0; j < Genome.GENE_SIZE; j++) {
+            data += (Math.random() * 10).toString()[0];
+        }
+    }
+    return data;
+}
+
+module.exports.getRandomCacheData = getRandomCacheData;

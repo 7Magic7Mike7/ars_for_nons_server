@@ -17,6 +17,12 @@ class Config {
         this._mutationChance = mutationChance;
 
         this._rand = seedrandom(seed);
+
+        this._passiveEnergyExpenses = 1;    // how much energy is spent just to stay alive for one step
+        this._energyMultTurn = 1;           // multiplier for spending energy when turning
+        this._energyMultMove = 1;           // multiplier for spending energy when moving
+
+        this._gravity = 1;      // influences energy penalty based on weight
     }
 
     get seed() {
@@ -25,6 +31,22 @@ class Config {
 
     get worldSize() {
         return this._worldSize;
+    }
+
+    get gravity() {
+        return this._gravity;
+    }
+
+    get passiveEnergyExpenses() {
+        return this._passiveEnergyExpenses;
+    }
+
+    get energyMultTurn() {
+        return this._energyMultTurn;
+    }
+
+    get energyMultMove() {
+        return this._energyMultMove;
     }
 
     randomNumber() {

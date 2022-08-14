@@ -7,6 +7,13 @@ class Coordinate {
         else            return a.x < b.x || a.x === b.x && a.y < b.y;
     }
 
+    static distance(a, b) {
+        console.assert(a.prototype !== Coordinate, "a is not a Coordinate!");
+        console.assert(b.prototype !== Coordinate, "b is not a Coordinate!");
+
+        return Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
+    }
+
     constructor(x, y) {
         this._x = x;
         this._y = y;

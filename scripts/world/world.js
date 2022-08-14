@@ -3,13 +3,20 @@ const {Configurable} = require("../configurable");
 const uf = require("../util/util_functions");
 const Coordinate = require("../util/coordinate");
 const Direction = require("../util/direction");
+const Genome = require("../world/inhabitants/genome");
+const Tile = require("../world/inhabitants/tiles");
 
 class World extends Configurable {
-    static place(tile, world) {
+    static _place(tile, world) {
         if (tile !== null) {
             console.assert(tile.prototype !== Tile, "not a tile!");
-            if (tile.pos in world) {
 
+            if (tile.pos in world) {
+                const existingTile = world.get(tile.pos);
+                // todo implement fighting
+            }
+            else {
+                world.set(tile.pos, tile);
             }
         }
     }
@@ -17,17 +24,8 @@ class World extends Configurable {
     constructor(config) {
         super(config);
         this._age = 0;
-        this._world = {};
+        this._world = new Map();
         this._coordinate = new Coordinate(0, 0);
-    }
-
-    get(c, x, y) {
-        let co = uf.toCoordinate(c, x, y);
-        co = this.config.validatePosition(co)[1];
-        if (this._world.contains(co)) {
-            return this._world[co];
-        }
-        return null;
     }
 
     _nextCoordinate() {
@@ -51,17 +49,19 @@ class World extends Configurable {
     getNext() {
         this._nextCoordinate();
 
-        if (this._coordinate in this._world) {
-            return this._world[this._coordinate];
+        if (this._world.has(this._coordinate)) {
+            return this._world.get(this._coordinate);
         }
 
-        if (this._world.length === 0) return null;
+        if (this._world.size === 0) {
+            return null;
+        }
 
-        for (const key in this._world.keys()) {
+        for (const key of this._world.keys()) {
             if (Coordinate.isBefore(this._coordinate, key)) {
                 // take the first tile after the start position
                 this._coordinate = key;
-                return this._world[key];
+                return this._world.get(key);
             }
         }
         // if no tiles are after start we restart searching at the beginning
@@ -71,18 +71,35 @@ class World extends Configurable {
         return this.getNext();
     }
 
-    update() {
-        this._age++;
-        const newWorld = {};
-
-        for (const tile in this._world) {
-            if (tile.update(this.get)) {
-
-            }
-        }
+    inhabit(data, key) {
+        const genome = new Genome(data);
+        const tile = new Tile(this.config, key, genome);
+        World._place(tile, this._world);
     }
 
+    update() {
+        this._age++;
+        const newWorld = new Map();
+        const oldWorld = this._world;
 
+        function getTile(c, x, y) {
+            let co = uf.toCoordinate(c, x, y);
+            co = this.config.validatePosition(co)[1];
+            if (co in oldWorld) return oldWorld.get(co);
+            return null;
+        }
+
+        for (const tile of oldWorld.values()) {
+            if (tile.update(getTile)) {
+                World._place(tile, newWorld);
+            }
+        }
+        this._world = newWorld;
+    }
+
+    getAllTiles() {
+        return this._world.values();
+    }
 }
 
 module.exports = World;

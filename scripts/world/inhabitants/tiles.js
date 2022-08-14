@@ -1,5 +1,5 @@
 
-const Configurable = require("../../configurable");
+const {Configurable} = require("../../configurable");
 const Coordinate = require("../../util/coordinate");
 const Direction = require("../../util/direction");
 const Genome = require("./genome");
@@ -8,7 +8,7 @@ const Brain = require("./brain");
 class Tile extends Configurable {
     static __NextID = 0;
 
-    constructor(config, genome, id = null, pos = null, age = 0) {
+    constructor(config, creatorId, genome, id = null, pos = null, age = 0) {
         super(config);
         console.assert(genome.prototype !== Genome, "Not a Genome!");
 
@@ -18,8 +18,8 @@ class Tile extends Configurable {
         //if (this.constructor === Tile)
         //    throw new Error("Abstract class cannot be instantiated!");
 
+        this._creatorId = creatorId;
         this._genome = genome;
-        this._pos = pos;
         if (id === null) {
             this._id = Tile.__NextID;
             Tile.__NextID++;
@@ -30,14 +30,22 @@ class Tile extends Configurable {
                 Tile.__NextID = id + 1;
             }
         }
+        this._deathTime = -1;   // not dead yet
         this._age = age;
         this._energy = genome.energy;
+        this._pos = pos;
+        this._orientation = genome.orientation;
+        // todo add hp?
 
         this._brain = new Brain(genome);
     }
 
     get config() {
         return this._config;
+    }
+
+    get creator() {
+        return this._creatorId;
     }
 
     get id() {
@@ -68,6 +76,24 @@ class Tile extends Configurable {
         return [hue, saturation, value];
     }
 
+    _validatePosition() {
+        // if (0 <= this._pos.x &&) // todo optimize and check if we need to update pos
+        let x = this._pos.x;
+        let y = this._pos.y;
+        if (x < 0 || this.config.worldSize <= x) {
+            x = x % this.config.worldSize;
+        }
+        if (y < 0 || this.config.worldSize <= y) {
+            y = y % this.config.worldSize;
+        }
+        this._pos = new Coordinate(x, y);
+    }
+
+    _updatePosition(direction) {
+        this._pos = this._pos.add(Direction.coord(direction));
+        this._validatePosition();
+    }
+
     produce() {
         return null;
     }
@@ -81,29 +107,39 @@ class Tile extends Configurable {
 
         this._age += 1;
 
+        if (this._deathTime < 0) {
+            const ageLevel = Math.tanh(this.age);
+            const energyLevel = this._energy / this.genome.energy;
+            const posX = this.pos.x / this.config.worldSize;
+            const posY = this.pos.y / this.config.worldSize;
+            const orientation = Direction.toFloat(this._orientation);
 
-        const ageLevel = Math.tanh(this.age);
-        const energyLevel = this._energy / this.genome.energy;
-        const posX = this.pos.x / this.config.worldSize;
-        const posY = this.pos.y / this.config.worldSize;
-        const orientation = Direction.toFloat(this._orientation);
+            const perceptionInput = this._getPerceptionInput(get);
 
-        const perceptionInput = this._getPerceptionInput(get);
-        const mateInput = this._getMateInput(get);
+            let input = [
+                ageLevel, energyLevel,
+                posX, posY, orientation
+            ];
+            input += perceptionInput;
 
-        const input = [
-            ageLevel, energyLevel,
-            posX, posY, orientation
-        ];
-        input.push(perceptionInput);
-        input.push(mateInput);
+            const output = this._brain.think(input);
+            // get the index of the highest value (in case multiple values are the maximum just take the first one)
+            const drivenActuator = output.indexOf(Math.max(...output));
+            const usedEnergy = this.config.passiveEnergyExpenses + this._act(drivenActuator);
+            this._energy -= usedEnergy; // todo take age into account?
 
-        const output = this._brain.think(input);
-        // todo act based on output
+            if (this._energy <= 0) {
+                this._deathTime = 10;   // todo use parameter
+            }
+            return true;
+        }
+        else {
+            this._deathTime--;
+            return this._deathTime > 0;
+        }
     }
 
     _getConeCoordinates(dir, get, range = 1) {
-
         const positions = [];
         let c = new Coordinate(0, 0);
         for (let i = 0; i < range; i++) {
@@ -135,12 +171,13 @@ class Tile extends Configurable {
 
         const perceiveRange = 1;     // todo parameter!
         let perceiveCounts = [];
-        for (const dir in neighbors) {
+        for (const dir in neighbors.values()) {
             const positions = this._getConeCoordinates(dir, get, perceiveRange);
             let counter = 0;
             for (const pos in positions) {
                 const tile = get(pos);
-                counter += this._getPerceptionBias(tile);
+                const distance = Coordinate.distance(this._pos, pos);
+                counter += this._getPerceptionBias(tile, (distance - 1) / perceiveRange);   // -1 because the nearest tiles (1 away) should get 100% of the inverse relation
             }
             perceiveCounts.push(counter);
         }
@@ -152,42 +189,39 @@ class Tile extends Configurable {
         return perceiveCounts;
     }
 
-    _getPerceptionBias(tile) {
+    _getPerceptionBias(tile, relDist) {
+        // relDist = relative distance
         if (tile === null) return 0;    // nothing to perceive
-
         console.assert(tile.prototype !== Tile, "Not a tile!");
 
-        // can later be more in depth if needed, right now basically just tells us if there is something or not
-        return 1;
+        const similarity = Genome.calculateSimilarity(this.genome, tile.genome);
+        // based on relDist the bias should be less extreme, i.e. closer to 0.5
+        return (similarity - 0.5) * relDist + 0.5;
     }
 
-    _getMateInput(get) {
-        const neighbors = [
-            Direction.coord(Direction.Up),
-            Direction.coord(Direction.Right),
-            Direction.coord(Direction.Down),
-            Direction.coord(Direction.Left)
-        ];
-
-        const similarityVector = [];
-        for (const dir in neighbors) {
-            const positions = this._getConeCoordinates(dir, get, 1);
-            for (const pos in positions) {
-                const tile = get(pos);
-                if (tile === null) {
-                    similarityVector.push(null);
-                }
-                else {
-                    const similarity = Genome.calculateSimilarity(this.genome, tile.genome);
-                    similarityVector.push(similarity);
-                }
-            }
+    _act(drivenActuator) {
+        switch (drivenActuator) {
+            case 0:     // idle => do nothing
+                return 0;
+            case 1:     // turn left
+                this._orientation = Direction.turnLeft(this._orientation);
+                return this.config.energyMultTurn * this._genome.weight;    // todo gravity?
+            case 2:     // turn right
+                this._orientation = Direction.turnRight(this._orientation);
+                return this.config.energyMultTurn * this._genome.weight;    // todo gravity?
+            case 3:     // move up
+                this._updatePosition(Direction.Up);
+                return this.config.energyMultMove * this._genome.weight;
+            case 4:     // move right
+                this._updatePosition(Direction.Right);
+                return this.config.energyMultMove * this._genome.weight;
+            case 5:     // move down
+                this._updatePosition(Direction.Down);
+                return this.config.energyMultMove * this._genome.weight;
+            case 6:     // move left
+                this._updatePosition(Direction.Left);
+                return this.config.energyMultMove * this._genome.weight;
         }
-
-        // todo use "mate-brain" for calculation?
-        // todo maybe split into "mate-drive" and "mate-direction"? e.g. how badly we want to mate and then
-        //  in which direction we want to mate
-        return similarityVector;
     }
 }
 
