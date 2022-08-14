@@ -117,8 +117,8 @@ manager.set("sim", new SimManager(0));
 function numOfBufferedData() {
     let counter = 0;
     const simManager = manager.get("sim")
-    for (const sim in simManager.sims) {
-        counter += simManager.sims[sim].bufferLevel;
+    for (const simId in simManager.getIds()) {
+        counter += simManager.get(simId).bufferLevel;
     }
     return counter;
 }
@@ -135,7 +135,7 @@ function _createKey(req) {
     if (req.headers["x-forwarded-for"])
         ipPart = req.headers["x-forwarded-for"].split(",")[0];
 
-    const randPart = String(Math.random()).substr(2); //remove the 0. at the beginning
+    const randPart = String(Math.random()).substring(2); //remove the 0. at the beginning
     return ipPart + randPart;
 }
 
