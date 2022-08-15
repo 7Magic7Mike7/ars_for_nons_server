@@ -55,9 +55,13 @@ class CommunicationHandler {
         return this._data.length;
     }
 
-    update(data, clientKey) {
+    addData(data, clientKey) {
         console.log("client #" + clientKey + " updates sim#" + this._id + " with data: " + data);
         this._sim.addData(data, clientKey);
+    }
+
+    processStep() {
+        this._sim.update();
     }
 
     retrieve() {
@@ -106,13 +110,26 @@ class SimManager {
         const commHandler = this.getCommHandler(id);
         if (commHandler == null) return false;
 
-        commHandler.update(data, key);
+        commHandler.addData(data, key);
         return true;
     }
 }
 
 const manager = new Map();
 manager.set("sim", new SimManager(0));
+
+function startEvolution() {
+    const simManager = manager.get("sim");
+    function processStep() {
+        for (const id of simManager.getIds()) {
+            const commHandler = simManager.getCommHandler(id);
+            commHandler.processStep();
+        }
+        console.log("processed next step");
+    }
+    setInterval(processStep, 1000);
+}
+startEvolution();
 
 function numOfBufferedData() {
     let counter = 0;
