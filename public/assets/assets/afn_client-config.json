@@ -1,6 +1,6 @@
 {
   "debug": false,
-  "serverRoot": "https://a4n-test.herokuapp.com/",
+  "serverRoot": "https://www.arsfornons.com/",
 
   "updatePeriod": 100,
   "calculationsPerUpdate": 2,
