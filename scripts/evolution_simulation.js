@@ -40,6 +40,10 @@ class EvolutionSimulation extends Configurable {
 
     toChannelTriple() {
         const tile = this._world.getNext();
+        if (typeof tile === 'undefined') {
+            console.log("Received undefined tile from world!");
+            return _emptyChannelTriple;
+        }
         if (tile === null) return _emptyChannelTriple;
         return tile.color;
     }
