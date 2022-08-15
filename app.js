@@ -47,8 +47,8 @@ app.get('/stats', (req, res) => {
     //res.sendFile('views/test.html', {root: __dirname })
 });
 const server = app.listen(port, function () {
-    const host = server.address().address
-    const port = server.address().port
+    const host = server.address().address;
+    const port = server.address().port;
 
     console.log("Example app listening at http://%s:%s", host, port)
 })
@@ -138,4 +138,4 @@ function setupConfig(replacementMode) {
 
     let debug = "Begin";
 }
-setupConfig(0);
+//setupConfig(0);
