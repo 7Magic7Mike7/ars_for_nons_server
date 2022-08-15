@@ -35,7 +35,7 @@ class World extends Configurable {
 
         if (pos.x >= this.config.worldSize) {
             pos = pos.add(Direction.coord(Direction.Down));
-            if (pos.y >= this._world.height) {
+            if (pos.y >= this.config.worldSize) {
                 // we're at the end of the world -> restart
                 this._coordinate = new Coordinate(0, 0);
             }
