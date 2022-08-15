@@ -28,9 +28,12 @@ class World extends Configurable {
         this._coordinate = new Coordinate(0, 0);
     }
 
-    _nextCoordinate() {
-        let pos = this._coordinate.add(Direction.coord(Direction.Right));
-        if (pos.x >= this._world.width) {
+    _nextCoordinate(stepRight) {
+        let pos;
+        if (stepRight) pos = this._coordinate.add(Direction.coord(Direction.Right));
+        else pos = this._coordinate;
+
+        if (pos.x >= this.config.worldSize) {
             pos = pos.add(Direction.coord(Direction.Down));
             if (pos.y >= this._world.height) {
                 // we're at the end of the world -> restart
@@ -46,8 +49,8 @@ class World extends Configurable {
         }
     }
 
-    getNext() {
-        this._nextCoordinate();
+    getNext(stepRight = true) {
+        this._nextCoordinate(stepRight);
 
         if (this._world.has(this._coordinate)) {
             return this._world.get(this._coordinate);
@@ -68,7 +71,7 @@ class World extends Configurable {
         // recursion depth is guaranteed to be at most 1 because if there is no tile we return
         // and if there, is we'll find it
         this._coordinate = new Coordinate(0, 0);
-        return this.getNext();
+        return this.getNext(false);     // don't step right because then we would skip (0, 0)!
     }
 
     inhabit(data, key) {
