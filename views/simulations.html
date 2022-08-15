@@ -40,17 +40,19 @@
                 const ys = [];
                 const colors = [];
                 const texts = [];
-                for (const i in obj.data) {
-                    if (obj.data[i] != null) {
-                        xs.push(obj.data[i].x);
-                        ys.push(obj.data[i].y);
-                        colors.push(obj.data[i].color[0]);
-                        colors.push("rgb(" + obj.data[i].color[0] + "," + obj.data[i].color[1] + ","
-                            + obj.data[i].color[2] + ")");
-                        texts.push("#" + obj.data[i].id + " from " + obj.data[i].creator);
+                const width = obj.data.w;
+                const height = obj.data.h;
+                const data = obj.data.items;
+                for (const i in data) {
+                    if (data[i] != null) {
+                        xs.push(data[i].x);
+                        ys.push(data[i].y);
+                        colors.push(data[i].color[0]);
+                        colors.push("rgb(" + data[i].color[0] + "," + data[i].color[1] + "," + data[i].color[2] + ")");
+                        texts.push("#" + data[i].id + " from " + data[i].creator);
                     }
                 }
-                createPlot(simId, xs, ys, colors, texts);
+                createPlot(simId, width, height, xs, ys, colors, texts);
             });
         })
         .catch(() => {
@@ -58,7 +60,7 @@
         });
     }
 
-    function createPlot(simId, xs, ys, colors, texts) {
+    function createPlot(simId, width, height, xs, ys, colors, texts) {
         const trace1 = {
             x: xs,
             y: ys,
@@ -74,6 +76,12 @@
             title: 'Simulation #' + simId,
             //width: 600,
             //height: 400,
+            xaxis: {
+                range: [0, width],
+            },
+            yaxis: {
+                range: [0, height],
+            },
         };
         const config = {
             scrollZoom: true,

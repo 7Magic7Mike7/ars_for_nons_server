@@ -35,7 +35,7 @@ class EvolutionSimulation extends Configurable {
                 creator: tile.creator,
             });
         }
-        return data;
+        return [this._config.worldSize, this._config.worldSize, data];
     }
 
     toChannelTriple() {

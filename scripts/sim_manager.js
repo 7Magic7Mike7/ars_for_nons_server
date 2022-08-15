@@ -67,7 +67,7 @@ class CommunicationHandler {
     }
 
     getPlotData() {
-        return this._sim.getPlotData();
+        return this._sim.getPlotData();     // [width, height, data items]
     }
 }
 
@@ -291,9 +291,13 @@ function getPlotData(req) {
     const sim = simManager.getCommHandler(simId);
 
     if (sim) {
-        return sim.getPlotData();
+        const response = sim.getPlotData();
+        const width = response[0];
+        const height = response[1];
+        const data = response[2];
+        return [{'w': width, 'h': height, 'items': data}, true]
     }
-    else return null;
+    else return [null, false];
 }
 
 //external scripts may only log in/start, log out/pause, update simulations or retrieve data

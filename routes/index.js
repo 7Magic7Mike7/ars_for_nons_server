@@ -78,10 +78,12 @@ router.get('/getplot', (req, res) => {
     addCorsHeader(res);
 
     const response = simManager.getPlotData(req);
-    if (response === null)
-        res.status(400).json();
+    const data = response[0];
+    const success = response[1];
+    if (success)
+        res.status(200).json({ data: data });
     else
-        res.status(200).json({ data: response });
+        res.status(400).json();
 });
 
 
