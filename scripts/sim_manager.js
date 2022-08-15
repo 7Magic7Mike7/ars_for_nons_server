@@ -88,9 +88,9 @@ class SimManager {
         this._id = id;
         this._commHandlers = new Map();  //are currently not used by clients
         for (let i = 0; i < NUM_OF_SIMULATIONS; i++) {
-            this._commHandlers[i] = new CommunicationHandler(i);
+            this._commHandlers.set(i.toString(), new CommunicationHandler(i));
         }
-        this._commHandlers[DEBUG_ID] = new DebugCommHandler();    // static simulation used for debugging/testing
+        this._commHandlers.set(DEBUG_ID, new DebugCommHandler());    // static simulation used for debugging/testing
     }
 
     getIds() {
@@ -98,10 +98,10 @@ class SimManager {
     }
 
     getCommHandler(id) {
-        if (id === DEBUG_ID) return this._commHandlers[id];
+        if (id === DEBUG_ID) return this._commHandlers.get(id);
 
-        if (id in this._commHandlers) {
-            return this._commHandlers[id];
+        if (this._commHandlers.has(id)) {
+            return this._commHandlers.get(id);
         }
         return null;
     }
@@ -134,7 +134,7 @@ startEvolution();
 function numOfBufferedData() {
     let counter = 0;
     const simManager = manager.get("sim")
-    for (const simId in simManager.getIds()) {
+    for (const simId of simManager.getIds()) {
         counter += simManager.get(simId).bufferLevel;
     }
     return counter;
