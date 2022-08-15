@@ -6,6 +6,63 @@ const Direction = require("../util/direction");
 const Genome = require("../world/inhabitants/genome");
 const Tile = require("../world/inhabitants/tiles");
 
+
+class _MyMap extends Map {
+    constructor(yMultiplier) {
+        super();
+        this._yMult = yMultiplier;
+    }
+
+    _adaptKey(key) {
+        return key.x + key.y * this._yMult
+    }
+
+    _resolveKey(key) {
+        const x = key % this._yMult;
+        const y = Math.round(key / this._yMult);
+        return new Coordinate(x, y);
+    }
+
+    delete(key) {
+        key = this._adaptKey(key);
+        return super.delete(key);
+    }
+
+    get(key) {
+        key = this._adaptKey(key);
+        return super.get(key);
+    }
+
+    has(key) {
+        key = this._adaptKey(key);
+        return super.has(key);
+    }
+
+    set(key, value) {
+        key = this._adaptKey(key);
+        return super.set(key, value);
+    }
+
+    entries() {
+        const entries = [];
+        for (const entry of super.entries()) {
+            const key = this._resolveKey(entry[0]);
+            const value = entry[1];
+            entries.push([key, value]);
+        }
+        return entries;
+    }
+
+    keys() {
+        const keys = [];
+        for (const key of super.keys()) {
+            keys.push(this._resolveKey(key));
+        }
+        return keys;
+    }
+}
+
+
 class World extends Configurable {
     static _place(tile, world) {
         if (tile !== null) {
@@ -24,7 +81,7 @@ class World extends Configurable {
     constructor(config) {
         super(config);
         this._age = 0;
-        this._world = new Map();
+        this._world = new _MyMap(config.worldSize);
         this._coordinate = new Coordinate(0, 0);
     }
 
@@ -82,7 +139,7 @@ class World extends Configurable {
 
     update() {
         this._age++;
-        const newWorld = new Map();
+        const newWorld = new _MyMap(this.config.worldSize);
         const oldWorld = this._world;
 
         function getTile(c, x, y) {
