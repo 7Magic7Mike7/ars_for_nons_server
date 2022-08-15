@@ -63,6 +63,6 @@ function staticTest() {
     c = sim.toChannelTriple();
     const debugMe = true;
 }
-staticTest();
+//staticTest();
 
 module.exports = EvolutionSimulation;
