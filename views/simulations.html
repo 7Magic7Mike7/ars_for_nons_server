@@ -8,8 +8,11 @@
 <body>
 <label>
     <input id="simId" type="number" value="0" min="0" max="9">
-    <br>
-    <button onclick="update()">Redraw</button>
+    <!-- Rounded switch -->
+    <label class="switch">
+        <input id="autoUpdate" type="checkbox">
+        <span class="slider round"></span>
+    </label>
 </label>
 <div id="graph"></div>
 
@@ -17,13 +20,13 @@
     const decoder = new TextDecoder();
     const graph = document.getElementById("graph");
     const simToRetrieveFrom = document.getElementById("simId");
+    const autoUpdate = document.getElementById("autoUpdate");
 
-    Plotly.newPlot("graph", /* JSON object */ {
-        "data": [],
-        "layout": { "width": 600, "height": 400}
-    });
+    setInterval(update, 1000);
 
     function update() {
+        if (!autoUpdate.checked) return;
+
         let simId = simToRetrieveFrom.value;
         if (simId === -1) simId = "debug";
         fetch("/getplot?simId=" + simId, {
