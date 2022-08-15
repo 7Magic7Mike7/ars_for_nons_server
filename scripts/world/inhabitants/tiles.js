@@ -79,13 +79,13 @@ class Tile extends Configurable {
     _validatePosition() {
         // if (0 <= this._pos.x &&) // todo optimize and check if we need to update pos
         let x = this._pos.x;
+        if (x < 0) x += this.config.worldSize;
+        else if (this.config.worldSize <= x)  x = x % this.config.worldSize;
+
         let y = this._pos.y;
-        if (x < 0 || this.config.worldSize <= x) {
-            x = x % this.config.worldSize;
-        }
-        if (y < 0 || this.config.worldSize <= y) {
-            y = y % this.config.worldSize;
-        }
+        if (y < 0) y += this.config.worldSize;
+        else if (this.config.worldSize <= y)  y = y % this.config.worldSize;
+
         this._pos = new Coordinate(x, y);
     }
 
