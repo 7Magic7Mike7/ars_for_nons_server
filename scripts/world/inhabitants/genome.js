@@ -69,7 +69,7 @@ class Genome {
     }
 
     _createBrainConnections(curGene) {
-        console.assert(0 <= curGene && curGene < math.pow(10, NUM_OF_GENES), "Not a valid gene!");
+        console.assert(0 <= curGene && curGene < math.pow(10, GENE_SIZE), "Not a valid gene!");
 
         let weight = curGene % math.pow(2, _WEIGHT_SIZE);
         curGene = math.floor(curGene / math.pow(2, _WEIGHT_SIZE));
