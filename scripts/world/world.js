@@ -142,9 +142,10 @@ class World extends Configurable {
         const newWorld = new _MyMap(this.config.worldSize);
         const oldWorld = this._world;
 
+        const conf = this.config;
         function getTile(c, x, y) {
             let co = uf.toCoordinate(c, x, y);
-            co = this.config.validatePosition(co)[1];
+            co = conf.validatePosition(co)[1];
             if (co in oldWorld) return oldWorld.get(co);
             return null;
         }
