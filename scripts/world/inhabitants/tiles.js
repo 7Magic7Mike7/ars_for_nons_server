@@ -120,7 +120,7 @@ class Tile extends Configurable {
                 ageLevel, energyLevel,
                 posX, posY, orientation
             ];
-            input += perceptionInput;
+            input.push(...perceptionInput);
 
             const output = this._brain.think(input);
             // get the index of the highest value (in case multiple values are the maximum just take the first one)
@@ -162,19 +162,14 @@ class Tile extends Configurable {
     }
 
     _getPerceptionInput(get) {
-        const neighbors = [
-            Direction.coord(Direction.Up),
-            Direction.coord(Direction.Right),
-            Direction.coord(Direction.Down),
-            Direction.coord(Direction.Left)
-        ];
+        const neighbors = [ Direction.Up, Direction.Right, Direction.Down, Direction.Left ];
 
         const perceiveRange = 1;     // todo parameter!
         let perceiveCounts = [];
-        for (const dir in neighbors.values()) {
+        for (const dir of neighbors.values()) {
             const positions = this._getConeCoordinates(dir, get, perceiveRange);
             let counter = 0;
-            for (const pos in positions) {
+            for (const pos of positions) {
                 const tile = get(pos);
                 const distance = Coordinate.distance(this._pos, pos);
                 counter += this._getPerceptionBias(tile, (distance - 1) / perceiveRange);   // -1 because the nearest tiles (1 away) should get 100% of the inverse relation
