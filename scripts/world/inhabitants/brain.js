@@ -1,23 +1,30 @@
 
+const math = require("mathjs")
 const Genome = require("./genome");
 
 class Brain {
     constructor(genome) {
-        /*
-        this._i2o = in2out;
-        this._i2h = in2hidden;
-        this._h2h = hidden2hidden;
-        this._h2o = hidden2out;
+        // create a copy, so we could implement learning later if needed
+        this._i2o = genome.inToOut;
+        this._i2h = genome.inToHidden;
+        this._h2h = genome.hiddenToHidden;
+        this._h2o = genome.hiddenToOut;
 
-        this._prevHiddenData = m    // todo empty vector
-        */
+        this._prevHiddenData = math.zeros(Genome.NUM_OF_NEURONS);   // initialize with 0
     }
 
     think(input) {
-        const actuators = [0, 0, 0, 0, 0, 0, 0];    // 7 outputs
-        const index = (Math.random() * 7).toString()[0];    // just act randomly for now
-        actuators[index] = 0.5;
-        return actuators;
+        const inputVec = math.matrix(input);
+
+        let output = math.multiply(inputVec, this._i2o);
+        let b = math.multiply(this._prevHiddenData, this._h2o);
+        output = math.add(output, b);
+
+        let newHidden = math.multiply(inputVec, this._i2h);
+        b = math.multiply(this._prevHiddenData, this._h2h);
+        this._prevHiddenData = math.add(newHidden, b);
+
+        return output.toArray();
     }
 }
 
