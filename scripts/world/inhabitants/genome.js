@@ -10,6 +10,7 @@ const NUM_OF_ACTUATORS = 7;
 const GENE_SIZE = 5;
 const NUM_OF_GENES = 19;
 const NUM_OF_BRAIN_GENES = 16;
+const _MAX_GENE_VALUE = MathJS.pow(10, GENE_SIZE);
 
 const _WEIGHT_SIZE = 6
 const _TARGET_SIZE = 5
@@ -29,7 +30,7 @@ class Genome {
         for (let i = 0; i < NUM_OF_GENES; i++) {
             const gene1 = g1.getGene(i);
             const gene2 = g2.getGene(i);
-            const diff = MathJS.abs(gene1 - gene2) / Math.pow(10, GENE_SIZE);   // todo optimize and make a constant out of 10^5
+            const diff = MathJS.abs(gene1 - gene2) / _MAX_GENE_VALUE;
             similarity *= (1 - diff);
         }
 
@@ -141,7 +142,7 @@ class Genome {
     }
 
     _createBrainConnections(curGene) {
-        console.assert(0 <= curGene && curGene < MathJS.pow(10, GENE_SIZE), "Not a valid gene!");
+        console.assert(0 <= curGene && curGene < _MAX_GENE_VALUE, "Not a valid gene!");
 
         let weight = curGene % MathJS.pow(2, _WEIGHT_SIZE);
         curGene = MathJS.floor(curGene / MathJS.pow(2, _WEIGHT_SIZE));
