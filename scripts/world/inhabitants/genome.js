@@ -78,18 +78,18 @@ class Genome {
     }
 
     _createBrainConnections(curGene) {
-        console.assert(0 <= curGene && curGene < math.pow(10, GENE_SIZE), "Not a valid gene!");
+        console.assert(0 <= curGene && curGene < MathJS.pow(10, GENE_SIZE), "Not a valid gene!");
 
-        let weight = curGene % math.pow(2, _WEIGHT_SIZE);
-        curGene = math.floor(curGene / math.pow(2, _WEIGHT_SIZE));
-        let target = curGene % math.pow(2, _TARGET_SIZE);
-        curGene = math.floor(curGene / math.pow(2, _TARGET_SIZE));
-        let source = curGene % math.pow(2, _SOURCE_SIZE);
+        let weight = curGene % MathJS.pow(2, _WEIGHT_SIZE);
+        curGene = MathJS.floor(curGene / MathJS.pow(2, _WEIGHT_SIZE));
+        let target = curGene % MathJS.pow(2, _TARGET_SIZE);
+        curGene = MathJS.floor(curGene / MathJS.pow(2, _TARGET_SIZE));
+        let source = curGene % MathJS.pow(2, _SOURCE_SIZE);
 
         // normalize the data
         source = source % (NUM_OF_SENSORS + NUM_OF_NEURONS);      // [0, NumOfSources [
         target = target % (NUM_OF_NEURONS + NUM_OF_ACTUATORS);    // [0, NumOfTargets [
-        weight = (weight - math.pow(2, _WEIGHT_SIZE - 1)) / math.pow(2, _WEIGHT_SIZE - 1)  // [-1.0, 1.0]
+        weight = (weight - MathJS.pow(2, _WEIGHT_SIZE - 1)) / MathJS.pow(2, _WEIGHT_SIZE - 1)  // [-1.0, 1.0]
 
         if (source < NUM_OF_SENSORS) {
             if (target < NUM_OF_NEURONS) {
@@ -113,19 +113,19 @@ class Genome {
     }
 
     get inToOut() {
-        return math.matrix(this._i2o)  // return a copy
+        return MathJS.matrix(this._i2o)  // return a copy
     }
 
     get inToHidden() {
-        return math.matrix(this._i2h);  // return a copy
+        return MathJS.matrix(this._i2h);  // return a copy
     }
 
     get hiddenToHidden() {
-        return math.matrix(this._h2h);  // return a copy
+        return MathJS.matrix(this._h2h);  // return a copy
     }
 
     get hiddenToOut() {
-        return math.matrix(this._h2o);  // return a copy
+        return MathJS.matrix(this._h2o);  // return a copy
     }
 
     get pos() {
