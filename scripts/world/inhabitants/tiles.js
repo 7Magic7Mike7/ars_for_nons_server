@@ -8,7 +8,7 @@ const Brain = require("./brain");
 class Tile extends Configurable {
     static __NextID = 0;
 
-    constructor(config, creatorId, genome, id = null, pos = null, age = 0) {
+    constructor(config, creatorId, genome, id = null, pos = null) {
         super(config);
         console.assert(genome.prototype !== Genome, "Not a Genome!");
 
