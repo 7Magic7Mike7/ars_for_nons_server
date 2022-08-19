@@ -154,6 +154,10 @@ class World extends Configurable {
             if (tile.update(getTile)) {
                 World._place(tile, newWorld);
             }
+            const child = tile.produce();
+            if (child !== null) {
+                World._place(child, newWorld, this.config);
+            }
         }
         this._world = newWorld;
     }

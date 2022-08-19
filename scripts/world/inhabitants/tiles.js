@@ -86,7 +86,25 @@ class Tile extends Configurable {
         this._validatePosition();
     }
 
+    mate(otherGenome) {
+        if (this._childGenome === null) {
+            this._childGenome = Genome.reproduce(this.genome, otherGenome, this.config);
+            this._eggLayTimer = this.genome.eggLayDelay;
+        }
+        // todo what happens else?
+    }
+
     produce() {
+        if (this._eggLayTimer < 0) return null;
+
+        if (this._eggLayTimer > 0) this._eggLayTimer -= 1;
+        if (this._eggLayTimer === 0) {
+            console.assert(this._childGenome !== null, "Child Genome missing but eggLayTimer active!");
+
+            const pos = this._pos.add(Direction.coord(Direction.opposite(this._orientation)));
+            const child = new Tile(this.config, this.creator, this._childGenome, null, pos);
+            return child;
+        }
         return null;
     }
 
