@@ -207,10 +207,10 @@ class Tile extends Configurable {
                 return 0;
             case 1:     // turn left
                 this._orientation = Direction.turnLeft(this._orientation);
-                return this.config.energyMultTurn * this._genome.weight;    // todo gravity?
+                return this.config.energyMultTurn;
             case 2:     // turn right
                 this._orientation = Direction.turnRight(this._orientation);
-                return this.config.energyMultTurn * this._genome.weight;    // todo gravity?
+                return this.config.energyMultTurn;
             case 3:     // move up
                 this._updatePosition(Direction.Up);
                 return this.config.energyMultMove * this._genome.weight;
