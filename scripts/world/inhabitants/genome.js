@@ -8,7 +8,7 @@ const NUM_OF_SENSORS = 9;
 const NUM_OF_NEURONS = 5;
 const NUM_OF_ACTUATORS = 7;
 const GENE_SIZE = 5;
-const NUM_OF_GENES = 16;
+const NUM_OF_GENES = 19;
 const NUM_OF_BRAIN_GENES = 16;
 
 const _WEIGHT_SIZE = 6
@@ -49,22 +49,49 @@ class Genome {
 // 5 digits = 1 gene for max_energy, aggression level, ???
 // needed properties: speed, max energy, position?, orientation, digestion multiplier, degradation time?, weight
 
-    constructor(data) {
+    constructor(data, config) {
         console.assert(typeof data === 'string', "data is no String!");
         console.assert(data.length === NUM_OF_GENES * GENE_SIZE,
                 "Invalid genome size: " + data.length);
 
-        this._i2o = math.zeros(NUM_OF_SENSORS, NUM_OF_ACTUATORS);
-        this._i2h = math.zeros(NUM_OF_SENSORS, NUM_OF_NEURONS);
-        this._h2h = math.zeros(NUM_OF_NEURONS, NUM_OF_NEURONS);
-        this._h2o = math.zeros(NUM_OF_NEURONS, NUM_OF_ACTUATORS);
+        this._data = data;
 
-        for (let i = 0; i < NUM_OF_GENES; i++) {
-            const gene = data.substring(i * GENE_SIZE, (i + 1) * GENE_SIZE);
+        this._i2o = MathJS.zeros(NUM_OF_SENSORS, NUM_OF_ACTUATORS);
+        this._i2h = MathJS.zeros(NUM_OF_SENSORS, NUM_OF_NEURONS);
+        this._h2h = MathJS.zeros(NUM_OF_NEURONS, NUM_OF_NEURONS);
+        this._h2o = MathJS.zeros(NUM_OF_NEURONS, NUM_OF_ACTUATORS);
+
+        let index = 0;
+        while (index < NUM_OF_BRAIN_GENES * GENE_SIZE) {
+            const gene = data.substring(index, index + GENE_SIZE);
             this._createBrainConnections(gene);
+            index += GENE_SIZE;
         }
 
-        this._value = 0;    // todo
+        let gene = data.substring(index, index + GENE_SIZE);
+        const geneE = this._splitGene(gene);    // energy gene
+        this._maxEnergy = config.maxEnergy(geneE[0]);
+        this._weight = config.weight(geneE[1]);
+        this._digestionRate = config.digestionRate(geneE[2]);
+        index += GENE_SIZE;
+
+        gene = data.substring(index, index + GENE_SIZE);
+        const geneT = this._splitGene(gene);    // time gene
+        this._decayTime = config.decayTime(geneT[0]);
+        this._eggLayDelay = config.eggLayDelay(geneT[1]);
+        this._incubationTime = config.incubationTime(geneT[2]);
+        index += GENE_SIZE;
+
+        gene = data.substring(index, index + GENE_SIZE);
+        const geneB = this._splitGene(gene);    // behaviour gene
+        this._matePickLevel = config.matePickLevel(geneB[0]);
+        this._aggressionLevel = config.aggressionLevel(geneB[1]);
+        this._strength = geneB[2];
+        // todo maybe use the last one for "strength"? to determine what happens when one wants to mate and the other to fight
+        //index += GENE_SIZE;
+
+
+        this._value = 0;    // todo calculate based on similarity to all 0s
         /*
                 while index + Genome.GENE_LENGTH <= len(data):
             cur_gene = int(data[index:index+Genome.GENE_LENGTH])
@@ -73,8 +100,25 @@ class Genome {
 
             self.__value += (cur_gene / 10**Genome.GENE_LENGTH)
          */
+    }
 
-        // todo speed property to determine update order?
+    _splitGene(curGene, split1 = 6, split2 = 5) {
+        console.assert(split1 + split2 < 16, "Size to split is too big! Sum must be < 16. " +
+            "split1 = " + split1 + ", split2 = " + split2);
+        const split3 = 16 - split1 - split2;
+
+        let a = curGene % MathJS.pow(2, split1);
+        curGene = MathJS.floor(curGene / MathJS.pow(2, split1));
+        let b = curGene % MathJS.pow(2, split2);
+        curGene = MathJS.floor(curGene / MathJS.pow(2, split2));
+        let c = curGene % MathJS.pow(2, split3);
+
+        // normalize to range [0.0, 1.0]
+        a = a / MathJS.pow(2, split1);
+        b = b / MathJS.pow(2, split2);
+        c = c / MathJS.pow(2, split3);
+
+        return [a, b, c];
     }
 
     _createBrainConnections(curGene) {
@@ -136,16 +180,50 @@ class Genome {
         return Direction.Up;     // todo
     }
 
-    get energy() {
-        return 100;   // todo
+    get maxEnergy() {
+        return this._maxEnergy;
     }
 
     get weight() {
-        return 1;   // todo
+        return this._weight;
+    }
+
+    get digestionRate() {
+        return this._digestionRate;
+    }
+
+    get decayTime() {
+        return this._decayTime;
+    }
+
+    get eggLayDelay() {
+        return this._eggLayDelay;
+    }
+
+    get incubationTime() {
+        return this._incubationTime;
+    }
+
+    get matePickLevel() {
+        return this._matePickLevel;
+    }
+
+    get aggressionLevel() {
+        return this._aggressionLevel;
+    }
+
+    get strength() {
+        return this._strength;
     }
 
     get value() {
         return 0;   // todo
+    }
+
+    getGene(index) {
+        console.assert(0 <= index && index < NUM_OF_GENES, "Invalid index: " + index +
+            ". Expected range = [0, " + NUM_OF_GENES + "[");
+        return this._data.substring(index * GENE_SIZE, (index + 1) * GENE_SIZE);
     }
 }
 
