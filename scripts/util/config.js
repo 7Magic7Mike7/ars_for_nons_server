@@ -31,8 +31,8 @@ class Config {
                 passiveEnergyExpenses = 1, energyMultTurn = 1, energyMultMove = 1,
                 maxEnergyRange = new Range(20, 100), weightRange = new Range(1, 5),
                 digestionRange = new Range(0.1, 0.9),
-                incubationTimeRange = new Range(1, 10), eggLayDelayRange = new Range(0, 5),
-                decayRange = new Range(0, 1),
+                incubationTimeRange = new Range(1, 5), eggLayDelayRange = new Range(0, 2),
+                decayRange = new Range(1, 10),
                 aggressionRange = new Range(0, 1), matePickRange = new Range(0, 1)) {
         // todo numOfNeuronsRange?
         this._seed = seed;
