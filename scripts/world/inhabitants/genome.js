@@ -127,6 +127,10 @@ class Genome {
         // todo maybe use the last one for "strength"? to determine what happens when one wants to mate and the other to fight
         //index += GENE_SIZE;
 
+        // todo change how position is calculated?
+        let x = this._data.substring(0, 10) / MathJS.pow(10, 10);
+        let y = this._data.substring(10, 20) / MathJS.pow(10, 10);
+        this._pos = new Coordinate(MathJS.round(x * config.worldSize), MathJS.round(y * config.worldSize));
 
         this._value = Genome._calculateValue(this);
         /*
@@ -210,7 +214,7 @@ class Genome {
     }
 
     get pos() {
-        return new Coordinate(0, 0);    // todo
+        return this._pos;
     }
 
     get orientation() {
