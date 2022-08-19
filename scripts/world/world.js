@@ -70,11 +70,38 @@ class World extends Configurable {
 
             if (tile.pos in world) {
                 const existingTile = world.get(tile.pos);
-                // todo implement fighting
+                const similarity = Genome.calculateSimilarity(tile.genome, existingTile.genome);
+
+                const mateA = similarity <= tile.genome.matePickLevel;
+                const mateB = similarity <= existingTile.genome.matePickLevel;
+                const fightA = (1 - similarity) <= tile.genome.aggressionLevel;
+                const fightB = (1 - similarity) <= existingTile.genome.aggressionLevel;
+
+                function mate(a, b, world) {
+                    a.resolvePosition(world.get, a.pos);    // doesn't matter if we use a.pos or b.pos since it's equal
+                    a.mate(b.genome);
+                }
+
+                if (mateA && mateB)         mate(tile, existingTile, world);
+                else if (fightA && fightB)  {
+                    if (a.strength > b.strength) a.eat(b);
+                    else b.eat(a);
+                }
+                else {
+                    if (tile.strength > existingTile.strength) {
+                        if (mateA)          mate(tile, existingTile, world);
+                        else if (fightA)    tile.eat(existingTile);
+                        else existingTile.resolvePosition(get, tile.pos);    // the weaker one must resolve its position
+                    }
+                    else {
+                        if (mateB)          mate(tile, existingTile, world);
+                        else if (fightB)    existingTile.eat(tile);
+                        else tile.resolvePosition(get, existingTile.pos);    // the weaker one must resolve its position
+                    }
+                }
             }
-            else {
-                world.set(tile.pos, tile);
-            }
+            // tile might have died in a fight so we have to check again
+            if (tile.isAlive) world.set(tile.pos, tile);
         }
     }
 

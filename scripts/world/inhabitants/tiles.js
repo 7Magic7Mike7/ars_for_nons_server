@@ -39,6 +39,8 @@ class Tile extends Configurable {
         this._deathTime = -1;   // not dead yet
         this._eggLayTimer = -1;
         this._childGenome = null;
+
+        this._prevPos = null;
     }
 
     get config() {
@@ -86,6 +88,54 @@ class Tile extends Configurable {
         this._validatePosition();
     }
 
+    _validatePosition() {
+        // if (0 <= this._pos.x &&) // todo optimize and check if we need to update pos
+        let x = this._pos.x;
+        if (x < 0) x += this.config.worldSize;
+        else if (this.config.worldSize <= x)  x = x % this.config.worldSize;
+
+        let y = this._pos.y;
+        if (y < 0) y += this.config.worldSize;
+        else if (this.config.worldSize <= y)  y = y % this.config.worldSize;
+
+        return new Coordinate(x, y);
+    }
+
+    resolvePosition(get, forbiddenPos) {
+        if (this._prevPos !== null && (this._prevPos.x !== forbiddenPos.x || this._prevPos.y !== forbiddenPos.y)) {
+            this._pos = this._prevPos;
+        }
+        else {
+            // we cannot simply move to the previous position, so we first try "dodging" into orientation, then left,
+            // right and finally backwards - if nothing works we have to die :(
+            const directions = [
+                this._orientation,
+                Direction.turnLeft(this._orientation), Direction.turnRight(this._orientation),
+                Direction.opposite(this._orientation)
+            ];
+            for (const dir of directions) {
+                const pos = this._pos.add(Direction.coord(dir));
+                const existingTile = get(pos);
+                if (existingTile === null || typeof existingTile === 'undefined') {
+                    this._pos = pos;
+                    this._prevPos = pos;  // since we reallocated our position in the world we don't have a previous one
+                    return;
+                }
+            }
+            this._deathTime = 0;    // we have to die if there is no possibility for us to stay in this world :(
+        }
+    }
+
+    eat(other) {
+        console.assert(this._strength > other.strength, "wrong direction! you're not stronger than other!");
+        other._deathTime = 0;
+
+        this._energy += (other.energy * this._genome.digestionRate);
+        if (this._energy > this._genome.maxEnergy) {
+            this._energy = this._genome.maxEnergy;
+        }
+    }
+
     mate(otherGenome) {
         if (this._childGenome === null) {
             this._childGenome = Genome.reproduce(this.genome, otherGenome, this.config);
@@ -103,12 +153,15 @@ class Tile extends Configurable {
 
             const pos = this._pos.add(Direction.coord(Direction.opposite(this._orientation)));
             const child = new Tile(this.config, this.creator, this._childGenome, null, pos);
+            this._childGenome = null;
+            this._eggLayTimer = -1;
             return child;
         }
         return null;
     }
 
     update(get) {
+        this._prevPos = this._pos;
         // todo check if get is a function?
 
         this._age += 1;
