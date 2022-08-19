@@ -37,6 +37,25 @@ class Genome {
         return similarity;
     }
 
+    static reproduce(g1, g2, config) {
+        let genome = "";
+        for (let i = 0; i < NUM_OF_GENES; i++) {
+            const gene1 = g1.getGene(i);
+            const gene2 = g2.getGene(i);
+
+            const gene = MathJS.round(0.5 * gene1 + 0.5 * gene2).toFixed(0);
+            for (let j = 0; j < GENE_SIZE; j++) {
+                if (config.randomNumber() < config.mutationChance) {
+                    genome += config.randomInt(0, 10);
+                }
+                else {
+                    genome += gene[j];
+                }
+            }
+        }
+        return new Genome(genome, config);
+    }
+
 // 9 sensors for input, 7 actuators for output, 5 inner neurons
 
 // 5 digits make up a gene because 2^16 = 65 536 <= 99 999 (max number we can reach with 5 digits)
