@@ -1,5 +1,5 @@
 
-const math = require('mathjs');
+const MathJS = require('mathjs');
 const Coordinate = require("../../util/coordinate");
 const Direction = require("../../util/direction");
 
@@ -9,6 +9,7 @@ const NUM_OF_NEURONS = 5;
 const NUM_OF_ACTUATORS = 7;
 const GENE_SIZE = 5;
 const NUM_OF_GENES = 16;
+const NUM_OF_BRAIN_GENES = 16;
 
 const _WEIGHT_SIZE = 6
 const _TARGET_SIZE = 5
@@ -24,8 +25,16 @@ class Genome {
         console.assert(g1.prototype !== Genome, "g1 is not a Genome!");
         console.assert(g2.prototype !== Genome, "g2 is not a Genome!");
 
-        // todo implement
-        return 0.5;
+        let similarity = 1;
+        for (let i = 0; i < NUM_OF_GENES; i++) {
+            const gene1 = g1.getGene(i);
+            const gene2 = g2.getGene(i);
+            const diff = MathJS.abs(gene1 - gene2) / Math.pow(10, GENE_SIZE);   // todo optimize and make a constant out of 10^5
+            similarity *= (1 - diff);
+        }
+
+        console.assert(0 <= similarity && similarity <= 1, "Invalid similarity calculated!");
+        return similarity;
     }
 
 // 9 sensors for input, 7 actuators for output, 5 inner neurons
