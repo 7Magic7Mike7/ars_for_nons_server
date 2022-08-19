@@ -2,6 +2,7 @@
 
 const Config = require("./util/config");
 const EvolSim = require("./evolution_simulation");
+const DataGenerator = require("./util/data_generator");
 
 
 class Queue {
@@ -316,6 +317,16 @@ function getPlotData(req) {
     }
     else return [null, false];
 }
+
+const simManager = manager.get("sim");
+function _testSim() {
+    const val = Math.random();
+    if (val < 0.2) {
+        const data = DataGenerator.getRandomCacheData();
+        simManager.update("0", data, "testSim");
+    }
+}
+setInterval(_testSim, 1000);
 
 //external scripts may only log in/start, log out/pause, update simulations or retrieve data
 module.exports.login = login;
