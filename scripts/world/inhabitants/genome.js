@@ -38,6 +38,23 @@ class Genome {
         return similarity;
     }
 
+    static _calculateValue(genome) {
+        // returns between 0.0 and 1.0 (both inclusive)
+        console.assert(genome.prototype !== Genome, "not a Genome!");
+
+        // this is basically calculating the similarity between genome and an all 0s Genome
+        let similarity = 1;
+        for (let i = 0; i < NUM_OF_GENES; i++) {
+            const gene = genome.getGene(i);
+            const diff = gene / _MAX_GENE_VALUE;
+            similarity += (1 - diff);
+        }
+        similarity /= NUM_OF_GENES;
+
+        console.assert(0 <= similarity && similarity <= 1, "Invalid similarity calculated!");
+        return similarity;
+    }
+
     static reproduce(g1, g2, config) {
         let genome = "";
         for (let i = 0; i < NUM_OF_GENES; i++) {
@@ -111,7 +128,7 @@ class Genome {
         //index += GENE_SIZE;
 
 
-        this._value = 0;    // todo calculate based on similarity to all 0s
+        this._value = Genome._calculateValue(this);
         /*
                 while index + Genome.GENE_LENGTH <= len(data):
             cur_gene = int(data[index:index+Genome.GENE_LENGTH])
@@ -237,7 +254,7 @@ class Genome {
     }
 
     get value() {
-        return 0;   // todo
+        return this._value;
     }
 
     getGene(index) {
