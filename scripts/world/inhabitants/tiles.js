@@ -152,9 +152,10 @@ class Tile extends Configurable {
             console.assert(this._childGenome !== null, "Child Genome missing but eggLayTimer active!");
 
             const pos = this._pos.add(Direction.coord(Direction.opposite(this._orientation)));
-            const child = new Tile(this.config, this.creator, this._childGenome, null, pos);
+            const child = new Tile(this.config, this.creator + "#", this._childGenome, null, pos);  // todo later remove hashtag, it's just for debugging now
             this._childGenome = null;
             this._eggLayTimer = -1;
+            console.log("A child was born!");   // todo remove later
             return child;
         }
         return null;
