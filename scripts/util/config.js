@@ -3,26 +3,61 @@ const Coordinate = require("./coordinate");
 const uf = require("./util_functions");
 const seedrandom = require('seedrandom');
 
+class Range {
+    // needs to be min, max instead of mu, sigma or something else because the gene can only provide us information
+    // about 0 to 100% of the possible values
+    constructor(min, max) {
+        this._min = min;
+        this._max = max;
+    }
+
+    get min() {
+        return this._min;
+    }
+
+    get max() {
+        return this._max;
+    }
+
+    resolve(num) {
+        console.assert(0 <= num && num <= 1.0, "num not element of [0.0, 1.0]! num = " + num);
+        return this._min + num * (this._max - this._min);
+    }
+}
+
 class Config {
     constructor(seed,
-                worldSize = 100,
-                mutationChance = 0.01,
-                minMaxEnergy = 100, maxEnergyBonus = 100,
-                stepsPerPopulateCall = 10, populateCallsPerCreatureSpawn = 10, populateCallsPerFoodSpawn = 10,
-                eggIncubationTime = 10,
-                foodSpoilTime = 10, allowEggEating = false) {
-        // todo numOfSensors, numOfNeurons, numOfActuators, geneLength, numOfGenes, weightSize, targetSize, sourceSize
+                worldSize = 10, gravity = 1, simulationSpeed = 1, mutationChance = 0.01,
+                passiveEnergyExpenses = 1, energyMultTurn = 1, energyMultMove = 1,
+                maxEnergyRange = new Range(20, 100), weightRange = new Range(1, 5),
+                digestionRange = new Range(0.1, 0.9),
+                incubationTimeRange = new Range(1, 10), eggLayDelayRange = new Range(0, 5),
+                decayRange = new Range(0, 1),
+                aggressionRange = new Range(0, 1), matePickRange = new Range(0, 1)) {
+        // todo numOfNeuronsRange?
         this._seed = seed;
-        this._worldSize = worldSize;
+
+        this._worldSize = worldSize;    // influences maximum number of creatures that can live
+        this._gravity = gravity;        // influences energy penalty based on weight
+        this._simulationSpeed = simulationSpeed;
         this._mutationChance = mutationChance;
 
+        this._passiveEnergyExpenses = passiveEnergyExpenses; // how much energy is spent just to stay alive for one step
+        this._energyMultTurn = energyMultTurn;     // multiplier for spending energy when turning
+        this._energyMultMove = energyMultMove;     // multiplier for spending energy when moving
+
+        this._maxEnergyRange = maxEnergyRange;              // influences maximum amount of energy a creature can have
+        this._weightRange = weightRange;                    // weight of creature influences energy consumption for moving
+        this._digestionRange = digestionRange;              // how much energy can be absorbed when eating
+
+        this._incubationTimeRange = incubationTimeRange;    // min and max time for hatching an egg
+        this._eggLayDelayRange = eggLayDelayRange;          // min and max time until an egg is laid after mating
+        this._decayRange = decayRange;          // how many steps it takes until a dead creature vanishes
+
+        this._aggressionRange = aggressionRange;            //
+        this._matePickRange = matePickRange;                // how similar the other creature must be for mating
+
         this._rand = seedrandom(seed);
-
-        this._passiveEnergyExpenses = 1;    // how much energy is spent just to stay alive for one step
-        this._energyMultTurn = 1;           // multiplier for spending energy when turning
-        this._energyMultMove = 1;           // multiplier for spending energy when moving
-
-        this._gravity = 1;      // influences energy penalty based on weight
     }
 
     get seed() {
@@ -37,6 +72,14 @@ class Config {
         return this._gravity;
     }
 
+    get simulationSpeed() {
+        return this._simulationSpeed;
+    }
+
+    get mutationChance() {
+        return this._mutationChance;
+    }
+
     get passiveEnergyExpenses() {
         return this._passiveEnergyExpenses;
     }
@@ -47,6 +90,38 @@ class Config {
 
     get energyMultMove() {
         return this._energyMultMove;
+    }
+
+    maxEnergy(num) {
+        return this._maxEnergyRange.resolve(num);
+    }
+
+    weight(num) {
+        return this._weightRange.resolve(num);
+    }
+
+    digestionRate(num) {
+        return this._digestionRange.resolve(num);
+    }
+
+    incubationTime(num) {
+        return this._incubationTimeRange.resolve(num);
+    }
+
+    eggLayDelay(num) {
+        return this._eggLayDelayRange.resolve(num);
+    }
+
+    decayTime(num) {
+        return this._decayRange.resolve(num);
+    }
+
+    aggressionLevel(num) {
+        return this._aggressionRange.resolve(num);
+    }
+
+    matePickLevel(num) {
+        return this._matePickRange.resolve(num);
     }
 
     randomNumber() {
