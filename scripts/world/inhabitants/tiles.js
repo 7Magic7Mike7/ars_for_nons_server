@@ -30,14 +30,15 @@ class Tile extends Configurable {
                 Tile.__NextID = id + 1;
             }
         }
-        this._deathTime = -1;   // not dead yet
-        this._age = age;
-        this._energy = genome.energy;
+        this._age = -genome.incubationTime;
+        this._energy = genome.maxEnergy;
         this._pos = pos;
         this._orientation = genome.orientation;
-        // todo add hp?
 
         this._brain = new Brain(genome);
+        this._deathTime = -1;   // not dead yet
+        this._eggLayTimer = -1;
+        this._childGenome = null;
     }
 
     get config() {
@@ -76,17 +77,8 @@ class Tile extends Configurable {
         return [hue, saturation, value];
     }
 
-    _validatePosition() {
-        // if (0 <= this._pos.x &&) // todo optimize and check if we need to update pos
-        let x = this._pos.x;
-        if (x < 0) x += this.config.worldSize;
-        else if (this.config.worldSize <= x)  x = x % this.config.worldSize;
-
-        let y = this._pos.y;
-        if (y < 0) y += this.config.worldSize;
-        else if (this.config.worldSize <= y)  y = y % this.config.worldSize;
-
-        this._pos = new Coordinate(x, y);
+    get isAlive() {
+        return this._deathTime < 0;
     }
 
     _updatePosition(direction) {
@@ -106,10 +98,11 @@ class Tile extends Configurable {
         // todo check if get is a function?
 
         this._age += 1;
+        if (this._age < 0) return true;     // hatching in progress
 
-        if (this._deathTime < 0) {
+        if (this.isAlive) {
             const ageLevel = Math.tanh(this.age);
-            const energyLevel = this._energy / this.genome.energy;
+            const energyLevel = this._energy / this.genome.maxEnergy;
             const posX = this.pos.x / this.config.worldSize;
             const posY = this.pos.y / this.config.worldSize;
             const orientation = Direction.toFloat(this._orientation);
@@ -129,7 +122,7 @@ class Tile extends Configurable {
             this._energy -= usedEnergy; // todo take age into account?
 
             if (this._energy <= 0) {
-                this._deathTime = 10;   // todo use parameter
+                this._deathTime = this._genome.decayTime;
             }
             return true;
         }
