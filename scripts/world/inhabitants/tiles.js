@@ -108,10 +108,6 @@ class Tile extends Configurable {
         return null;
     }
 
-    eatEnergy(eater) {
-        throw new Error("Abstract method \"eatEnergy\" needs to be overwritten!");
-    }
-
     update(get) {
         // todo check if get is a function?
 
