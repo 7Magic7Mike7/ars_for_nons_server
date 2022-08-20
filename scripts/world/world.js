@@ -162,7 +162,7 @@ class World extends Configurable {
     }
 
     inhabit(data, key) {
-        const genome = new Genome(data);
+        const genome = new Genome(data, this.config);
         const tile = new Tile(this.config, key, genome);
         World._place(tile, this._world);
     }
