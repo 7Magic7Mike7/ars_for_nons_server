@@ -61,7 +61,8 @@ class Genome {
             const gene1 = g1.getGene(i);
             const gene2 = g2.getGene(i);
 
-            const gene = MathJS.round(0.5 * gene1 + 0.5 * gene2).toFixed(0);
+            let gene = MathJS.round(0.5 * gene1 + 0.5 * gene2).toFixed(0);
+            while (gene.length < GENE_SIZE) gene = "0" + gene;
             for (let j = 0; j < GENE_SIZE; j++) {
                 if (config.randomNumber() < config.mutationChance) {
                     genome += config.randomInt(0, 10);
