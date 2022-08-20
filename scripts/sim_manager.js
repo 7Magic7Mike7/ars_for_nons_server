@@ -73,7 +73,7 @@ class CommunicationHandler {
     }
 
     getPlotData() {
-        return this._sim.getPlotData();     // [width, height, data items]
+        return this._sim.getPlotData();     // {metaData-object, data items-list}
     }
 }
 
