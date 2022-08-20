@@ -120,7 +120,7 @@ class SimManager {
 const manager = new Map();
 manager.set("sim", new SimManager(0));
 
-function startEvolution() {
+function startEvolution(interval) {
     const simManager = manager.get("sim");
     function processStep() {
         for (const id of simManager.getIds()) {
@@ -128,9 +128,25 @@ function startEvolution() {
             commHandler.processStep();
         }
     }
-    setInterval(processStep, 1000);
+    setInterval(processStep, interval);
 }
-startEvolution();
+
+function startTesting(interval) {
+    const simManager = manager.get("sim");
+    function _testSim() {
+        const val = Math.random();
+        if (val < 0.2) {
+            const data = DataGenerator.getRandomCacheData();
+            if (!simManager.update("0", data, "testSim")) {
+                console.log("failed to update");
+            }
+        }
+    }
+    setInterval(_testSim, interval);
+}
+
+startEvolution(100);
+startTesting(100);
 
 function numOfBufferedData() {
     let counter = 0;
@@ -314,18 +330,6 @@ function getPlotData(req) {
     }
     else return [null, false];
 }
-
-const simManager = manager.get("sim");
-function _testSim() {
-    const val = Math.random();
-    if (val < 0.2) {
-        const data = DataGenerator.getRandomCacheData();
-        if (!simManager.update("0", data, "testSim")) {
-            console.log("failed to update");
-        }
-    }
-}
-setInterval(_testSim, 1000);
 
 //external scripts may only log in/start, log out/pause, update simulations or retrieve data
 module.exports.login = login;
