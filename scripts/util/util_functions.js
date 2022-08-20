@@ -14,4 +14,13 @@ function toCoordinate(c = null, x = null, y = null) {
     throw new Error("Not enough parameters provided to transform to coordinate!");
 }
 
+function valueCheck(value, location, logUndefined = true) {
+    if (logUndefined && typeof value === 'undefined') {
+        console.log("undefined found at " + location);
+        return false;
+    }
+    return value !== null && typeof value !== 'undefined';
+}
+
 module.exports.toCoordinate = toCoordinate;
+module.exports.valueCheck = valueCheck;

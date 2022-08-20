@@ -1,5 +1,6 @@
 //const data = new Map(); //saves the QDDVis-objects needed for simulation
 
+const UF = require("./util/util_functions");
 const Config = require("./util/config");
 const EvolSim = require("./evolution_simulation");
 const DataGenerator = require("./util/data_generator");
@@ -109,7 +110,7 @@ class SimManager {
 
     update(id, data, key) {
         const commHandler = this.getCommHandler(id);
-        if (commHandler == null || typeof commHandler === 'undefined') return false;
+        if (!UF.valueCheck(commHandler, "getCommHandler()")) return false;
 
         commHandler.addData(data, key);
         return true;

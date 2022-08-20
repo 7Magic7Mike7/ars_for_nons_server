@@ -30,7 +30,10 @@ class _MyMap extends Map {
 
     get(key) {
         key = this._adaptKey(key);
-        return super.get(key);
+        if (super.has(key)) {
+            return super.get(key);
+        }
+        else return null;
     }
 
     has(key) {
