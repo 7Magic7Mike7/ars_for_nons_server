@@ -117,7 +117,7 @@ class Tile extends Configurable {
             for (const dir of directions) {
                 const pos = this._pos.add(Direction.coord(dir));
                 const existingTile = get(pos);
-                if (UF.valueCheck(existingTile, "resolvePosition")) {
+                if (!UF.valueCheck(existingTile, "resolvePosition") || !existingTile.isAlive) {
                     this._pos = pos;
                     this._prevPos = pos;  // since we reallocated our position in the world we don't have a previous one
                     return;
