@@ -109,7 +109,7 @@ class SimManager {
 
     update(id, data, key) {
         const commHandler = this.getCommHandler(id);
-        if (commHandler == null) return false;
+        if (commHandler == null || typeof commHandler === 'undefined') return false;
 
         commHandler.addData(data, key);
         return true;
@@ -323,7 +323,9 @@ function _testSim() {
     const val = Math.random();
     if (val < 0.2) {
         const data = DataGenerator.getRandomCacheData();
-        simManager.update("0", data, "testSim");
+        if (!simManager.update("0", data, "testSim")) {
+            console.log("failed to update");
+        }
     }
 }
 setInterval(_testSim, 1000);
