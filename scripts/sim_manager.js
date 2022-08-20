@@ -127,7 +127,6 @@ function startEvolution() {
             const commHandler = simManager.getCommHandler(id);
             commHandler.processStep();
         }
-        console.log("processed next step");
     }
     setInterval(processStep, 1000);
 }
