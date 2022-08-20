@@ -35,7 +35,16 @@ class EvolutionSimulation extends Configurable {
                 creator: tile.creator,
             });
         }
-        return [this._config.worldSize, this._config.worldSize, data];
+        return {
+            metaData: {
+                width: this._config.worldSize,
+                height: this._config.worldSize,
+                producedCreatures: this._world.numOfProducedCreatures,
+                naturalDeaths: this._world.numOfNaturalDeaths,
+                kills: this._world.numOfKills,
+            },
+            tileData: data
+        }
     }
 
     toChannelTriple() {

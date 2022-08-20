@@ -15,12 +15,20 @@
     </label>
 </label>
 <div id="graph"></div>
+<div id="infos">
+    Number of produced creatures:<div id="producedCreatures"></div><br>
+    Number of natural deaths:<div id="naturalDeaths"></div><br>
+    Number of kills:<div id="kills"></div><br>
+</div>
 
 <script>
     const decoder = new TextDecoder();
     const graph = document.getElementById("graph");
     const simToRetrieveFrom = document.getElementById("simId");
     const autoUpdate = document.getElementById("autoUpdate");
+    const producedCreatures = document.getElementById("producedCreatures");
+    const naturalDeaths = document.getElementById("naturalDeaths");
+    const kills = document.getElementById("kills");
 
     setInterval(update, 1000);
 
@@ -43,8 +51,7 @@
                 const ys = [];
                 const colors = [];
                 const texts = [];
-                const width = obj.data.w;
-                const height = obj.data.h;
+                const infos = obj.data.infos;
                 const data = obj.data.items;
                 for (const i in data) {
                     if (data[i] != null) {
@@ -55,7 +62,10 @@
                         texts.push("#" + data[i].id + " from " + data[i].creator);
                     }
                 }
-                createPlot(simId, width, height, xs, ys, colors, texts);
+                createPlot(simId, infos.width, infos.height, xs, ys, colors, texts);
+                producedCreatures.innerText = infos.producedCreatures;
+                naturalDeaths.innerText = infos.naturalDeaths;
+                kills.innerText = infos.kills;
             });
         })
         .catch(() => {

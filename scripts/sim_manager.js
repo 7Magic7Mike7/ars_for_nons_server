@@ -310,10 +310,7 @@ function getPlotData(req) {
 
     if (sim) {
         const response = sim.getPlotData();
-        const width = response[0];
-        const height = response[1];
-        const data = response[2];
-        return [{'w': width, 'h': height, 'items': data}, true]
+        return [{'infos': response.metaData, 'items': response.tileData}, true]
     }
     else return [null, false];
 }

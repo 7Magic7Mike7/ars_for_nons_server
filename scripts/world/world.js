@@ -67,52 +67,27 @@ class _MyMap extends Map {
 
 
 class World extends Configurable {
-    static _place(tile, world) {
-        if (tile !== null) {
-            console.assert(tile.prototype !== Tile, "not a tile!");
-
-            if (tile.pos in world) {
-                const existingTile = world.get(tile.pos);
-                const similarity = Genome.calculateSimilarity(tile.genome, existingTile.genome);
-
-                const mateA = similarity <= tile.genome.matePickLevel;
-                const mateB = similarity <= existingTile.genome.matePickLevel;
-                const fightA = (1 - similarity) <= tile.genome.aggressionLevel;
-                const fightB = (1 - similarity) <= existingTile.genome.aggressionLevel;
-
-                function mate(a, b, world) {
-                    a.resolvePosition(world.get, a.pos);    // doesn't matter if we use a.pos or b.pos since it's equal
-                    a.mate(b.genome);
-                }
-
-                if (mateA && mateB)         mate(tile, existingTile, world);
-                else if (fightA && fightB)  {
-                    if (a.strength > b.strength) a.eat(b);
-                    else b.eat(a);
-                }
-                else {
-                    if (tile.strength > existingTile.strength) {
-                        if (mateA)          mate(tile, existingTile, world);
-                        else if (fightA)    tile.eat(existingTile);
-                        else existingTile.resolvePosition(get, tile.pos);    // the weaker one must resolve its position
-                    }
-                    else {
-                        if (mateB)          mate(tile, existingTile, world);
-                        else if (fightB)    existingTile.eat(tile);
-                        else tile.resolvePosition(get, existingTile.pos);    // the weaker one must resolve its position
-                    }
-                }
-            }
-            // tile might have died in a fight so we have to check again
-            if (tile.isAlive) world.set(tile.pos, tile);
-        }
-    }
-
     constructor(config) {
         super(config);
         this._age = 0;
         this._world = new _MyMap(config.worldSize);
         this._coordinate = new Coordinate(0, 0);
+
+        this._producedCreatures = 0;    // number of new creatures produced via mating
+        this._naturalDeaths = 0;        // number of deaths based on having no more energy
+        this._kills = 0;                // number of deaths based on fighting (includes death by resolving position)
+    }
+
+    get numOfProducedCreatures() {
+        return this._producedCreatures;
+    }
+
+    get numOfNaturalDeaths() {
+        return this._naturalDeaths;
+    }
+
+    get numOfKills() {
+        return this._kills;
     }
 
     _nextCoordinate(stepRight) {
@@ -161,10 +136,67 @@ class World extends Configurable {
         return this.getNext(false);     // don't step right because then we would skip (0, 0)!
     }
 
+    _place(tile, world) {
+        if (tile !== null) {
+            console.assert(tile.prototype !== Tile, "not a tile!");
+
+            if (world.has(tile.pos)) {
+                const existingTile = world.get(tile.pos);
+                if (existingTile.isAlive) {
+                    const similarity = Genome.calculateSimilarity(tile.genome, existingTile.genome);
+
+                    const mateA = similarity <= tile.genome.matePickLevel;
+                    const mateB = similarity <= existingTile.genome.matePickLevel;
+                    const fightA = (1 - similarity) <= tile.genome.aggressionLevel;
+                    const fightB = (1 - similarity) <= existingTile.genome.aggressionLevel;
+
+
+                    function getTile(key) {
+                        return world.get(key);
+                    }
+
+                    function mate(a, b) {
+                        a.resolvePosition(getTile, a.pos);    // doesn't matter if we use a.pos or b.pos since it's equal
+                        a.mate(b.genome);
+                    }
+
+                    if (mateA && mateB) {
+                        mate(tile, existingTile);
+                    }
+                    else if (fightA && fightB)  {
+                        if (tile.strength > existingTile.strength) tile.eat(existingTile);
+                        else existingTile.eat(tile);
+                    }
+                    else {
+                        if (tile.strength > existingTile.strength) {
+                            if (mateA)          mate(tile, existingTile);
+                            else if (fightA)    tile.eat(existingTile);
+                            else existingTile.resolvePosition(getTile, tile.pos);    // the weaker one must resolve its position
+                        }
+                        else {
+                            if (mateB)          mate(tile, existingTile,);
+                            else if (fightB)    existingTile.eat(tile);
+                            else tile.resolvePosition(getTile, existingTile.pos);    // the weaker one must resolve its position
+                        }
+                    }
+                    if (!existingTile.isAlive) this._kills += 1;
+                }
+                else {
+                    // todo should we really always eat a dead creature?
+                    // todo I guess the brain decided, so it should be fine
+                    tile.eat(existingTile);
+                }
+            }
+            // tile might have died in a fight, so we have to check again
+            if (tile.isAlive) world.set(tile.pos, tile);
+            else this._kills += 1;
+        }
+    }
+
     inhabit(data, key) {
         const genome = new Genome(data, this.config);
         const tile = new Tile(this.config, key, genome);
-        World._place(tile, this._world);
+        this._place(tile, this._world);
     }
 
     update() {
@@ -182,11 +214,14 @@ class World extends Configurable {
 
         for (const tile of oldWorld.values()) {
             if (tile.update(getTile)) {
-                World._place(tile, newWorld);
+                this._place(tile, newWorld);
             }
+            if (!tile.isAlive && tile.energy <= 0) this._naturalDeaths += 1;
+
             const child = tile.produce();
             if (child !== null) {
-                World._place(child, newWorld, this.config);
+                this._place(child, newWorld, this.config);
+                this._producedCreatures += 1;
             }
         }
         this._world = newWorld;
