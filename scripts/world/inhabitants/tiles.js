@@ -128,7 +128,8 @@ class Tile extends Configurable {
     }
 
     eat(other) {
-        console.assert(this._strength > other.strength, "wrong direction! you're not stronger than other!");
+        console.assert(this._genome.strength >= other.genome.strength,
+            "wrong direction! you're not stronger than other!");
         other._deathTime = 0;
 
         this._energy += (other.energy * this._genome.digestionRate);
