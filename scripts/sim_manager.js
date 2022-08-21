@@ -45,7 +45,7 @@ class CommunicationHandler {
         this._id = id;
         this._data = new Queue(1000);
 
-        const conf = new Config(7);
+        const conf = Config.createConfig(7, id);
         this._sim = new EvolSim(conf);
     }
 
