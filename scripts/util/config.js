@@ -35,8 +35,6 @@ class Config {
                 decayRange = new Range(1, 10),
                 aggressionRange = new Range(0, 1), matePickRange = new Range(0, 1)) {
         // todo numOfNeuronsRange?
-        this._seed = seed;
-
         this._worldSize = worldSize;    // influences maximum number of creatures that can live
         this._gravity = gravity;        // influences energy penalty based on weight
         this._simulationSpeed = simulationSpeed;
@@ -58,10 +56,6 @@ class Config {
         this._matePickRange = matePickRange;                // how similar the other creature must be for mating
 
         this._rand = seedrandom(seed);
-    }
-
-    get seed() {
-        return this._seed;
     }
 
     get worldSize() {
