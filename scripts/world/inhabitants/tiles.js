@@ -94,6 +94,11 @@ class Tile extends Configurable {
         return this._deathTime < 0;
     }
 
+    get strength() {
+        if (this.isAlive) return this._genome.strength;
+        else return 0;
+    }
+
     _updatePosition(direction) {
         this._pos = this._pos.add(Direction.coord(direction));
         this._validatePosition();
@@ -138,8 +143,7 @@ class Tile extends Configurable {
     }
 
     eat(other) {
-        console.assert(this._genome.strength >= other.genome.strength,
-            "wrong direction! you're not stronger than other!");
+        console.assert(this.strength >= other.strength, "wrong direction! you're not stronger than other!");
         other._deathTime = 0;
 
         this._energy += (other.energy * this._genome.digestionRate);

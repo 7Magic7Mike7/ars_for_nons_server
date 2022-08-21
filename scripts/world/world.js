@@ -181,11 +181,11 @@ class World extends Configurable {
                         mate(tile, existingTile);
                     }
                     else if (fightA && fightB)  {
-                        if (tile.genome.strength > existingTile.genome.strength) tile.eat(existingTile);
+                        if (tile.strength > existingTile.strength) tile.eat(existingTile);
                         else existingTile.eat(tile);
                     }
                     else {
-                        if (tile.genome.strength > existingTile.genome.strength) {
+                        if (tile.strength > existingTile.strength) {
                             if (mateA)          mate(tile, existingTile);
                             else if (fightA)    tile.eat(existingTile);
                             else existingTile.resolvePosition(getTile, tile.pos);    // the weaker one must resolve its position
