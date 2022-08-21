@@ -85,15 +85,52 @@
             }
         };
         const data = [trace1];
+        // https://plotly.com/javascript/axes/
         const layout = {
             title: 'Simulation #' + simId,
             //width: 600,
             //height: 400,
             xaxis: {
-                range: [0, width],
+                range: [-0.5, width + 0.5],
+                showgrid: true,
+                zeroline: true,
+                showline: true,
+                mirror: 'ticks',
+                gridcolor: '#bdbdbd',
+                gridwidth: 2,
+                zerolinecolor: '#bdbdbd',
+                zerolinewidth: 0,
+                linecolor: '#636363',
+                linewidth: 6,
+
+                autotick: false,
+                ticks: 'outside',
+                tick0: 0,
+                dtick: 1,
+                ticklen: 8,
+                tickwidth: 4,
+                tickcolor: '#000'
             },
             yaxis: {
-                range: [0, height],
+                range: [-0.5, height + 0.5],
+                showgrid: true,
+                zeroline: true,
+                showline: true,
+                mirror: 'ticks',
+                gridcolor: '#bdbdbd',
+                gridwidth: 2,
+                zerolinecolor: '#bdbdbd',
+                zerolinewidth: 0,
+                linecolor: '#636363',
+                linewidth: 6,
+
+                autotick: false,
+                ticks: 'outside',
+                tick0: 0,
+                dtick: 1,
+                ticklen: 8,
+                tickwidth: 4,
+                tickcolor: '#000'
             },
         };
         const config = {
