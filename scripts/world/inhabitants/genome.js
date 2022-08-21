@@ -51,6 +51,9 @@ class Genome {
         }
         similarity /= NUM_OF_GENES;
 
+        // with the calculation thus far most of the genomes are veeeery close to 0.5 -> try to spread them more
+        similarity = 0.5 * MathJS.cos(similarity * MathJS.pi) + 0.5;    // now it should be better spread
+
         console.assert(0 <= similarity && similarity <= 1, "Invalid similarity calculated!");
         return similarity;
     }
