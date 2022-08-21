@@ -16,6 +16,7 @@
 </label>
 <div id="graph"></div>
 <div id="infos">
+    Age of world:<div id="worldAge"></div><br>
     Number of currently living creatures:<div id="currentlyLiving"></div><br>
     Number of produced creatures:<div id="producedCreatures"></div><br>
     Number of natural deaths:<div id="naturalDeaths"></div><br>
@@ -31,6 +32,7 @@
     const simToRetrieveFrom = document.getElementById("simId");
     const autoUpdate = document.getElementById("autoUpdate");
 
+    const worldAge = document.getElementById("worldAge");
     const currentlyLiving = document.getElementById("currentlyLiving");
     const producedCreatures = document.getElementById("producedCreatures");
     const naturalDeaths = document.getElementById("naturalDeaths");
@@ -72,6 +74,7 @@
                     }
                 }
                 createPlot(simId, infos.width, infos.height, xs, ys, colors, texts);
+                worldAge.innerText = infos.age;
                 currentlyLiving.innerText = infos.currentlyLiving;
                 producedCreatures.innerText = infos.producedCreatures;
                 naturalDeaths.innerText = infos.naturalDeaths;
