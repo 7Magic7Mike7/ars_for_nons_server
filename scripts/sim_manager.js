@@ -134,12 +134,10 @@ function startEvolution(interval) {
 function startTesting(interval) {
     const simManager = manager.get("sim");
     function _testSim() {
-        const val = Math.random();
-        if (val < 0.2) {
-            const data = DataGenerator.getRandomCacheData();
-            if (!simManager.update("0", data, "testSim")) {
-                console.log("failed to update");
-            }
+        const data = DataGenerator.getRandomCacheData(0.8);
+        if (data === null) return;
+        if (!simManager.update("0", data, "testSim")) {
+            console.log("failed to update");
         }
     }
     setInterval(_testSim, interval);

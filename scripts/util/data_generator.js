@@ -3,7 +3,9 @@ const seedrandom = require('seedrandom');
 const rand = seedrandom(7);
 const Genome = require("../world/inhabitants/genome");
 
-function getRandomCacheData() {
+function getRandomCacheData(nullChance = 0) {
+    if (rand() < nullChance) return null;
+
     let data = "";
     for (let i = 0; i < Genome.NUM_OF_GENES; i++) {
         for (let j = 0; j < Genome.GENE_SIZE; j++) {
