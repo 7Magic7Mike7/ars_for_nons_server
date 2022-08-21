@@ -58,7 +58,7 @@ class CommunicationHandler {
     }
 
     addData(data, clientKey) {
-        console.log("client #" + clientKey + " updates sim#" + this._id + " with data: " + data);
+        //console.log("client #" + clientKey + " updates sim#" + this._id + " with data: " + data);
         this._sim.addData(data, clientKey);
     }
 
