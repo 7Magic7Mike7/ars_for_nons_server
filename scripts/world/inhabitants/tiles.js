@@ -185,7 +185,6 @@ class Tile extends Configurable {
             const child = new Tile(this.config, this.creator + "#", this._childGenome, null, pos);  // todo later remove hashtag, it's just for debugging now
             this._childGenome = null;
             this._eggLayTimer = -1;
-            console.log("A child was born!");   // todo remove later
             return child;
         }
         return null;
