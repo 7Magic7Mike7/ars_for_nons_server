@@ -161,8 +161,10 @@ class World extends Configurable {
                     const similarity = Genome.calculateSimilarity(tile.genome, existingTile.genome);
 
                     // for mating we need at least a given amount of similarity
-                    const mateA = similarity >= tile.genome.matePickLevel;
-                    const mateB = similarity >= existingTile.genome.matePickLevel;
+                    const mateA = tile.genome.matePickLevel <= similarity &&
+                        similarity <= this.config.maxMateSimilarity;
+                    const mateB = existingTile.genome.matePickLevel <= similarity &&
+                        similarity <= this.config.maxMateSimilarity;
                     // for fighting we need at least a given amount of difference (= low similarity)
                     const fightA = similarity < tile.genome.aggressionLevel;
                     const fightB = similarity < existingTile.genome.aggressionLevel;

@@ -54,6 +54,7 @@ class Config {
 
         this._aggressionRange = aggressionRange;            //
         this._matePickRange = matePickRange;                // how similar the other creature must be for mating
+        this._maxMateSimilarity = maxMateSimilarity;        // avoid incest
 
         this._rand = seedrandom(seed);
     }
@@ -72,6 +73,10 @@ class Config {
 
     get mutationChance() {
         return this._mutationChance;
+    }
+
+    get maxMateSimilarity() {
+        return this._maxMateSimilarity;
     }
 
     get passiveEnergyExpenses() {
