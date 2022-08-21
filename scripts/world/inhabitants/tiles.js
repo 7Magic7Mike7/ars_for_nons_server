@@ -94,9 +94,18 @@ class Tile extends Configurable {
         return this._deathTime < 0;
     }
 
+    get isBorn() {
+        return this._age >= 0;
+    }
+
     get strength() {
         if (this.isAlive) return this._genome.strength;
         else return 0;
+    }
+
+    isParent(tile) {
+        console.assert(tile.prototype === Tile, "not a Tile!");
+        return this.genome.isParent(tile.id);
     }
 
     _updatePosition(direction) {

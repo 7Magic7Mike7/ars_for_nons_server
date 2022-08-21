@@ -58,7 +58,10 @@ class Genome {
         return similarity;
     }
 
-    static reproduce(g1, g2, config) {
+    static reproduce(g1, g2, config, motherId, fatherId) {
+        console.assert(Genome.calculateSimilarity(g1, g2) <= config.maxMateSimilarity,
+            "Parents are too similar! Incest not allowed.");
+
         let genome = "";
         for (let i = 0; i < NUM_OF_GENES; i++) {
             const gene1 = g1.getGene(i);
@@ -75,7 +78,7 @@ class Genome {
                 }
             }
         }
-        return new Genome(genome, config);
+        return new Genome(genome, config, motherId, fatherId);
     }
 
 // 9 sensors for input, 7 actuators for output, 5 inner neurons
@@ -94,12 +97,14 @@ class Genome {
 // decay time, incubation time, egg lay delay,
 // mate pick level, aggression level, strength
 
-    constructor(data, config) {
+    constructor(data, config, motherId = null, fatherId = null) {
         console.assert(typeof data === 'string', "data is no String!");
         console.assert(data.length === NUM_OF_GENES * GENE_SIZE,
                 "Invalid genome size: " + data.length);
 
         this._data = data;
+        this._motherId = motherId;
+        this._fatherId = fatherId;
 
         this._i2o = MathJS.zeros(NUM_OF_SENSORS, NUM_OF_ACTUATORS);
         this._i2h = MathJS.zeros(NUM_OF_SENSORS, NUM_OF_NEURONS);
@@ -264,6 +269,10 @@ class Genome {
         console.assert(0 <= index && index < NUM_OF_GENES, "Invalid index: " + index +
             ". Expected range = [0, " + NUM_OF_GENES + "[");
         return this._data.substring(index * GENE_SIZE, (index + 1) * GENE_SIZE);
+    }
+
+    isParent(id) {
+        return this._motherId === id || this._fatherId === id;
     }
 }
 

@@ -16,9 +16,12 @@
 </label>
 <div id="graph"></div>
 <div id="infos">
+    Number of currently living creatures:<div id="currentlyLiving"></div><br>
     Number of produced creatures:<div id="producedCreatures"></div><br>
     Number of natural deaths:<div id="naturalDeaths"></div><br>
     Number of kills:<div id="kills"></div><br>
+    Number of unborn deaths:<div id="unbornDeaths"></div><br>
+    Number of parent kills:<div id="parentKills"></div><br>
     Average age on death:<div id="avgDeathAge"></div><br>
 </div>
 
@@ -27,9 +30,13 @@
     const graph = document.getElementById("graph");
     const simToRetrieveFrom = document.getElementById("simId");
     const autoUpdate = document.getElementById("autoUpdate");
+
+    const currentlyLiving = document.getElementById("currentlyLiving");
     const producedCreatures = document.getElementById("producedCreatures");
     const naturalDeaths = document.getElementById("naturalDeaths");
     const kills = document.getElementById("kills");
+    const unbornDeaths = document.getElementById("unbornDeaths");
+    const parentKills = document.getElementById("parentKills");
     const avgDeathAge = document.getElementById("avgDeathAge");
 
     setInterval(update, 1000);
@@ -61,13 +68,16 @@
                         ys.push(data[i].y);
                         colors.push(data[i].color[0]);
                         colors.push("rgb(" + data[i].color[0] + "," + data[i].color[1] + "," + data[i].color[2] + ")");
-                        texts.push("#" + data[i].id + " from " + data[i].creator);
+                        texts.push("#" + data[i].id + " from " + data[i].creator + "\n" + "age = " + data[i].age);
                     }
                 }
                 createPlot(simId, infos.width, infos.height, xs, ys, colors, texts);
+                currentlyLiving.innerText = infos.currentlyLiving;
                 producedCreatures.innerText = infos.producedCreatures;
                 naturalDeaths.innerText = infos.naturalDeaths;
                 kills.innerText = infos.kills;
+                unbornDeaths.innerText = infos.unbornDeaths;
+                parentKills.innerText = infos.parentKills;
                 avgDeathAge.innerText = infos.avgDeathAge;
             });
         })

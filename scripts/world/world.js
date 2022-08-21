@@ -76,8 +76,14 @@ class World extends Configurable {
         this._producedCreatures = 0;    // number of new creatures produced via mating
         this._naturalDeaths = 0;        // number of deaths based on having no more energy
         this._kills = 0;                // number of deaths based on fighting (includes death by resolving position)
+        this._unbornDeaths = 0;         // number of deaths that occurred before the creature was born (e.g. someone ate the embryo)
+        this._parentKills = 0;          // how often a parent killed one of their children
 
         this._deathAgeSum = 0;
+    }
+
+    get age() {
+        return this._age;
     }
 
     get numOfProducedCreatures() {
@@ -92,6 +98,14 @@ class World extends Configurable {
         return this._kills;
     }
 
+    get numOfUnbornDeaths() {
+        return this._unbornDeaths;
+    }
+
+    get numOfParentKills() {
+        return this._parentKills;
+    }
+
     get averageDeathAge() {
         return this._deathAgeSum / (this._naturalDeaths + this._kills);
     }
@@ -99,7 +113,8 @@ class World extends Configurable {
     _handleDeath(tile) {
         console.assert(!tile.isAlive, "tile not dead!");
 
-        if (tile.energy <= 0) this._naturalDeaths += 1;
+        if (!tile.isBorn) this._unbornDeaths += 1;
+        else if (tile.energy <= 0) this._naturalDeaths += 1;
         else this._kills += 1;
 
         this._deathAgeSum += tile.age;
@@ -157,7 +172,20 @@ class World extends Configurable {
 
             if (world.has(tile.pos)) {
                 const existingTile = world.get(tile.pos);
-                if (existingTile.isAlive) {
+
+                if (!tile.isAlive || !tile.isBorn) {
+                    // the existing tile will eat tile because it can do nothing against it
+                    existingTile.eat(tile);
+                    if (tile.isAlive) {
+                        this._handleDeath(tile);
+                        if (tile.isParent(existingTile)) {
+                            this._parentKills += 1;
+                        }
+                    }
+                    return;
+                }
+
+                if (existingTile.isBorn && existingTile.isAlive) {
                     const similarity = Genome.calculateSimilarity(tile.genome, existingTile.genome);
 
                     // for mating we need at least a given amount of similarity
