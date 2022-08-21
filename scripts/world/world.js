@@ -145,10 +145,12 @@ class World extends Configurable {
                 if (existingTile.isAlive) {
                     const similarity = Genome.calculateSimilarity(tile.genome, existingTile.genome);
 
-                    const mateA = similarity <= tile.genome.matePickLevel;
-                    const mateB = similarity <= existingTile.genome.matePickLevel;
-                    const fightA = (1 - similarity) <= tile.genome.aggressionLevel;
-                    const fightB = (1 - similarity) <= existingTile.genome.aggressionLevel;
+                    // for mating we need at least a given amount of similarity
+                    const mateA = similarity >= tile.genome.matePickLevel;
+                    const mateB = similarity >= existingTile.genome.matePickLevel;
+                    // for fighting we need at least a given amount of difference (= low similarity)
+                    const fightA = similarity < tile.genome.aggressionLevel;
+                    const fightB = similarity < existingTile.genome.aggressionLevel;
 
 
                     function getTile(key) {
