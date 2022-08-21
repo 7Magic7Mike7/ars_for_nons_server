@@ -88,7 +88,11 @@ class Genome {
 // if we have 16 genes for the brain, we would need 80 digits
 
 // 5 digits = 1 gene for max_energy, aggression level, ???
-// needed properties: speed, max energy, position?, orientation, digestion multiplier, degradation time?, weight
+// needed properties:
+// position?, orientation?,
+// max energy, weight, digestion rate,
+// decay time, incubation time, egg lay delay,
+// mate pick level, aggression level, strength
 
     constructor(data, config) {
         console.assert(typeof data === 'string', "data is no String!");
@@ -136,14 +140,6 @@ class Genome {
         this._pos = new Coordinate(MathJS.round(x * config.worldSize), MathJS.round(y * config.worldSize));
 
         this._value = Genome._calculateValue(this);
-        /*
-                while index + Genome.GENE_LENGTH <= len(data):
-            cur_gene = int(data[index:index+Genome.GENE_LENGTH])
-            self.__create_brain_connection(cur_gene)
-            index += Genome.GENE_LENGTH
-
-            self.__value += (cur_gene / 10**Genome.GENE_LENGTH)
-         */
     }
 
     _splitGene(curGene, split1 = 6, split2 = 5) {
