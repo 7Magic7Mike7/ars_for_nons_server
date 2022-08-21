@@ -6,9 +6,10 @@ const seedrandom = require('seedrandom');
 class Range {
     // needs to be min, max instead of mu, sigma or something else because the gene can only provide us information
     // about 0 to 100% of the possible values
-    constructor(min, max) {
+    constructor(min, max, integersOnly = false) {
         this._min = min;
         this._max = max;
+        this._integersOnly = integersOnly;
     }
 
     get min() {
@@ -21,7 +22,9 @@ class Range {
 
     resolve(num) {
         console.assert(0 <= num && num <= 1.0, "num not element of [0.0, 1.0]! num = " + num);
-        return this._min + num * (this._max - this._min);
+        const value = this._min + num * (this._max - this._min);
+        if (this._integersOnly)  return Math.round(value);
+        else return value;
     }
 }
 
