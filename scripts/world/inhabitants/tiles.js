@@ -171,7 +171,7 @@ class Tile extends Configurable {
             this._childGenome = Genome.reproduce(this.genome, other.genome, this.config, this.id, other.id);
             this._eggLayTimer = this.genome.eggLayDelay;
         }
-        // todo what happens else?
+        // mating does nothing if we are pregnant
     }
 
     produce() {
