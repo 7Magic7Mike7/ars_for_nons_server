@@ -175,7 +175,7 @@ class Tile extends Configurable {
 
     update(get) {
         this._prevPos = this._pos;
-        // todo check if get is a function?
+        console.assert(typeof get === 'function', "get is not a function!");
 
         this._age += 1;
         if (this._age < 0) return true;     // hatching in progress
