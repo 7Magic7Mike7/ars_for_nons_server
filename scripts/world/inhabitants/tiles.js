@@ -1,4 +1,5 @@
 
+const math = require("mathjs");
 const {Configurable} = require("../../configurable");
 const UF = require("../../util/util_functions");
 const Coordinate = require("../../util/coordinate");
@@ -8,6 +9,15 @@ const Brain = require("./brain");
 
 class Tile extends Configurable {
     static __NextID = 0;
+
+    static _calculateEnergyMultiplier(age) {
+        const peakMult = 0.5;
+        const peakAge = 10;
+        const smoothing = 2 / peakAge;  // 1 / (peakAge * 0.5) seems to look good
+
+        // use quadratic function so young and old people (children grow and seniors get weaker) need more energy
+        return peakMult + math.pow(smoothing * (age - peakAge), 2);
+    }
 
     constructor(config, creatorId, genome, id = null, pos = null) {
         super(config);
@@ -187,9 +197,9 @@ class Tile extends Configurable {
 
             const output = this._brain.think(input);
             // get the index of the highest value (in case multiple values are the maximum just take the first one)
-            const drivenActuator = output.indexOf(Math.max(...output));
+            const drivenActuator = output.indexOf(math.max(...output));
             const usedEnergy = this.config.passiveEnergyExpenses + this._act(drivenActuator);
-            this._energy -= usedEnergy; // todo take age into account?
+            this._energy -= usedEnergy * Tile._calculateEnergyMultiplier(this._age);
 
             if (this._energy <= 0) {
                 this._deathTime = this._genome.decayTime;
