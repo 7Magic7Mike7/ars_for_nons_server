@@ -186,10 +186,11 @@ class World extends Configurable {
                     // todo I guess the brain decided, so it should be fine
                     tile.eat(existingTile);
                 }
+                // tile might have died in a fight, so we have to check again
+                if (tile.isAlive) world.set(tile.pos, tile);
+                else this._kills += 1;
             }
-            // tile might have died in a fight, so we have to check again
-            if (tile.isAlive) world.set(tile.pos, tile);
-            else this._kills += 1;
+            else world.set(tile.pos, tile);
         }
     }
 
