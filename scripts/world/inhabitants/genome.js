@@ -125,7 +125,6 @@ class Genome {
         this._matePickLevel = config.matePickLevel(geneB[0]);
         this._aggressionLevel = config.aggressionLevel(geneB[1]);
         this._strength = geneB[2];
-        // todo maybe use the last one for "strength"? to determine what happens when one wants to mate and the other to fight
         //index += GENE_SIZE;
 
         // todo change how position is calculated?
