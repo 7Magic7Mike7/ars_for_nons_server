@@ -84,11 +84,11 @@ class Config {
         return this._passiveEnergyExpenses;
     }
 
-    get energyMultTurn() {
+    get turnBaseEnergy() {
         return this._energyMultTurn;
     }
 
-    get energyMultMove() {
+    get moveBaseEnergy() {
         return this._energyMultMove;
     }
 
