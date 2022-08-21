@@ -229,7 +229,7 @@ class World extends Configurable {
                     if (!existingTile.isAlive) this._handleDeath(existingTile);
                 }
                 else {
-                    // todo should we really always eat a dead creature?
+                    // todo should we really always eat a dead or unborn creature?
                     // todo I guess the brain decided, so it should be fine
                     tile.eat(existingTile);
                 }
