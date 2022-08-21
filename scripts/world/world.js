@@ -204,7 +204,7 @@ class World extends Configurable {
 
                     function mate(a, b) {
                         a.resolvePosition(getTile, a.pos);    // doesn't matter if we use a.pos or b.pos since it's equal
-                        a.mate(b.genome);
+                        a.mate(b);
                     }
 
                     if (mateA && mateB) {

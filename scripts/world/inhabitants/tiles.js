@@ -166,9 +166,9 @@ class Tile extends Configurable {
         }
     }
 
-    mate(otherGenome) {
+    mate(other) {
         if (this._childGenome === null) {
-            this._childGenome = Genome.reproduce(this.genome, otherGenome, this.config);
+            this._childGenome = Genome.reproduce(this.genome, other.genome, this.config, this.id, other.id);
             this._eggLayTimer = this.genome.eggLayDelay;
         }
         // todo what happens else?
