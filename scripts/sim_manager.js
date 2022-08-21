@@ -136,8 +136,11 @@ function startTesting(interval) {
     function _testSim() {
         const data = DataGenerator.getRandomCacheData(0.6);
         if (data === null) return;
-        if (!simManager.update("0", data, "testSim")) {
-            console.log("failed to update");
+
+        for (const id of simManager.getIds()) {
+            if (!simManager.update(id, data, "testSim")) {
+                console.log("failed to update");
+            }
         }
     }
     setInterval(_testSim, interval);
