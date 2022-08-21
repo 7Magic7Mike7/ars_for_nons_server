@@ -31,12 +31,14 @@ class Range {
 class Config {
     constructor(seed,
                 worldSize = 10, gravity = 1, simulationSpeed = 1, mutationChance = 0.01,
-                passiveEnergyExpenses = 1, energyMultTurn = 1, energyMultMove = 1,
-                maxEnergyRange = new Range(20, 100), weightRange = new Range(1, 5),
-                digestionRange = new Range(0.1, 0.9),
-                incubationTimeRange = new Range(1, 5), eggLayDelayRange = new Range(0, 2),
-                decayRange = new Range(1, 10),
-                aggressionRange = new Range(0, 1), matePickRange = new Range(0, 1)) {
+                passiveEnergyExpenses = 3, energyMultTurn = 1, energyMultMove = 1,
+                maxEnergyRange = new Range(50, 200), weightRange = new Range(1, 5),
+                digestionRange = new Range(0.2, 0.8),
+                incubationTimeRange = new Range(2, 7, true),
+                eggLayDelayRange = new Range(1, 4, true),
+                decayRange = new Range(1, 10, true),
+                aggressionRange = new Range(0, 0.05), matePickRange = new Range(0.4, 0.8),
+                maxMateSimilarity = 0.9) {
         // todo numOfNeuronsRange?
         this._worldSize = worldSize;    // influences maximum number of creatures that can live
         this._gravity = gravity;        // influences energy penalty based on weight

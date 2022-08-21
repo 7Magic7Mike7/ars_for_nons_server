@@ -134,7 +134,7 @@ function startEvolution(interval) {
 function startTesting(interval) {
     const simManager = manager.get("sim");
     function _testSim() {
-        const data = DataGenerator.getRandomCacheData(0.8);
+        const data = DataGenerator.getRandomCacheData(0.6);
         if (data === null) return;
         if (!simManager.update("0", data, "testSim")) {
             console.log("failed to update");
@@ -143,8 +143,8 @@ function startTesting(interval) {
     setInterval(_testSim, interval);
 }
 
-startEvolution(1000);   // todo use config?
-startTesting(1000);
+startEvolution(100);   // todo use config?
+startTesting(100);
 
 function numOfBufferedData() {
     let counter = 0;
