@@ -42,6 +42,7 @@ class EvolutionSimulation extends Configurable {
                 producedCreatures: this._world.numOfProducedCreatures,
                 naturalDeaths: this._world.numOfNaturalDeaths,
                 kills: this._world.numOfKills,
+                avgDeathAge: this._world.averageDeathAge,
             },
             tileData: data
         }

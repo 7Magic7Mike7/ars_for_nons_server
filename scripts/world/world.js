@@ -76,6 +76,8 @@ class World extends Configurable {
         this._producedCreatures = 0;    // number of new creatures produced via mating
         this._naturalDeaths = 0;        // number of deaths based on having no more energy
         this._kills = 0;                // number of deaths based on fighting (includes death by resolving position)
+
+        this._deathAgeSum = 0;
     }
 
     get numOfProducedCreatures() {
@@ -88,6 +90,19 @@ class World extends Configurable {
 
     get numOfKills() {
         return this._kills;
+    }
+
+    get averageDeathAge() {
+        return this._deathAgeSum / (this._naturalDeaths + this._kills);
+    }
+
+    _handleDeath(tile) {
+        console.assert(!tile.isAlive, "tile not dead!");
+
+        if (tile.energy <= 0) this._naturalDeaths += 1;
+        else this._kills += 1;
+
+        this._deathAgeSum += tile.age;
     }
 
     _nextCoordinate(stepRight) {
@@ -181,7 +196,7 @@ class World extends Configurable {
                             else tile.resolvePosition(getTile, existingTile.pos);    // the weaker one must resolve its position
                         }
                     }
-                    if (!existingTile.isAlive) this._kills += 1;
+                    if (!existingTile.isAlive) this._handleDeath(existingTile);
                 }
                 else {
                     // todo should we really always eat a dead creature?
@@ -190,7 +205,7 @@ class World extends Configurable {
                 }
                 // tile might have died in a fight, so we have to check again
                 if (tile.isAlive) world.set(tile.pos, tile);
-                else this._kills += 1;
+                else this._handleDeath(tile);
             }
             else world.set(tile.pos, tile);
         }
@@ -219,7 +234,7 @@ class World extends Configurable {
             if (tile.update(getTile)) {
                 this._place(tile, newWorld);
             }
-            if (!tile.isAlive && tile.energy <= 0) this._naturalDeaths += 1;
+            if (!tile.isAlive) this._handleDeath(tile);
 
             const child = tile.produce();
             if (child !== null) {

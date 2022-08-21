@@ -19,6 +19,7 @@
     Number of produced creatures:<div id="producedCreatures"></div><br>
     Number of natural deaths:<div id="naturalDeaths"></div><br>
     Number of kills:<div id="kills"></div><br>
+    Average age on death:<div id="avgDeathAge"></div><br>
 </div>
 
 <script>
@@ -29,6 +30,7 @@
     const producedCreatures = document.getElementById("producedCreatures");
     const naturalDeaths = document.getElementById("naturalDeaths");
     const kills = document.getElementById("kills");
+    const avgDeathAge = document.getElementById("avgDeathAge");
 
     setInterval(update, 1000);
 
