@@ -105,16 +105,21 @@ class Tile extends Configurable {
     }
 
     _validatePosition() {
-        // if (0 <= this._pos.x &&) // todo optimize and check if we need to update pos
+        let didAdapt = false;
         let x = this._pos.x;
         if (x < 0) x += this.config.worldSize;
         else if (this.config.worldSize <= x)  x = x % this.config.worldSize;
+        else didAdapt = true;
 
         let y = this._pos.y;
         if (y < 0) y += this.config.worldSize;
         else if (this.config.worldSize <= y)  y = y % this.config.worldSize;
+        else didAdapt = true;
 
-        return new Coordinate(x, y);
+        if (didAdapt) {
+            // only create new Coordinate if something was adapted
+            this._pos = new Coordinate(x, y);
+        }
     }
 
     resolvePosition(get, forbiddenPos) {
