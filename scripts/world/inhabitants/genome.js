@@ -26,13 +26,14 @@ class Genome {
         console.assert(g1.prototype !== Genome, "g1 is not a Genome!");
         console.assert(g2.prototype !== Genome, "g2 is not a Genome!");
 
-        let similarity = 1;
+        let similarity = 0;
         for (let i = 0; i < NUM_OF_GENES; i++) {
             const gene1 = g1.getGene(i);
             const gene2 = g2.getGene(i);
             const diff = MathJS.abs(gene1 - gene2) / _MAX_GENE_VALUE;
-            similarity *= (1 - diff);
+            similarity += (1 - diff);
         }
+        similarity /= NUM_OF_GENES;
 
         console.assert(0 <= similarity && similarity <= 1, "Invalid similarity calculated!");
         return similarity;
@@ -43,7 +44,7 @@ class Genome {
         console.assert(genome.prototype !== Genome, "not a Genome!");
 
         // this is basically calculating the similarity between genome and an all 0s Genome
-        let similarity = 1;
+        let similarity = 0;
         for (let i = 0; i < NUM_OF_GENES; i++) {
             const gene = genome.getGene(i);
             const diff = gene / _MAX_GENE_VALUE;
