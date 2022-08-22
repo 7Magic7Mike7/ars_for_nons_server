@@ -34,42 +34,31 @@ class Config {
         switch (index) {
             case 1:     // aggressive world
                 conf._aggressionRange = new Range(0, 0.7);
-                conf._matePickRange = new Range(0.5, 0.8);
-                conf._maxEnergyRange = new Range(150, 250);
                 break;
             case 2:     // mutation world
-                conf._mutationChance = 0.25;
+                conf._mutationChance = 0.3;
                 break;
             case 3:     // instant birth world
                 conf._incubationTimeRange = new Range(1, 1, true);
                 conf._eggLayDelayRange = new Range(1, 1, true);
                 break;
             case 4:     // scavenger world
-                conf._decayRange = new Range(20, 30, true);
-                conf._digestionRange = new Range(0.5, 0.8);
-                conf._energyMultMove = 2;
-                conf._weightRange = new Range(1, 10);
+                conf._decayRange = new Range(30, 50, true);
                 break;
             case 5:     // huge world
-                conf._gravity = 0.5;
-                conf._weightRange = new Range(1, 3);
                 conf._worldSize = 100;
-                conf._maxEnergyRange = new Range(100, 200);
                 break;
             case 6:     // love world
-                conf._aggressionRange = new Range(0, 0);
                 conf._matePickRange = new Range(0.1, 0.3);
-                conf._eggLayDelayRange = new Range(2, 5);
-                conf._incubationTimeRange = new Range(4, 8);
                 break;
-            case 7:
-                conf._seed += 1;
+            case 7:     // moon-gravity world
+                conf._gravity = 0.5;
                 break;
             case 8:
-                conf._seed += 2;
+                conf._gravity = 3;
                 break;
             case 9:
-                conf._seed += 3;
+                conf._seed += 2;
                 break;
         }
         return conf;
@@ -78,12 +67,12 @@ class Config {
     constructor(seed,
                 worldSize = 10, gravity = 1, simulationSpeed = 1, mutationChance = 0.01,
                 passiveEnergyExpenses = 3, energyMultTurn = 1, energyMultMove = 1,
-                maxEnergyRange = new Range(50, 200), weightRange = new Range(1, 5),
-                digestionRange = new Range(0.2, 0.8),
-                incubationTimeRange = new Range(2, 7, true),
-                eggLayDelayRange = new Range(1, 4, true),
-                decayRange = new Range(1, 10, true),
-                aggressionRange = new Range(0, 0.05), matePickRange = new Range(0.4, 0.8),
+                maxEnergyRange = new Range(150, 250), weightRange = new Range(1, 5),
+                digestionRange = new Range(0.5, 0.8),
+                incubationTimeRange = new Range(2, 5, true),
+                eggLayDelayRange = new Range(1, 3, true),
+                decayRange = new Range(5, 15, true),
+                aggressionRange = new Range(0, 0.1), matePickRange = new Range(0.3, 0.7),
                 maxMateSimilarity = 0.9) {
         // todo numOfNeuronsRange?
         this._worldSize = worldSize;    // influences maximum number of creatures that can live
