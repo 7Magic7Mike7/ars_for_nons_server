@@ -134,7 +134,7 @@ function startEvolution(interval) {
 function startTesting(interval) {
     const simManager = manager.get("sim");
     function _testSim() {
-        const data = DataGenerator.getRandomCacheData(0.6);
+        const data = DataGenerator.getRandomCacheData(0.4);
         if (data === null) return;
 
         for (const id of simManager.getIds()) {

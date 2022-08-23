@@ -66,13 +66,13 @@ class Config {
 
     constructor(seed,
                 worldSize = 10, gravity = 1, simulationSpeed = 1, mutationChance = 0.01,
-                passiveEnergyExpenses = 3, energyMultTurn = 1, energyMultMove = 1,
-                maxEnergyRange = new Range(150, 250), weightRange = new Range(1, 5),
-                digestionRange = new Range(0.5, 0.8),
+                passiveEnergyExpenses = 1, energyMultTurn = 1, energyMultMove = 1,
+                maxEnergyRange = new Range(450, 650), weightRange = new Range(1, 1),
+                digestionRange = new Range(0.6, 0.8),
                 incubationTimeRange = new Range(2, 5, true),
-                eggLayDelayRange = new Range(1, 3, true),
-                decayRange = new Range(5, 15, true),
-                aggressionRange = new Range(0, 0.1), matePickRange = new Range(0.3, 0.7),
+                eggLayDelayRange = new Range(1, 2, true),
+                decayRange = new Range(25, 30, true),
+                aggressionRange = new Range(0, 0.2), matePickRange = new Range(0.3, 0.6),
                 maxMateSimilarity = 0.9) {
         // todo numOfNeuronsRange?
         this._worldSize = worldSize;    // influences maximum number of creatures that can live
