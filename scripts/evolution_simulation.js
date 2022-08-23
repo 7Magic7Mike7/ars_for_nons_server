@@ -27,9 +27,15 @@ class EvolutionSimulation extends Configurable {
     getPlotData() {
         const tiles = this._world.getAllTiles();
         const data = [];
-        let tileCounter = 0;
+        const tileCounter = {
+            hatching: 0,
+            living: 0,
+            decaying: 0,
+        };
         for (const tile of tiles) {
-            tileCounter += 1;
+            if (!tile.isBorn)       tileCounter.hatching++;
+            else if (tile.isAlive)  tileCounter.living++;
+            else tileCounter.decaying++;
             data.push({
                 id: tile.id,
                 x: tile.pos.x,
@@ -44,7 +50,7 @@ class EvolutionSimulation extends Configurable {
                 width: this._config.worldSize,
                 height: this._config.worldSize,
                 age: this._world.age,
-                currentlyLiving: tileCounter,
+                existingCreatures: tileCounter,
                 producedCreatures: this._world.numOfProducedCreatures,
                 naturalDeaths: this._world.numOfNaturalDeaths,
                 kills: this._world.numOfKills,

@@ -17,7 +17,9 @@
 <div id="graph"></div>
 <div id="infos">
     Age of world:<div id="worldAge"></div><br>
-    Number of currently living creatures:<div id="currentlyLiving"></div><br>
+    Number of currently hatching creatures:<div id="curHatching"></div><br>
+    Number of currently living creatures:<div id="curLiving"></div><br>
+    Number of currently decaying creatures:<div id="curDecaying"></div><br>
     Number of produced creatures:<div id="producedCreatures"></div><br>
     Number of natural deaths:<div id="naturalDeaths"></div><br>
     Number of kills:<div id="kills"></div><br>
@@ -33,7 +35,10 @@
     const autoUpdate = document.getElementById("autoUpdate");
 
     const worldAge = document.getElementById("worldAge");
-    const currentlyLiving = document.getElementById("currentlyLiving");
+    const curHatching = document.getElementById("curHatching");
+    const curLiving = document.getElementById("curLiving");
+    const curDecaying = document.getElementById("curDecaying");
+
     const producedCreatures = document.getElementById("producedCreatures");
     const naturalDeaths = document.getElementById("naturalDeaths");
     const kills = document.getElementById("kills");
@@ -75,7 +80,10 @@
                 }
                 createPlot(simId, infos.width, infos.height, xs, ys, colors, texts);
                 worldAge.innerText = infos.age;
-                currentlyLiving.innerText = infos.currentlyLiving;
+                curHatching.innerText = infos.existingCreatures.hatching;
+                curLiving.innerText = infos.existingCreatures.living;
+                curDecaying.innerText = infos.existingCreatures.decaying;
+
                 producedCreatures.innerText = infos.producedCreatures;
                 naturalDeaths.innerText = infos.naturalDeaths;
                 kills.innerText = infos.kills;
