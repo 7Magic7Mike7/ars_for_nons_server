@@ -19,7 +19,7 @@ class Tile extends Configurable {
         return peakMult + math.pow(smoothing * (age - peakAge), 2);
     }
 
-    constructor(config, creatorId, genome, id = null, pos = null) {
+    constructor(config, creatorId, genome, id = null, pos = null, generation = 0) {
         super(config);
         console.assert(genome.prototype !== Genome, "Not a Genome!");
 
@@ -50,8 +50,10 @@ class Tile extends Configurable {
         this._deathTime = -1;   // not dead yet
         this._eggLayTimer = -1;
         this._childGenome = null;
+        this._childGeneration = -1;
 
         this._prevPos = null;
+        this._generation = generation;
     }
 
     get config() {
@@ -76,6 +78,10 @@ class Tile extends Configurable {
 
     get age() {
         return this._age;
+    }
+
+    get generation() {
+        return this._generation;
     }
 
     get energy() {
@@ -170,6 +176,9 @@ class Tile extends Configurable {
         if (this._childGenome === null) {
             this._childGenome = Genome.reproduce(this.genome, other.genome, this.config, this.id, other.id);
             this._eggLayTimer = this.genome.eggLayDelay;
+
+            if (this._generation > other.generation) this._childGeneration = this._generation + 1;
+            else this._childGeneration = other.generation + 1;
         }
         // mating does nothing if we are pregnant
     }
@@ -182,7 +191,8 @@ class Tile extends Configurable {
             console.assert(this._childGenome !== null, "Child Genome missing but eggLayTimer active!");
 
             const pos = this._pos.add(Direction.coord(Direction.opposite(this._orientation)));
-            const child = new Tile(this.config, this.creator + "#", this._childGenome, null, pos);  // todo later remove hashtag, it's just for debugging now
+            const child = new Tile(this.config, this.creator, this._childGenome, null, pos,
+                                   this._childGeneration);
             this._childGenome = null;
             this._eggLayTimer = -1;
             return child;

@@ -17,6 +17,7 @@
 <div id="graph"></div>
 <div id="infos">
     Age of world:<div id="worldAge"></div><br>
+    Generation distribution:<div id="genDist"></div><br>
     Number of currently hatching creatures:<div id="curHatching"></div><br>
     Number of currently living creatures:<div id="curLiving"></div><br>
     Number of currently decaying creatures:<div id="curDecaying"></div><br>
@@ -35,6 +36,7 @@
     const autoUpdate = document.getElementById("autoUpdate");
 
     const worldAge = document.getElementById("worldAge");
+    const genDist = document.getElementById("genDist");
     const curHatching = document.getElementById("curHatching");
     const curLiving = document.getElementById("curLiving");
     const curDecaying = document.getElementById("curDecaying");
@@ -75,11 +77,12 @@
                         ys.push(data[i].y);
                         colors.push(data[i].color[0]);
                         colors.push("rgb(" + data[i].color[0] + "," + data[i].color[1] + "," + data[i].color[2] + ")");
-                        texts.push("#" + data[i].id + " from " + data[i].creator + "\n" + "age = " + data[i].age);
+                        texts.push("#" + data[i].id + ", gen" + data[i].generation + " | " + "age = " + data[i].age);
                     }
                 }
                 createPlot(simId, infos.width, infos.height, xs, ys, colors, texts);
                 worldAge.innerText = infos.age;
+                genDist.innerText = infos.genDistribution;
                 curHatching.innerText = infos.existingCreatures.hatching;
                 curLiving.innerText = infos.existingCreatures.living;
                 curDecaying.innerText = infos.existingCreatures.decaying;

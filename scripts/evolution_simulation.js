@@ -32,10 +32,15 @@ class EvolutionSimulation extends Configurable {
             living: 0,
             decaying: 0,
         };
+        const genDistribution = [0];
         for (const tile of tiles) {
             if (!tile.isBorn)       tileCounter.hatching++;
             else if (tile.isAlive)  tileCounter.living++;
             else tileCounter.decaying++;
+
+            while (tile.generation >= genDistribution.length) genDistribution.push(0);
+            genDistribution[tile.generation]++;
+
             data.push({
                 id: tile.id,
                 x: tile.pos.x,
@@ -43,6 +48,7 @@ class EvolutionSimulation extends Configurable {
                 color: hsvToRgb(tile.color),
                 creator: tile.creator,
                 age: tile.age,
+                generation: tile.generation,
             });
         }
         return {
@@ -50,6 +56,7 @@ class EvolutionSimulation extends Configurable {
                 width: this._config.worldSize,
                 height: this._config.worldSize,
                 age: this._world.age,
+                genDistribution: genDistribution,
                 existingCreatures: tileCounter,
                 producedCreatures: this._world.numOfProducedCreatures,
                 naturalDeaths: this._world.numOfNaturalDeaths,
