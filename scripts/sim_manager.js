@@ -143,7 +143,8 @@ function startTesting(interval) {
             }
         }
     }
-    setInterval(_testSim, interval);
+    for (let i = 0; i < 1000; i++) setTimeout(_testSim, interval);
+    //setInterval(_testSim, interval);
 }
 
 startEvolution(100);   // todo use config?
