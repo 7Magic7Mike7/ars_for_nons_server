@@ -7,6 +7,23 @@ const Direction = require("../../util/direction");
 const Genome = require("./genome");
 const Brain = require("./brain");
 
+const drivenActuatorStats = [];
+let updateCounter = 0;
+for (let i = 0; i < Genome.NUM_OF_ACTUATORS; i++) drivenActuatorStats.push(0);
+function updateDrivenActuatorStats(drivenActuator) {
+    drivenActuatorStats[drivenActuator]++;
+    updateCounter++;
+    if (updateCounter % 100_000 === 0) {
+        const relative = [];
+        for (let i = 0; i < drivenActuatorStats.length; i++) {
+            const rel = drivenActuatorStats[i] / updateCounter;
+            relative.push(("" + rel).substring(0, 5));
+        }
+        console.log(relative);
+    }
+}
+
+
 class Tile extends Configurable {
     static __NextID = 0;
 
@@ -226,6 +243,7 @@ class Tile extends Configurable {
             const output = this._brain.think(input);
             // get the index of the highest value (in case multiple values are the maximum just take the first one)
             const drivenActuator = output.indexOf(math.max(...output));
+            updateDrivenActuatorStats(drivenActuator);
             const usedEnergy = this.config.passiveEnergyExpenses + this._act(drivenActuator);
             this._energy -= usedEnergy * Tile._calculateEnergyMultiplier(this._age);
 
