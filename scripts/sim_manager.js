@@ -45,7 +45,7 @@ class CommunicationHandler {
         this._id = id;
         this._data = new Queue(1000);
 
-        const conf = Config.createConfig(7, id);
+        const conf = Config.createConfig(12, id);
         this._sim = new EvolSim(conf);
     }
 
@@ -133,8 +133,14 @@ function startEvolution(interval) {
 
 function startTesting(interval) {
     const simManager = manager.get("sim");
-    const nullChance = 0.4;
+    let nullChance = 0.0;
+    let counter = 0;
     function _testSim() {
+        if (counter >= 100_000) return;
+        if (counter === 1_000) nullChance /= 7;
+        if (counter === 10_000) nullChance /= 7;
+        counter++;
+
         const data = DataGenerator.getRandomCacheData(nullChance);
         if (data === null) return;
 
@@ -144,8 +150,7 @@ function startTesting(interval) {
             }
         }
     }
-    for (let i = 0; i < 1000 / nullChance; i++) setTimeout(_testSim, interval);
-    //setInterval(_testSim, interval);
+    setInterval(_testSim, interval);
 }
 
 startEvolution(100);   // todo use config?

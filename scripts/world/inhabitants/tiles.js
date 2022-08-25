@@ -297,24 +297,24 @@ class Tile extends Configurable {
 
     _act(drivenActuator) {
         switch (drivenActuator) {
-            case 0:     // idle => do nothing
+            case 6:     // idle => do nothing
                 return 0;
-            case 1:     // turn left
+            case 5:     // turn left
                 this._orientation = Direction.turnLeft(this._orientation);
                 return this.config.turnBaseEnergy;
-            case 2:     // turn right
+            case 4:     // turn right
                 this._orientation = Direction.turnRight(this._orientation);
                 return this.config.turnBaseEnergy;
             case 3:     // move up
                 this._updatePosition(Direction.Up);
                 return this.config.moveBaseEnergy + this._genome.weight * this.config.gravity;
-            case 4:     // move right
+            case 2:     // move right
                 this._updatePosition(Direction.Right);
                 return this.config.moveBaseEnergy + this._genome.weight * this.config.gravity;
-            case 5:     // move down
+            case 1:     // move down
                 this._updatePosition(Direction.Down);
                 return this.config.moveBaseEnergy + this._genome.weight * this.config.gravity;
-            case 6:     // move left
+            case 0:     // move left
                 this._updatePosition(Direction.Left);
                 return this.config.moveBaseEnergy + this._genome.weight * this.config.gravity;
         }
