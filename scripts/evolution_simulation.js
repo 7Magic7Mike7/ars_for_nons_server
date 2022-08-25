@@ -51,12 +51,18 @@ class EvolutionSimulation extends Configurable {
                 generation: tile.generation,
             });
         }
+        let genDistCompact = "";
+        for (let i = 0; i < genDistribution.length; i++) {
+            if (genDistribution[i] > 0) {
+                genDistCompact += i + ": " + genDistribution[i] + ", ";
+            }
+        }
         return {
             metaData: {
                 width: this._config.worldSize,
                 height: this._config.worldSize,
                 age: this._world.age,
-                genDistribution: genDistribution,
+                genDistribution: genDistCompact,
                 existingCreatures: tileCounter,
                 producedCreatures: this._world.numOfProducedCreatures,
                 naturalDeaths: this._world.numOfNaturalDeaths,
