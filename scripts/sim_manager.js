@@ -136,8 +136,9 @@ function startTesting(interval) {
     let nullChance = 0.6;
     let counter = 0;
     function _testSim() {
-        if (counter >= 10_000) return;
-        if (counter === 1_000) nullChance /= 7;
+        if (counter >= 100_000) return;
+        if (counter === 10_000) nullChance = 1 - (1 - nullChance) / 4;
+        if (counter === 1_000) nullChance  = 1 - (1 - nullChance) / 4;
         counter++;
 
         const data = DataGenerator.getRandomCacheData(nullChance);
@@ -152,8 +153,8 @@ function startTesting(interval) {
     setInterval(_testSim, interval);
 }
 
-startEvolution(10);   // todo use config?
-startTesting(10);
+startEvolution(100);   // todo use config?
+startTesting(100);
 
 function numOfBufferedData() {
     let counter = 0;
