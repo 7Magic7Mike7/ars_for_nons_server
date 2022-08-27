@@ -56,12 +56,16 @@
 
         let simId = simToRetrieveFrom.value;
         if (simId === -1) simId = "debug";
+
+        const startTime = Date.now();
         fetch("/getplot?simId=" + simId, {
             mode: "cors",
         })
         .then((r) => {
             const reader = r.body.getReader();
             reader.read().then((result) => {
+                console.log("Time until response: " + (Date.now() - startTime) + " ms");
+
                 const obj = JSON.parse(decoder.decode(result.value || new Uint8Array(result.value.length), {
                     stream: !result.done,
                 }));
