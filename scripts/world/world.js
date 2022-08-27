@@ -233,7 +233,7 @@ class World extends Configurable {
 
     _set(tile, world, isNew) {
         world.set(tile.pos, tile);
-        this._plotDataHandler.addPlotPoint(tile);
+        //this._plotDataHandler.addPlotPoint(tile);
 
         if (isNew) this._plotDataHandler.addGeneration(tile);
     }
