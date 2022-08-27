@@ -84,7 +84,7 @@ class PlotDataHandler extends Configurable {
 
     get generationDistribution() {
         let genDistCompact = "";
-        for (let i = 0; i < this._genDist.length; i++) {
+        for (const i in this._genDist) {
             if (this._genDist[i] > 0) {
                 genDistCompact += i + ": " + this._genDist[i] + ", ";
             }
