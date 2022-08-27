@@ -243,7 +243,7 @@ class Tile extends Configurable {
             const output = this._brain.think(input);
             // get the index of the highest value (in case multiple values are the maximum just take the first one)
             const drivenActuator = output.indexOf(math.max(...output));
-            updateDrivenActuatorStats(drivenActuator);
+            //updateDrivenActuatorStats(drivenActuator);
             const usedEnergy = this.config.passiveEnergyExpenses + this._act(drivenActuator);
             this._energy -= usedEnergy * Tile._calculateEnergyMultiplier(this._age);
 
