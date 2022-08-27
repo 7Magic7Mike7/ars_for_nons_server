@@ -25,7 +25,7 @@ class EvolutionSimulation extends Configurable {
     }
 
     getPlotData() {
-        const tiles = this._world.getAllTiles();
+        const tiles = [];//this._world.getAllTiles();
         const data = [];
         const tileCounter = {
             hatching: 0,

@@ -84,7 +84,7 @@ class DebugCommHandler extends CommunicationHandler {
     }
 }
 
-const NUM_OF_SIMULATIONS = 8;
+const NUM_OF_SIMULATIONS = 1;
 class SimManager {
     constructor(id) {
         this._id = id;
@@ -152,8 +152,8 @@ function startTesting(interval) {
     setInterval(_testSim, interval);
 }
 
-startEvolution(1000);   // todo use config?
-startTesting(1000);
+startEvolution(100);   // todo use config?
+startTesting(100);
 
 function numOfBufferedData() {
     let counter = 0;
