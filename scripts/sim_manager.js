@@ -152,8 +152,8 @@ function startTesting(interval) {
     setInterval(_testSim, interval);
 }
 
-startEvolution(100);   // todo use config?
-startTesting(100);
+startEvolution(10);   // todo use config?
+startTesting(10);
 
 function numOfBufferedData() {
     let counter = 0;
