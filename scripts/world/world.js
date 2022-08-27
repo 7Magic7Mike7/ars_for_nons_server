@@ -5,6 +5,7 @@ const Coordinate = require("../util/coordinate");
 const Direction = require("../util/direction");
 const Genome = require("../world/inhabitants/genome");
 const Tile = require("../world/inhabitants/tiles");
+const {valueCheck, hsvToRgb} = require("../util/util_functions");
 
 
 class _MyMap extends Map {
@@ -66,12 +67,11 @@ class _MyMap extends Map {
 }
 
 
-class World extends Configurable {
+class PlotDataHandler extends Configurable {
     constructor(config) {
         super(config);
-        this._age = 0;
-        this._world = new _MyMap(config.worldSize);
-        this._coordinate = new Coordinate(0, 0);
+        this._genDist = {};
+        this._plotPoints = [];
 
         this._producedCreatures = 0;    // number of new creatures produced via mating
         this._naturalDeaths = 0;        // number of deaths based on having no more energy
@@ -82,8 +82,18 @@ class World extends Configurable {
         this._deathAgeSum = 0;
     }
 
-    get age() {
-        return this._age;
+    get generationDistribution() {
+        let genDistCompact = "";
+        for (let i = 0; i < this._genDist.length; i++) {
+            if (this._genDist[i] > 0) {
+                genDistCompact += i + ": " + this._genDist[i] + ", ";
+            }
+        }
+        return genDistCompact;
+    }
+
+    get plotPoints() {
+        return this._plotPoints;
     }
 
     get numOfProducedCreatures() {
@@ -110,7 +120,7 @@ class World extends Configurable {
         return this._deathAgeSum / (this._naturalDeaths + this._kills);
     }
 
-    _handleDeath(tile) {
+    handleDeath(tile, influenceGenDist = true) {
         console.assert(!tile.isAlive, "tile not dead!");
 
         if (!tile.isBorn) this._unbornDeaths += 1;
@@ -118,6 +128,61 @@ class World extends Configurable {
         else this._kills += 1;
 
         this._deathAgeSum += tile.age;
+
+        if (influenceGenDist && this._genDist[tile.generation] > 0) {
+            this._genDist[tile.generation]--;
+        }
+    }
+
+    addGeneration(tile) {
+        this._producedCreatures += 1;
+        if (valueCheck(this._genDist[tile.generation], "addGeneration", false)) {
+            this._genDist[tile.generation]++;
+        }
+        else {
+            this._genDist[tile.generation] = 1;
+        }
+    }
+
+    clearPlotPoints() {
+        // clear the array: https://stackoverflow.com/questions/1232040/how-do-i-empty-an-array-in-javascript
+        this._plotPoints.length = 0;
+    }
+
+    addPlotPoint(tile) {
+        this._plotPoints.push({
+            id: tile.id,
+            x: tile.pos.x,
+            y: tile.pos.y,
+            color: hsvToRgb(tile.color),
+            creator: tile.creator,
+            age: tile.age,
+            generation: tile.generation,
+        });
+    }
+
+    incParentKills() {
+        this._parentKills += 1;
+    }
+}
+
+
+class World extends Configurable {
+    constructor(config) {
+        super(config);
+        this._age = 0;
+        this._world = new _MyMap(config.worldSize);
+        this._coordinate = new Coordinate(0, 0);
+
+        this._plotDataHandler = new PlotDataHandler(config);
+    }
+
+    get age() {
+        return this._age;
+    }
+
+    get plotData() {
+        return this._plotDataHandler;
     }
 
     _nextCoordinate(stepRight) {
@@ -166,7 +231,14 @@ class World extends Configurable {
         return this.getNext(false);     // don't step right because then we would skip (0, 0)!
     }
 
-    _place(tile, world) {
+    _set(tile, world, isNew) {
+        world.set(tile.pos, tile);
+        this._plotDataHandler.addPlotPoint(tile);
+
+        if (isNew) this._plotDataHandler.addGeneration(tile);
+    }
+
+    _place(tile, world, isNew = false) {
         if (tile !== null) {
             console.assert(tile.prototype !== Tile, "not a tile!");
 
@@ -174,15 +246,10 @@ class World extends Configurable {
                 const existingTile = world.get(tile.pos);
 
                 if (!tile.isAlive || !tile.isBorn) {
-                    // the existing tile will eat tile because it can do nothing against it
+                    // the existing tile will eat tile because it can do nothing against it -> tile will not be placed
                     existingTile.eat(tile);
-                    if (tile.isAlive) {
-                        this._handleDeath(tile);
-                        if (tile.isParent(existingTile)) {
-                            this._parentKills += 1;
-                        }
-                    }
-                    return;
+                    this._plotDataHandler.handleDeath(tile, !isNew);    // if tile is new it shouldn't influence genDist
+                    if (existingTile.isParent(tile)) this._plotDataHandler.incParentKills();
                 }
 
                 if (existingTile.isBorn && existingTile.isAlive) {
@@ -226,7 +293,7 @@ class World extends Configurable {
                             else tile.resolvePosition(getTile, existingTile.pos);    // the weaker one must resolve its position
                         }
                     }
-                    if (!existingTile.isAlive) this._handleDeath(existingTile);
+                    if (!existingTile.isAlive) this._plotDataHandler.handleDeath(existingTile, true);
                 }
                 else {
                     // todo should we really always eat a dead or unborn creature?
@@ -234,20 +301,21 @@ class World extends Configurable {
                     tile.eat(existingTile);
                 }
                 // tile might have died in a fight, so we have to check again
-                if (tile.isAlive) world.set(tile.pos, tile);
-                else this._handleDeath(tile);
+                if (tile.isAlive) this._set(tile, world, isNew);
+                else this._plotDataHandler.handleDeath(tile, !isNew);   // new tiles shouldn't influence genDist!
             }
-            else world.set(tile.pos, tile);
+            else this._set(tile, world, isNew);
         }
     }
 
     inhabit(data, key) {
         const genome = new Genome(data, this.config);
         const tile = new Tile(this.config, key, genome);
-        this._place(tile, this._world);
+        this._place(tile, this._world, true);
     }
 
     update() {
+        this._plotDataHandler.clearPlotPoints();
         this._age++;
         const newWorld = new _MyMap(this.config.worldSize);
         const oldWorld = this._world;
@@ -262,14 +330,13 @@ class World extends Configurable {
 
         for (const tile of oldWorld.values()) {
             if (tile.update(getTile)) {
-                this._place(tile, newWorld);
+                this._place(tile, newWorld, false);
             }
-            if (!tile.isAlive) this._handleDeath(tile);
+            if (!tile.isAlive) this._plotDataHandler.handleDeath(tile, true);
 
             const child = tile.produce();
             if (child !== null) {
-                this._place(child, newWorld, this.config);
-                this._producedCreatures += 1;
+                this._place(child, newWorld, true);
             }
         }
         this._world = newWorld;

@@ -25,53 +25,26 @@ class EvolutionSimulation extends Configurable {
     }
 
     getPlotData() {
-        const tiles = [];//this._world.getAllTiles();
-        const data = [];
         const tileCounter = {
             hatching: 0,
             living: 0,
             decaying: 0,
         };
-        const genDistribution = [0];
-        for (const tile of tiles) {
-            if (!tile.isBorn)       tileCounter.hatching++;
-            else if (tile.isAlive)  tileCounter.living++;
-            else tileCounter.decaying++;
-
-            while (tile.generation >= genDistribution.length) genDistribution.push(0);
-            genDistribution[tile.generation]++;
-
-            data.push({
-                id: tile.id,
-                x: tile.pos.x,
-                y: tile.pos.y,
-                color: hsvToRgb(tile.color),
-                creator: tile.creator,
-                age: tile.age,
-                generation: tile.generation,
-            });
-        }
-        let genDistCompact = "";
-        for (let i = 0; i < genDistribution.length; i++) {
-            if (genDistribution[i] > 0) {
-                genDistCompact += i + ": " + genDistribution[i] + ", ";
-            }
-        }
         return {
             metaData: {
                 width: this._config.worldSize,
                 height: this._config.worldSize,
                 age: this._world.age,
-                genDistribution: genDistCompact,
+                genDistribution: this._world.plotData.generationDistribution,
                 existingCreatures: tileCounter,
-                producedCreatures: this._world.numOfProducedCreatures,
-                naturalDeaths: this._world.numOfNaturalDeaths,
-                kills: this._world.numOfKills,
-                unbornDeaths: this._world.numOfUnbornDeaths,
-                parentKills: this._world.numOfParentKills,
-                avgDeathAge: this._world.averageDeathAge,
+                producedCreatures: this._world.plotData.numOfProducedCreatures,
+                naturalDeaths: this._world.plotData.numOfNaturalDeaths,
+                kills: this._world.plotData.numOfKills,
+                unbornDeaths: this._world.plotData.numOfUnbornDeaths,
+                parentKills: this._world.plotData.numOfParentKills,
+                avgDeathAge: this._world.plotData.averageDeathAge,
             },
-            tileData: data
+            tileData: this._world.plotData.plotPoints,
         }
     }
 
