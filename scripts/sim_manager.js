@@ -84,7 +84,7 @@ class DebugCommHandler extends CommunicationHandler {
     }
 }
 
-const NUM_OF_SIMULATIONS = 1;
+const NUM_OF_SIMULATIONS = 8;
 class SimManager {
     constructor(id) {
         this._id = id;
