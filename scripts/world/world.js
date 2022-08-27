@@ -93,7 +93,7 @@ class PlotDataHandler extends Configurable {
     }
 
     get plotPoints() {
-        return this._plotPoints;
+        return [];// this._plotPoints;
     }
 
     get numOfProducedCreatures() {
