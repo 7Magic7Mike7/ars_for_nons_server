@@ -127,7 +127,7 @@ class Tile extends Configurable {
     }
 
     isParent(tile) {
-        console.assert(tile.prototype === Tile, "not a Tile!");
+        console.assert(tile instanceof Tile, "not a Tile!");
         return this.genome.isParent(tile.id);
     }
 
