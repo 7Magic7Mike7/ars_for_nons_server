@@ -271,7 +271,13 @@ class World extends Configurable {
             if (world.has(tile.pos)) {
                 const existingTile = world.get(tile.pos);
 
-                if (!tile.isAlive || !tile.isBorn) {
+                const getTile = (key) => world.get(key);
+                if (isNew) {
+                    // tile was just placed into the world, so we try to place it somewhere nearby instead to not
+                    // instantly kill it
+                    tile.resolvePosition(getTile, existingTile.pos);
+                }
+                else if (!tile.isAlive || !tile.isBorn) {
                     // the existing tile will eat tile because it can do nothing against it -> tile will not be placed
                     existingTile.eat(tile);
 
@@ -293,11 +299,6 @@ class World extends Configurable {
                     // for fighting we need at least a given amount of difference (= low similarity)
                     const fightA = similarity < tile.genome.aggressionLevel;
                     const fightB = similarity < existingTile.genome.aggressionLevel;
-
-
-                    function getTile(key) {
-                        return world.get(key);
-                    }
 
                     function mate(a, b) {
                         // "a" should be the new tile since otherwise we might get problems with resolving due to
