@@ -36,7 +36,25 @@ class Tile extends Configurable {
         return peakMult + math.pow(smoothing * (age - peakAge), 2);
     }
 
-    constructor(config, creatorId, genome, id = null, pos = null, generation = 0) {
+    static _validatePosition(x, y, width, height) {
+        let didAdapt = false;
+        if (x < 0) x += width;
+        else if (width <= x)  x = x % width;
+        else didAdapt = true;
+
+        if (y < 0) y += height;
+        else if (height <= y)  y = y % height;
+        else didAdapt = true;
+
+        return {
+            didAdapt: didAdapt,
+            x: x,
+            y: y,
+        }
+    }
+
+    constructor(config, creatorId, genome, id = null, pos = null, generation = 0, isFullyBred = false,
+                deathHandler = null) {
         super(config);
         console.assert(genome.prototype !== Genome, "Not a Genome!");
 
@@ -131,27 +149,14 @@ class Tile extends Configurable {
         return this.genome.isParent(tile.id);
     }
 
-    _updatePosition(direction) {
-        this._pos = this._pos.add(Direction.coord(direction));
-        this._validatePosition();
-    }
-
-    _validatePosition() {
-        let didAdapt = false;
-        let x = this._pos.x;
-        if (x < 0) x += this.config.worldSize;
-        else if (this.config.worldSize <= x)  x = x % this.config.worldSize;
-        else didAdapt = true;
-
-        let y = this._pos.y;
-        if (y < 0) y += this.config.worldSize;
-        else if (this.config.worldSize <= y)  y = y % this.config.worldSize;
-        else didAdapt = true;
-
-        if (didAdapt) {
+    _addToPos(direction) {
+        const pos = this._pos.add(Direction.coord(direction));
+        const res = Tile._validatePosition(this._pos.x, this._pos.y, this.config.worldSize, this.config.worldSize);
+        if (res.didAdapt) {
             // only create new Coordinate if something was adapted
-            this._pos = new Coordinate(x, y);
+            return new Coordinate(res.x, res.y);
         }
+        else return pos
     }
 
     resolvePosition(get, forbiddenPos) {
@@ -167,11 +172,11 @@ class Tile extends Configurable {
                 Direction.opposite(this._orientation)
             ];
             for (const dir of directions) {
-                const pos = this._pos.add(Direction.coord(dir));
+                const pos = this._addToPos(dir)
                 const existingTile = get(pos);
                 if (!UF.valueCheck(existingTile, "resolvePosition") || !existingTile.isAlive) {
                     this._pos = pos;
-                    this._prevPos = pos;  // since we reallocated our position in the world we don't have a previous one
+                    this._prevPos = null;  // since we reallocated our position in the world we don't have a previous one
                     return;
                 }
             }
@@ -208,7 +213,7 @@ class Tile extends Configurable {
         if (this._eggLayTimer === 0) {
             console.assert(this._childGenome !== null, "Child Genome missing but eggLayTimer active!");
 
-            const pos = this._pos.add(Direction.coord(Direction.opposite(this._orientation)));
+            const pos = this._addToPos(Direction.opposite(this._orientation));
             const child = new Tile(this.config, this.creator, this._childGenome, null, pos,
                                    this._childGeneration);
             this._childGenome = null;
@@ -326,16 +331,16 @@ class Tile extends Configurable {
                 this._orientation = Direction.turnRight(this._orientation);
                 return this.config.turnBaseEnergy;
             case 3:     // move up
-                this._updatePosition(Direction.Up);
+                this._pos = this._addToPos(Direction.Up);
                 return this.config.moveBaseEnergy + this._genome.weight * this.config.gravity;
             case 2:     // move right
-                this._updatePosition(Direction.Right);
+                this._pos = this._addToPos(Direction.Right);
                 return this.config.moveBaseEnergy + this._genome.weight * this.config.gravity;
             case 1:     // move down
-                this._updatePosition(Direction.Down);
+                this._pos = this._addToPos(Direction.Down);
                 return this.config.moveBaseEnergy + this._genome.weight * this.config.gravity;
             case 0:     // move left
-                this._updatePosition(Direction.Left);
+                this._pos = this._addToPos(Direction.Left);
                 return this.config.moveBaseEnergy + this._genome.weight * this.config.gravity;
         }
     }
