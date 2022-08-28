@@ -5,7 +5,7 @@ const Coordinate = require("../util/coordinate");
 const Direction = require("../util/direction");
 const Genome = require("../world/inhabitants/genome");
 const Tile = require("../world/inhabitants/tiles");
-const {valueCheck, hsvToRgb} = require("../util/util_functions");
+const {hsvToRgb} = require("../util/util_functions");
 
 
 class _MyMap extends Map {
