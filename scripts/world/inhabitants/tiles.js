@@ -59,17 +59,18 @@ class Tile extends Configurable {
     }
 
     static _validatePosition(x, y, width, height) {
-        let didAdapt = false;
+        let changedX = true;
         if (x < 0) x += width;
         else if (width <= x)  x = x % width;
-        else didAdapt = true;
+        else changedX = false;
 
+        let changedY = true;
         if (y < 0) y += height;
         else if (height <= y)  y = y % height;
-        else didAdapt = true;
+        else changedY = false;
 
         return {
-            didAdapt: didAdapt,
+            didAdapt: changedX || changedY,
             x: x,
             y: y,
         }
