@@ -193,7 +193,7 @@ class Tile extends Configurable {
 
     _addToPos(direction) {
         const pos = this._pos.add(Direction.coord(direction));
-        const res = Tile._validatePosition(this._pos.x, this._pos.y, this.config.worldSize, this.config.worldSize);
+        const res = Tile._validatePosition(pos.x, pos.y, this.config.worldSize, this.config.worldSize);
         if (res.didAdapt) {
             // only create new Coordinate if something was adapted
             return new Coordinate(res.x, res.y);
