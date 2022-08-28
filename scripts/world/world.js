@@ -257,7 +257,7 @@ class World extends Configurable {
         return this.getNext(false);     // don't step right because then we would skip (0, 0)!
     }
 
-    _set(tile, world, isNew) {
+    _set(tile, world) {
         world.set(tile.pos, tile);
 
         // todo flag if we should store plot points or not (we don't have to store them each update...)
@@ -325,9 +325,9 @@ class World extends Configurable {
                     }
                 }
                 // tile might have died in a fight, so we have to check again
-                if (tile.isAlive) this._set(tile, world, isNew);
+                if (tile.isAlive) this._set(tile, world);
             }
-            else this._set(tile, world, isNew);
+            else this._set(tile, world);
         }
     }
 
