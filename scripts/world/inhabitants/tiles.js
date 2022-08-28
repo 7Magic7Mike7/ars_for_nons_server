@@ -149,7 +149,9 @@ class Tile extends Configurable {
 
     get color() {
         const hue = 360 * this._genome.value;
-        const saturation = Math.tanh(this._energy);
+        let saturation;
+        if (this.isAlive) saturation = Math.tanh(this._energy);
+        else saturation = 0;
         const value = 1.0 - 0.6 * Math.tanh(this._age * 0.1);   // todo adapt function?
 
         return [hue, saturation, value];
