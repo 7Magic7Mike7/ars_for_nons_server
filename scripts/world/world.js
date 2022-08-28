@@ -300,7 +300,9 @@ class World extends Configurable {
                     }
 
                     function mate(a, b) {
-                        a.resolvePosition(getTile, a.pos);    // doesn't matter if we use a.pos or b.pos since it's equal
+                        // "a" should be the new tile since otherwise we might get problems with resolving due to
+                        // existingTile having a new position that is no longer its key in world!
+                        a.resolvePosition(getTile, a.pos);   // doesn't matter if we use a.pos or b.pos since it's equal
                         a.mate(b);
                     }
 
