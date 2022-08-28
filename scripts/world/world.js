@@ -188,7 +188,7 @@ class PlotDataHandler extends DeathHandler {
     }
 
     incParentKills() {
-        this._parentKills += 1;
+        this._parentKills++;
     }
 }
 
