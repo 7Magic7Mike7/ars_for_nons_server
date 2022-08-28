@@ -258,6 +258,7 @@ class World extends Configurable {
     }
 
     _set(tile, world) {
+        console.assert(!world.has(tile.pos) || !world.get(tile.pos).isAlive, "Space already occupied!");
         world.set(tile.pos, tile);
 
         // todo flag if we should store plot points or not (we don't have to store them each update...)
