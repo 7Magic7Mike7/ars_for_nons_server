@@ -205,27 +205,33 @@ class Tile extends Configurable {
 
     resolvePosition(get, forbiddenPos) {
         if (this._prevPos !== null && (this._prevPos.x !== forbiddenPos.x || this._prevPos.y !== forbiddenPos.y)) {
-            this._pos = this._prevPos;
-        }
-        else {
-            // we cannot simply move to the previous position, so we first try "dodging" into orientation, then left,
-            // right and finally backwards - if nothing works we have to die :(
-            const directions = [
-                this._orientation,
-                Direction.turnLeft(this._orientation), Direction.turnRight(this._orientation),
-                Direction.opposite(this._orientation)
-            ];
-            for (const dir of directions) {
-                const pos = this._addToPos(dir)
-                const existingTile = get(pos);
-                if (!UF.valueCheck(existingTile, "resolvePosition") || !existingTile.isAlive) {
-                    this._pos = pos;
-                    this._prevPos = null;  // since we reallocated our position in the world we don't have a previous one
-                    return;
-                }
+            // we also have to check if somebody else moved to our previous position in the meantime (someone earlier in
+            // the update order)
+            const existingTile = get(this._prevPos);
+            if (!UF.valueCheck(existingTile, "resolvePosition") || !existingTile.isAlive) {
+                this._pos = this._prevPos;
+                this._prevPos = null;  // since we reallocated our position in the world we don't have a previous one
+                return;
             }
-            this._die();    // we have to die if there is no possibility for us to stay in this world :(
         }
+
+        // we cannot simply move to the previous position, so we first try "dodging" into orientation, then left,
+        // right and finally backwards - if nothing works we have to die :(
+        const directions = [
+            this._orientation,
+            Direction.turnLeft(this._orientation), Direction.turnRight(this._orientation),
+            Direction.opposite(this._orientation)
+        ];
+        for (const dir of directions) {
+            const pos = this._addToPos(dir)
+            const existingTile = get(pos);
+            if (!UF.valueCheck(existingTile, "resolvePosition") || !existingTile.isAlive) {
+                this._pos = pos;
+                this._prevPos = null;  // since we reallocated our position in the world we don't have a previous one
+                return;
+            }
+        }
+        this._die();    // we have to die if there is no possibility for us to stay in this world :(
     }
 
     eat(other) {
