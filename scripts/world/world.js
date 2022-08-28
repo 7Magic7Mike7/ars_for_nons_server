@@ -77,7 +77,9 @@ class DeathHandler extends Configurable {
 class PlotDataHandler extends DeathHandler {
     constructor(config) {
         super(config);
-        this._genDist = {};
+        this._genDist = new Map();
+        this._spawnedCreatures = 0;
+        this._bornCreatures = 0;
         this._plotPoints = [];
 
         this._producedCreatures = 0;    // number of new creatures produced via mating
@@ -91,16 +93,25 @@ class PlotDataHandler extends DeathHandler {
 
     get generationDistribution() {
         let genDistCompact = "";
-        for (const i in this._genDist) {
-            if (this._genDist[i] > 0) {
-                genDistCompact += i + ": " + this._genDist[i] + ", ";
+        for (const key of this._genDist.keys()) {
+            const val = this._genDist.get(key);
+            if (val > 0) {
+                genDistCompact += key + ": " + val + ", ";
             }
         }
         return genDistCompact;
     }
 
+    get spawnedCreatures() {
+        return this._spawnedCreatures;
+    }
+
+    get bornCreatures() {
+        return this._bornCreatures;
+    }
+
     get plotPoints() {
-        return [];// this._plotPoints;
+        return this._plotPoints;
     }
 
     get numOfProducedCreatures() {
@@ -127,27 +138,35 @@ class PlotDataHandler extends DeathHandler {
         return this._deathAgeSum / (this._naturalDeaths + this._kills);
     }
 
-    handleDeath(tile, influenceGenDist = true) {
+    handleDeath(tile) {
         console.assert(!tile.isAlive, "tile not dead!");
 
+        // update death reason
         if (!tile.isBorn) this._unbornDeaths += 1;
         else if (tile.energy <= 0) this._naturalDeaths += 1;
         else this._kills += 1;
 
         this._deathAgeSum += tile.age;
 
-        if (influenceGenDist && this._genDist[tile.generation] > 0) {
-            this._genDist[tile.generation]--;
-        }
+        // update generation distribution
+        const val = this._genDist.get(tile.generation);
+        if (val > 0) this._genDist.set(tile.generation, val - 1);
+
+        if (tile.isFullyBred) this._bornCreatures--;
+        else this._spawnedCreatures--;
     }
 
     addGeneration(tile) {
+        if (tile.isFullyBred) this._bornCreatures++;
+        else this._spawnedCreatures++;
+
         this._producedCreatures += 1;
-        if (valueCheck(this._genDist[tile.generation], "addGeneration", false)) {
-            this._genDist[tile.generation]++;
+        if (this._genDist.has(tile.generation)) {
+            const val = this._genDist.get(tile.generation);
+            this._genDist.set(tile.generation, val + 1);
         }
         else {
-            this._genDist[tile.generation] = 1;
+            this._genDist.set(tile.generation, 1);
         }
     }
 
@@ -240,9 +259,9 @@ class World extends Configurable {
 
     _set(tile, world, isNew) {
         world.set(tile.pos, tile);
-        //this._plotDataHandler.addPlotPoint(tile);
 
-        if (isNew) this._plotDataHandler.addGeneration(tile);
+        // todo flag if we should store plot points or not (we don't have to store them each update...)
+        this._plotDataHandler.addPlotPoint(tile);
     }
 
     _place(tile, world, isNew = false) {
@@ -255,11 +274,15 @@ class World extends Configurable {
                 if (!tile.isAlive || !tile.isBorn) {
                     // the existing tile will eat tile because it can do nothing against it -> tile will not be placed
                     existingTile.eat(tile);
-                    this._plotDataHandler.handleDeath(tile, !isNew);    // if tile is new it shouldn't influence genDist
+
                     if (existingTile.isParent(tile)) this._plotDataHandler.incParentKills();
                 }
-
-                if (existingTile.isBorn && existingTile.isAlive) {
+                else if (!existingTile.isAlive || !existingTile.isBorn) {
+                    // tile will eat existing tile because it can do nothing against it
+                    tile.eat(existingTile);
+                    if (tile.isParent(existingTile)) this._plotDataHandler.incParentKills();
+                }
+                else {  // tile and existing tile are both "living"
                     const similarity = Genome.calculateSimilarity(tile.genome, existingTile.genome);
 
                     // for mating we need at least a given amount of similarity
@@ -300,16 +323,9 @@ class World extends Configurable {
                             else tile.resolvePosition(getTile, existingTile.pos);    // the weaker one must resolve its position
                         }
                     }
-                    if (!existingTile.isAlive) this._plotDataHandler.handleDeath(existingTile, true);
-                }
-                else {
-                    // todo should we really always eat a dead or unborn creature?
-                    // todo I guess the brain decided, so it should be fine
-                    tile.eat(existingTile);
                 }
                 // tile might have died in a fight, so we have to check again
                 if (tile.isAlive) this._set(tile, world, isNew);
-                else this._plotDataHandler.handleDeath(tile, !isNew);   // new tiles shouldn't influence genDist!
             }
             else this._set(tile, world, isNew);
         }
@@ -317,7 +333,8 @@ class World extends Configurable {
 
     inhabit(data, key) {
         const genome = new Genome(data, this.config);
-        const tile = new Tile(this.config, key, genome);
+        const tile = new Tile(this.config, key, genome, null, null, 0, false, this._plotDataHandler);
+        this._plotDataHandler.addGeneration(tile);
         this._place(tile, this._world, true);
     }
 
@@ -339,10 +356,10 @@ class World extends Configurable {
             if (tile.update(getTile)) {
                 this._place(tile, newWorld, false);
             }
-            if (!tile.isAlive) this._plotDataHandler.handleDeath(tile, true);
 
             const child = tile.produce();
             if (child !== null) {
+                this._plotDataHandler.addGeneration(child);
                 this._place(child, newWorld, true);
             }
         }
