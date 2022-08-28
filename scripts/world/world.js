@@ -315,7 +315,12 @@ class World extends Configurable {
                         if (tile.strength > existingTile.strength) {
                             if (mateA)          mate(tile, existingTile);
                             else if (fightA)    tile.eat(existingTile);
-                            else existingTile.resolvePosition(getTile, tile.pos);    // the weaker one must resolve its position
+                            else {
+                                // the weaker one must resolve its position
+                                world.delete(existingTile.pos); // we need to remove it from its old position in the new world
+                                existingTile.resolvePosition(getTile, tile.pos);
+                                if (existingTile.isAlive) this._set(existingTile, world);   // after successfully resolving we can add it again
+                            }
                         }
                         else {
                             if (mateB)          mate(tile, existingTile,);
