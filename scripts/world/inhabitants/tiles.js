@@ -226,6 +226,8 @@ class Tile extends Configurable {
         if (this._age < 0) return true;     // hatching in progress
 
         if (this.isAlive) {
+            if (this._age < 0) return true;     // hatching in progress
+
             const ageLevel = Math.tanh(this.age);
             const energyLevel = this._energy / this.genome.maxEnergy;
             const posX = this.pos.x / this.config.worldSize;
