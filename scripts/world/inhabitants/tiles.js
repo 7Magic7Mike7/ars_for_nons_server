@@ -6,6 +6,7 @@ const Coordinate = require("../../util/coordinate");
 const Direction = require("../../util/direction");
 const Genome = require("./genome");
 const Brain = require("./brain");
+const {valueCheck} = require("../../util/util_functions");
 
 const drivenActuatorStats = [];
 let updateCounter = 0;
@@ -110,6 +111,7 @@ class Tile extends Configurable {
         this._prevPos = null;
         this._generation = generation;
         this._isFullyBred = isFullyBred;    // whether one parent was gen 0 or both parents were already born creatures
+        this._deathHandler = deathHandler;
     }
 
     get config() {
@@ -169,6 +171,20 @@ class Tile extends Configurable {
         else return 0;
     }
 
+    _die(decayTime = 0) {
+        console.assert(decayTime >= 0, "Invalid decayTime!");
+
+        if (this._deathTime < 0) {
+            this._deathTime = decayTime;
+            if (valueCheck(this._deathHandler, "_die()", false)) {
+                this._deathHandler.handleDeath(this);
+            }
+        }
+        else if(decayTime < this._deathTime) {
+            this._deathTime = decayTime;
+        }
+    }
+
     isParent(tile) {
         console.assert(tile instanceof Tile, "not a Tile!");
         return this.genome.isParent(tile.id);
@@ -205,14 +221,14 @@ class Tile extends Configurable {
                     return;
                 }
             }
-            this._deathTime = 0;    // we have to die if there is no possibility for us to stay in this world :(
+            this._die();    // we have to die if there is no possibility for us to stay in this world :(
         }
     }
 
     eat(other) {
         console.assert(this.strength >= other.strength || !other.isBorn, "wrong direction! you're not stronger than other!");    // todo fix!
 
-        other._deathTime = 0;
+        other._die();   // -> other.isAlive is now false
 
         this._energy += (other.energy * this._genome.digestionRate);
         if (this._energy > this._genome.maxEnergy) {
@@ -282,7 +298,7 @@ class Tile extends Configurable {
             this._energy -= usedEnergy * Tile._calculateEnergyMultiplier(this._age);
 
             if (this._energy <= 0) {
-                this._deathTime = this._genome.decayTime;
+                this._die(this._genome.decayTime);
             }
             return true;
         }

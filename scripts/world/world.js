@@ -67,7 +67,14 @@ class _MyMap extends Map {
 }
 
 
-class PlotDataHandler extends Configurable {
+class DeathHandler extends Configurable {
+    handleDeath(tile) {
+        console.log("TODO implement in base class!")
+    }
+}
+
+
+class PlotDataHandler extends DeathHandler {
     constructor(config) {
         super(config);
         this._genDist = {};
