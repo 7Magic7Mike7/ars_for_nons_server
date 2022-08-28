@@ -25,18 +25,14 @@ class EvolutionSimulation extends Configurable {
     }
 
     getPlotData() {
-        const tileCounter = {
-            hatching: 0,
-            living: 0,
-            decaying: 0,
-        };
         return {
             metaData: {
                 width: this._config.worldSize,
                 height: this._config.worldSize,
                 age: this._world.age,
                 genDistribution: this._world.plotData.generationDistribution,
-                existingCreatures: tileCounter,
+                spawned: this._world.plotData.spawnedCreatures,
+                fullyBred: this._world.plotData.bornCreatures,
                 producedCreatures: this._world.plotData.numOfProducedCreatures,
                 naturalDeaths: this._world.plotData.numOfNaturalDeaths,
                 kills: this._world.plotData.numOfKills,

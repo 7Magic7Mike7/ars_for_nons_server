@@ -2,62 +2,117 @@
 <html lang="en">
 <head>
     <title>Ars For Nons</title>
-    <!-- Load plotly.js into the DOM -->
-    <script src="https://cdn.plot.ly/plotly-2.14.0.min.js"></script>
+
+    <style>
+        * {
+            background-color: #222222;
+        }
+
+        .highlighted {
+            color: white;
+        }
+
+        .stats {
+            color: white;
+        }
+
+        .statsLabel {
+            color: white;
+            text-underline: dash-long white;
+        }
+
+        .row {
+            display: inline-block;
+            margin: 15px 5%;
+            align-content: center;
+        }
+    </style>
 </head>
 <body>
 <label>
-    <input id="simId" type="number" value="0" min="0" max="7">
+    <span class="statsLabel">Choose your world</span>
+    <input class="highlighted" id="simId" type="number" value="0" min="0" max="7">
     <!-- Rounded switch -->
     <label class="switch">
-        <input id="autoUpdate" type="checkbox">
+        <input id="autoUpdate" type="checkbox" onchange="onCheckboxChange()">
         <span class="slider round"></span>
     </label>
 </label>
-<div id="graph"></div>
 <div id="infos">
-    Age of world:<div id="worldAge"></div><br>
-    Generation distribution:<div id="genDist"></div><br>
-    Number of produced creatures:<div id="producedCreatures"></div><br>
-    Number of natural deaths:<div id="naturalDeaths"></div><br>
-    Number of kills:<div id="kills"></div><br>
-    Number of unborn deaths:<div id="unbornDeaths"></div><br>
-    Number of parent kills:<div id="parentKills"></div><br>
-    Average age on death:<div id="avgDeathAge"></div><br>
+    <p>
+        <span class="statsLabel">Age of world:<br></span>
+        <span class="stats" id="worldAge">0</span>
+    </p>
+    <div>
+        <p class="row">
+            <span class="statsLabel">Produced creatures<br></span>
+            <span class="stats" id="producedCreatures">0</span>
+        </p>
+        <p class="row">
+            <span class="statsLabel">Natural deaths<br></span>
+            <span class="stats" id="naturalDeaths">0</span>
+        </p>
+        <p class="row">
+            <span class="statsLabel">Kills<br></span>
+            <span class="stats" id="kills">0</span>
+        </p>
+    </div>
+    <p class="row">
+        <span class="statsLabel">Avg. age on death<br></span>
+        <span class="stats" id="avgDeathAge">0</span>
+    </p>
+    <p>
+        <span class="statsLabel">Generation distribution:<br></span>
+        <span class="stats" id="genDist">0: 0</span>
+    </p>
+    <p>
+        <span class="statsLabel">Unborn deaths:<br></span>
+        <span class="stats" id="unbornDeaths">0</span>
+    </p>
+    <p>
+        <span class="statsLabel">Parent kills:<br></span>
+        <span class="stats" id="parentKills">0</span>
+    </p>
 
-    Number of currently hatching creatures:<div id="curHatching"></div><br>
-    Number of currently living creatures:<div id="curLiving"></div><br>
-    Number of currently decaying creatures:<div id="curDecaying"></div><br>
+    <div>
+        <p class="row">
+            <span class="statsLabel">Hatching<br></span>
+            <span class="stats" id="curHatching">0</span>
+        </p>
+        <p class="row">
+            <span class="statsLabel">Living<br></span>
+            <span class="stats" id="curLiving">0</span>
+        </p>
+        <p class="row">
+            <span class="statsLabel">Dying<br></span>
+            <span class="stats" id="curDecaying">0</span>
+        </p>
+    </div>
 </div>
 
 <script>
     const decoder = new TextDecoder();
-    const graph = document.getElementById("graph");
+    let intervalId = null;
+
     const simToRetrieveFrom = document.getElementById("simId");
     const autoUpdate = document.getElementById("autoUpdate");
 
     const worldAge = document.getElementById("worldAge");
     const genDist = document.getElementById("genDist");
-    const curHatching = document.getElementById("curHatching");
-    const curLiving = document.getElementById("curLiving");
-    const curDecaying = document.getElementById("curDecaying");
 
     const producedCreatures = document.getElementById("producedCreatures");
     const naturalDeaths = document.getElementById("naturalDeaths");
     const kills = document.getElementById("kills");
-    const unbornDeaths = document.getElementById("unbornDeaths");
-    const parentKills = document.getElementById("parentKills");
     const avgDeathAge = document.getElementById("avgDeathAge");
 
-    setInterval(update, 1000);
+
+    function onCheckboxChange() {
+        if (autoUpdate.checked) intervalId = setInterval(update, 1_000);
+        else clearInterval(intervalId);
+    }
 
     function update() {
-        if (!autoUpdate.checked) return;
-
-        let simId = simToRetrieveFrom.value;
-        if (simId === -1) simId = "debug";
-
-        const startTime = Date.now();
+        const simId = simToRetrieveFrom.value;
         fetch("/getplot?simId=" + simId, {
             mode: "cors",
         })
@@ -70,107 +125,20 @@
                     stream: !result.done,
                 }));
 
-                const xs = [];
-                const ys = [];
-                const colors = [];
-                const texts = [];
                 const infos = obj.data.infos;
-                const data = obj.data.items;
-                for (const i in data) {
-                    if (data[i] != null) {
-                        xs.push(data[i].x);
-                        ys.push(data[i].y);
-                        colors.push(data[i].color[0]);
-                        colors.push("rgb(" + data[i].color[0] + "," + data[i].color[1] + "," + data[i].color[2] + ")");
-                        texts.push("#" + data[i].id + ", gen" + data[i].generation + " | " + "age = " + data[i].age);
-                    }
-                }
-                createPlot(simId, infos.width, infos.height, xs, ys, colors, texts);
                 worldAge.innerText = infos.age;
-                genDist.innerText = infos.genDistribution;
-                curHatching.innerText = infos.existingCreatures.hatching;
-                curLiving.innerText = infos.existingCreatures.living;
-                curDecaying.innerText = infos.existingCreatures.decaying;
 
                 producedCreatures.innerText = infos.producedCreatures;
                 naturalDeaths.innerText = infos.naturalDeaths;
                 kills.innerText = infos.kills;
-                unbornDeaths.innerText = infos.unbornDeaths;
-                parentKills.innerText = infos.parentKills;
+
                 avgDeathAge.innerText = infos.avgDeathAge;
+                genDist.innerText = infos.genDistribution;
             });
         })
         .catch(() => {
             console.log("error?");
         });
-    }
-
-    function createPlot(simId, width, height, xs, ys, colors, texts) {
-        const trace1 = {
-            x: xs,
-            y: ys,
-            mode: 'markers',
-            text: texts,    // todo add energy and maybe other infos too?
-            marker: {       // https://plotly.com/javascript/marker-style/
-                size: 16,
-                color: colors
-            }
-        };
-        const data = [trace1];
-        // https://plotly.com/javascript/axes/
-        const layout = {
-            title: 'Simulation #' + simId,
-            //width: 600,
-            //height: 400,
-            xaxis: {
-                range: [-0.5, width + 0.5],
-                showgrid: true,
-                zeroline: true,
-                showline: true,
-                mirror: 'ticks',
-                gridcolor: '#bdbdbd',
-                gridwidth: 2,
-                zerolinecolor: '#bdbdbd',
-                zerolinewidth: 0,
-                linecolor: '#636363',
-                linewidth: 6,
-
-                autotick: false,
-                ticks: 'outside',
-                tick0: 0,
-                dtick: 1,
-                ticklen: 8,
-                tickwidth: 4,
-                tickcolor: '#000'
-            },
-            yaxis: {
-                range: [-0.5, height + 0.5],
-                showgrid: true,
-                zeroline: true,
-                showline: true,
-                mirror: 'ticks',
-                gridcolor: '#bdbdbd',
-                gridwidth: 2,
-                zerolinecolor: '#bdbdbd',
-                zerolinewidth: 0,
-                linecolor: '#636363',
-                linewidth: 6,
-
-                autotick: false,
-                ticks: 'outside',
-                tick0: 0,
-                dtick: 1,
-                ticklen: 8,
-                tickwidth: 4,
-                tickcolor: '#000'
-            },
-        };
-        const config = {
-            scrollZoom: true,
-            editable: false,
-            responsive: true,
-        }
-        Plotly.newPlot('graph', data, layout, config);
     }
 </script>
 </body>
