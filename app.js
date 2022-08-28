@@ -30,7 +30,7 @@ app.use(function(req, res, next) {
 });
 
 app.use('/', indexRouter);
-app.use('/debug', debugRouter);
+app.use('/Xp3ELU3WQNRCm4jzUT9h', debugRouter);
 app.use('/simulations', simRouter);
 //app.use('/users', usersRouter);
 
