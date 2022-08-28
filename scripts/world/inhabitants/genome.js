@@ -272,7 +272,7 @@ class Genome {
         return this._data.substring(index * GENE_SIZE, (index + 1) * GENE_SIZE);
     }
 
-    isParent(id) {
+    hasParent(id) {
         return this._motherId === id || this._fatherId === id;
     }
 }

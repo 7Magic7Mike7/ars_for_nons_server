@@ -275,12 +275,12 @@ class World extends Configurable {
                     // the existing tile will eat tile because it can do nothing against it -> tile will not be placed
                     existingTile.eat(tile);
 
-                    if (existingTile.isParent(tile)) this._plotDataHandler.incParentKills();
+                    if (existingTile.isParentOf(tile)) this._plotDataHandler.incParentKills();
                 }
                 else if (!existingTile.isAlive || !existingTile.isBorn) {
                     // tile will eat existing tile because it can do nothing against it
                     tile.eat(existingTile);
-                    if (tile.isParent(existingTile)) this._plotDataHandler.incParentKills();
+                    if (tile.isParentOf(existingTile)) this._plotDataHandler.incParentKills();
                 }
                 else {  // tile and existing tile are both "living"
                     const similarity = Genome.calculateSimilarity(tile.genome, existingTile.genome);

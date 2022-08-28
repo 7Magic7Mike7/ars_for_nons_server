@@ -185,9 +185,9 @@ class Tile extends Configurable {
         }
     }
 
-    isParent(tile) {
+    isParentOf(tile) {
         console.assert(tile instanceof Tile, "not a Tile!");
-        return this.genome.isParent(tile.id);
+        return tile.genome.hasParent(this.id);
     }
 
     _addToPos(direction) {
