@@ -24,6 +24,27 @@ function updateDrivenActuatorStats(drivenActuator) {
 }
 
 
+class Child {
+    constructor(genome, generation, isFullyBred) {
+        this._genome = genome;
+        this._generation = generation;
+        this._isFullyBred = isFullyBred;
+    }
+
+    get genome() {
+        return this._genome;
+    }
+
+    get generation() {
+        return this._generation;
+    }
+
+    get isFullyBred() {
+        return this._isFullyBred;
+    }
+}
+
+
 class Tile extends Configurable {
     static __NextID = 0;
 
@@ -84,11 +105,11 @@ class Tile extends Configurable {
         this._brain = new Brain(genome);
         this._deathTime = -1;   // not dead yet
         this._eggLayTimer = -1;
-        this._childGenome = null;
-        this._childGeneration = -1;
+        this._child = null
 
         this._prevPos = null;
         this._generation = generation;
+        this._isFullyBred = isFullyBred;    // whether one parent was gen 0 or both parents were already born creatures
     }
 
     get config() {
@@ -137,6 +158,10 @@ class Tile extends Configurable {
 
     get isBorn() {
         return this._age >= 0;
+    }
+
+    get isFullyBred() {
+        return this._isFullyBred;
     }
 
     get strength() {
@@ -196,12 +221,14 @@ class Tile extends Configurable {
     }
 
     mate(other) {
-        if (this._childGenome === null) {
-            this._childGenome = Genome.reproduce(this.genome, other.genome, this.config, this.id, other.id);
-            this._eggLayTimer = this.genome.eggLayDelay;
+        if (this._child === null) {
+            const genome = Genome.reproduce(this.genome, other.genome, this.config, this.id, other.id);
+            let gen;
+            if (this._generation > other.generation) gen = this._generation + 1;
+            else gen = other.generation + 1;
 
-            if (this._generation > other.generation) this._childGeneration = this._generation + 1;
-            else this._childGeneration = other.generation + 1;
+            this._child = new Child(genome, gen, this._generation > 0 && other.generation > 0);
+            this._eggLayTimer = this.genome.eggLayDelay;
         }
         // mating does nothing if we are pregnant
     }
@@ -211,12 +238,12 @@ class Tile extends Configurable {
 
         if (this._eggLayTimer > 0) this._eggLayTimer -= 1;
         if (this._eggLayTimer === 0) {
-            console.assert(this._childGenome !== null, "Child Genome missing but eggLayTimer active!");
+            console.assert(this._child !== null, "Child Genome missing but eggLayTimer active!");
 
             const pos = this._addToPos(Direction.opposite(this._orientation));
-            const child = new Tile(this.config, this.creator, this._childGenome, null, pos,
-                                   this._childGeneration);
-            this._childGenome = null;
+            const child = new Tile(this.config, this.creator, this._child.genome, null, pos,
+                                   this._child.generation, this._child.isFullyBred, this._deathHandler);
+            this._child = null;
             this._eggLayTimer = -1;
             return child;
         }
