@@ -144,7 +144,7 @@
                         texts.push("#" + data[i].id + ", gen" + data[i].generation + " | " + "age = " + data[i].age);
                     }
                 }
-                createPlot(simId, infos.width, infos.height, xs, ys, colors, texts);
+                createPlot(simId, obj.data.infos.width, obj.data.infos.height, xs, ys, colors, texts);
 
                 const infos = obj.data.infos;
                 worldAge.innerText = infos.age;
