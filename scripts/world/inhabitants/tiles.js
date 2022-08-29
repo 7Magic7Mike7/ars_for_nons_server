@@ -356,7 +356,7 @@ class Tile extends Configurable {
         }
 
         for (let i = 0; i < perceiveCounts.length; i++) {
-            // normalize to get ratio of occupied spots // todo maybe adapt if perception bias changes
+            // normalize to get ratio of occupied spots
             perceiveCounts[i] = perceiveCounts[i] / (perceiveRange * perceiveRange);
         }
         return perceiveCounts;

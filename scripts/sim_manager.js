@@ -308,7 +308,6 @@ function update(req) {
  * @returns {list[string]} data items
  */
 function retrieve(req) {
-    // todo: key?
     const simId = _getSimId(req);
     const numOfItems = _getNumOfItems(req);
     const simManager = _getTargetManager(req);
