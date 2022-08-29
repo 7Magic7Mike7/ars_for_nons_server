@@ -133,12 +133,10 @@ function startEvolution(interval) {
 
 function startTesting(interval) {
     const simManager = manager.get("sim");
-    let nullChance = 0.6;
+    let nullChance = 0.8;
     let counter = 0;
     function _testSim() {
-        if (counter >= 100_000) return;
-        if (counter === 10_000) nullChance = 1 - (1 - nullChance) / 4;
-        if (counter === 1_000) nullChance  = 1 - (1 - nullChance) / 4;
+        if (counter >= 600_000) return;
         counter++;
 
         const data = DataGenerator.getRandomCacheData(nullChance);
