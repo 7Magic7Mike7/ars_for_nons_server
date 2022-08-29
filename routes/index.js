@@ -66,7 +66,7 @@ router.get('/retrieve', (req, res) => { // todo "encrypt" path so no others can 
         res.status(400).json();
 });
 
-/**Sends back tile info for plotting
+/**Sends back some world stats
  *
  * Params: id of the simulation we want to access
  * Sends: {
@@ -77,7 +77,27 @@ router.get('/retrieve', (req, res) => { // todo "encrypt" path so no others can 
 router.get('/getplot', (req, res) => {
     addCorsHeader(res);
 
-    const response = simManager.getPlotData(req);
+    const response = simManager.getPlotData(req, false);
+    const data = response[0];
+    const success = response[1];
+    if (success)
+        res.status(200).json({ data: data });
+    else
+        res.status(400).json();
+});
+
+/**Sends back tile info for plotting and world stats
+ *
+ * Params: id of the simulation we want to access
+ * Sends: {
+ *
+ * }
+ *
+ */
+router.get('/z3htXmWfWeKi99Vxc6fT', (req, res) => {
+    addCorsHeader(res);
+
+    const response = simManager.getPlotData(req, true);
     const data = response[0];
     const success = response[1];
     if (success)

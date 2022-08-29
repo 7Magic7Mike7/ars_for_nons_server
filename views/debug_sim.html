@@ -117,7 +117,8 @@
         if (simId === -1) simId = "debug";
 
         const startTime = Date.now();
-        fetch("/getplot?simId=" + simId, {
+        // use secret path to also get data from the individual tiles
+        fetch("/z3htXmWfWeKi99Vxc6fT?simId=" + simId, {
             mode: "cors",
         })
         .then((r) => {
