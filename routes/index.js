@@ -54,7 +54,7 @@ router.post('/logout', (req, res) => {
  * }
  *
  */
-router.get('/retrieve', (req, res) => {
+router.get('/retrieve', (req, res) => { // todo "encrypt" path so no others can retrieve?
     addCorsHeader(res);
 
     const response = simManager.retrieve(req);
