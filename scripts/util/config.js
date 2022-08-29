@@ -33,35 +33,35 @@ class Config {
         const conf = new Config(seed);
         switch (index) {
             case 1:     // aggressive world
-                conf._aggressionRange = new Range(0.2, 0.6);
+                conf._aggressionRange = new Range(0.6, 0.8);
                 conf._matePickRange = new Range(0.5, 0.7);
                 break;
             case 2:     // mutation world
                 conf._mutationChance = 0.25;
                 break;
             case 3:     // non-instant birth world
-                conf._incubationTimeRange = new Range(3, 7);
+                conf._incubationTimeRange = new Range(3, 5);
                 conf._eggLayDelayRange = new Range(2, 4);
                 break;
             case 4:     // scavenger world
-                conf._decayRange = new Range(30, 50, true);
-                conf._seed += 44;
+                conf._maxEnergyRange = new Range(200, 300);
                 break;
-            case 5:     // bigger world
-                conf._worldSize = 16;
+            case 5:     // bigger world with incest
+                conf._worldSize = 25;
+                conf._maxMateSimilarity = 1.0;  // >= 1 means we can do it with every one
                 break;
             case 6:     // love world
                 conf._aggressionRange = new Range(0.0, 0.1);
                 conf._matePickRange = new Range(0.1, 0.3);
                 break;
-            case 7:     // moon-gravity world
-                conf._gravity = 0.5;
+            case 7:     // max perception world
+                conf._perceptionRange = new Range(conf._worldSize / 2, conf._worldSize / 2, true);
                 break;
             case 8:
                 conf._gravity = 3;
                 break;
-            case 9:     // bad stomach world
-                conf._digestionRange = new Range(0.2, 0.4);
+            case 9:     // moon-gravity world
+                conf._gravity = 0.5;
                 break;
         }
         return conf;
