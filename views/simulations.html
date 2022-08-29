@@ -113,12 +113,16 @@
 
     function update() {
         const simId = simToRetrieveFrom.value;
+
+        const startTime = Date.now();
         fetch("/getplot?simId=" + simId, {
             mode: "cors",
         })
         .then((r) => {
             const reader = r.body.getReader();
             reader.read().then((result) => {
+                console.log(simId + " --- response time: " + (Date.now() - startTime) + " ms");
+
                 const obj = JSON.parse(decoder.decode(result.value || new Uint8Array(result.value.length), {
                     stream: !result.done,
                 }));
