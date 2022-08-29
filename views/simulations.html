@@ -49,6 +49,12 @@
             <span class="stats" id="producedCreatures">0</span>
         </p>
         <p class="row">
+            <span class="statsLabel">Avg. age on death<br></span>
+            <span class="stats" id="avgDeathAge">0</span>
+        </p>
+    </div>
+    <div>
+        <p class="row">
             <span class="statsLabel">Natural deaths<br></span>
             <span class="stats" id="naturalDeaths">0</span>
         </p>
@@ -56,18 +62,14 @@
             <span class="statsLabel">Kills<br></span>
             <span class="stats" id="kills">0</span>
         </p>
+        <p class="row">
+            <span class="statsLabel">Unborn deaths:<br></span>
+            <span class="stats" id="unbornDeaths">0</span>
+        </p>
     </div>
-    <p class="row">
-        <span class="statsLabel">Avg. age on death<br></span>
-        <span class="stats" id="avgDeathAge">0</span>
-    </p>
     <p>
         <span class="statsLabel">Generation distribution:<br></span>
         <span class="stats" id="genDist">0: 0</span>
-    </p>
-    <p>
-        <span class="statsLabel">Unborn deaths:<br></span>
-        <span class="stats" id="unbornDeaths">0</span>
     </p>
     <p>
         <span class="statsLabel">Parent kills:<br></span>
@@ -76,16 +78,12 @@
 
     <div>
         <p class="row">
-            <span class="statsLabel">Hatching<br></span>
-            <span class="stats" id="curHatching">0</span>
+            <span class="statsLabel">Spawned<br></span>
+            <span class="stats" id="spawnedCreatures">0</span>
         </p>
         <p class="row">
-            <span class="statsLabel">Living<br></span>
-            <span class="stats" id="curLiving">0</span>
-        </p>
-        <p class="row">
-            <span class="statsLabel">Dying<br></span>
-            <span class="stats" id="curDecaying">0</span>
+            <span class="statsLabel">Fully bred<br></span>
+            <span class="stats" id="fullyBredCreatures">0</span>
         </p>
     </div>
 </div>
@@ -99,11 +97,14 @@
 
     const worldAge = document.getElementById("worldAge");
     const genDist = document.getElementById("genDist");
+    const spawnedCreatures = document.getElementById("spawnedCreatures");
+    const fullyBredCreatures = document.getElementById("fullyBredCreatures");
 
     const producedCreatures = document.getElementById("producedCreatures");
+    const avgDeathAge = document.getElementById("avgDeathAge");
     const naturalDeaths = document.getElementById("naturalDeaths");
     const kills = document.getElementById("kills");
-    const avgDeathAge = document.getElementById("avgDeathAge");
+    const unbornDeaths = document.getElementById("unbornDeaths");
 
 
     function onCheckboxChange() {
@@ -129,13 +130,15 @@
 
                 const infos = obj.data.infos;
                 worldAge.innerText = infos.age;
+                genDist.innerText = infos.genDistribution;
+                spawnedCreatures.innerText = infos.spawned;
+                fullyBredCreatures.innerText = infos.fullyBred;
 
                 producedCreatures.innerText = infos.producedCreatures;
                 naturalDeaths.innerText = infos.naturalDeaths;
                 kills.innerText = infos.kills;
-
+                unbornDeaths.innerText = infos.unbornDeaths;
                 avgDeathAge.innerText = infos.avgDeathAge;
-                genDist.innerText = infos.genDistribution;
             });
         })
         .catch(() => {
