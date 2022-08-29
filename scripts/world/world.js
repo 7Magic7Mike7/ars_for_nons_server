@@ -130,7 +130,7 @@ class PlotDataHandler extends DeathHandler {
     }
 
     get averageDeathAge() {
-        return this._deathAgeSum / (this._naturalDeaths + this._kills);
+        return this._deathAgeSum / (this._naturalDeaths + this._kills + this._unbornDeaths);
     }
 
     handleDeath(tile) {
