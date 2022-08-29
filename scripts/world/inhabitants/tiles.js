@@ -279,10 +279,8 @@ class Tile extends Configurable {
         this._prevPos = this._pos;
         console.assert(typeof get === 'function', "get is not a function!");
 
-        this._age += 1;
-        if (this._age < 0) return true;     // hatching in progress
-
         if (this.isAlive) {
+            this._age++;    // now creatures no longer age after they died
             if (this._age < 0) return true;     // hatching in progress
 
             const ageLevel = Math.tanh(this.age);
