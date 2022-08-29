@@ -76,7 +76,9 @@ class Config {
                 eggLayDelayRange = new Range(1, 2, true),
                 decayRange = new Range(25, 30, true),
                 aggressionRange = new Range(0, 0.4), matePickRange = new Range(0.4, 0.5),
-                maxMateSimilarity = 0.9) {
+                maxMateSimilarity = 0.9,
+                perceptionRange = new Range(1, 3, true),
+                ) {
         // todo numOfNeuronsRange?
         this._worldSize = worldSize;    // influences maximum number of creatures that can live
         this._gravity = gravity;        // influences energy penalty based on weight
@@ -98,6 +100,8 @@ class Config {
         this._aggressionRange = aggressionRange;            //
         this._matePickRange = matePickRange;                // how similar the other creature must be for mating
         this._maxMateSimilarity = maxMateSimilarity;        // avoid incest
+
+        this._perceptionRange = perceptionRange;        // how far the creatrue can perceive
 
         this._rand = seedrandom(seed);
     }
@@ -164,6 +168,10 @@ class Config {
 
     matePickLevel(num) {
         return this._matePickRange.resolve(num);
+    }
+
+    perceptionDistance(num) {
+        return this._perceptionRange.resolve(num);
     }
 
     randomNumber() {

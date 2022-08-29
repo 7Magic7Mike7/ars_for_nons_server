@@ -99,9 +99,9 @@ class Tile extends Configurable {
                 Tile.__NextID = id + 1;
             }
         }
+        this._pos = pos;
         this._age = -genome.incubationTime;
         this._energy = genome.maxEnergy;
-        this._pos = pos;
         this._orientation = genome.orientation;
 
         this._brain = new Brain(genome);
@@ -342,7 +342,7 @@ class Tile extends Configurable {
     _getPerceptionInput(get) {
         const neighbors = [ Direction.Up, Direction.Right, Direction.Down, Direction.Left ];
 
-        const perceiveRange = 1;     // todo parameter!
+        const perceiveRange = this._genome.perceptionDistance;
         let perceiveCounts = [];
         for (const dir of neighbors.values()) {
             const positions = this._getConeCoordinates(dir, get, perceiveRange);
