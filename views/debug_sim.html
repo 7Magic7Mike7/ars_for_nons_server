@@ -41,6 +41,12 @@
             <span class="stats" id="producedCreatures">0</span>
         </p>
         <p class="row">
+            <span class="statsLabel">Avg. age on death<br></span>
+            <span class="stats" id="avgDeathAge">0</span>
+        </p>
+    </div>
+    <div>
+        <p class="row">
             <span class="statsLabel">Natural deaths<br></span>
             <span class="stats" id="naturalDeaths">0</span>
         </p>
@@ -48,18 +54,14 @@
             <span class="statsLabel">Kills<br></span>
             <span class="stats" id="kills">0</span>
         </p>
+        <p class="row">
+            <span class="statsLabel">Unborn deaths:<br></span>
+            <span class="stats" id="unbornDeaths">0</span>
+        </p>
     </div>
-    <p class="row">
-        <span class="statsLabel">Avg. age on death<br></span>
-        <span class="stats" id="avgDeathAge">0</span>
-    </p>
     <p>
         <span class="statsLabel">Generation distribution:<br></span>
         <span class="stats" id="genDist">0: 0</span>
-    </p>
-    <p>
-        <span class="statsLabel">Unborn deaths:<br></span>
-        <span class="stats" id="unbornDeaths">0</span>
     </p>
     <p>
         <span class="statsLabel">Parent kills:<br></span>
@@ -90,16 +92,15 @@
 
     const worldAge = document.getElementById("worldAge");
     const genDist = document.getElementById("genDist");
-    const curHatching = document.getElementById("curHatching");
     const spawnedCreatures = document.getElementById("spawnedCreatures");
     const fullyBredCreatures = document.getElementById("fullyBredCreatures");
 
     const producedCreatures = document.getElementById("producedCreatures");
+    const avgDeathAge = document.getElementById("avgDeathAge");
     const naturalDeaths = document.getElementById("naturalDeaths");
     const kills = document.getElementById("kills");
     const unbornDeaths = document.getElementById("unbornDeaths");
     const parentKills = document.getElementById("parentKills");
-    const avgDeathAge = document.getElementById("avgDeathAge");
 
     function onCheckboxChange() {
         if (autoUpdate.checked) intervalId = setInterval(update, intervalTime);
