@@ -24,7 +24,21 @@ class EvolutionSimulation extends Configurable {
         this._world.inhabit(data, key);
     }
 
-    getPlotData() {
+    getPlotData(withTileData = false) {
+        const tileData = [];
+        if (withTileData) {
+            for (const tile of this._world.getAllTiles()) {
+                tileData.push({
+                    id: tile.id,
+                    x: tile.pos.x,
+                    y: tile.pos.y,
+                    color: hsvToRgb(tile.color),
+                    creator: tile.creator,
+                    age: tile.age,
+                    generation: tile.generation,
+                });
+            }
+        }
         return {
             metaData: {
                 width: this._config.worldSize,
@@ -40,7 +54,7 @@ class EvolutionSimulation extends Configurable {
                 parentKills: this._world.plotData.numOfParentKills,
                 avgDeathAge: this._world.plotData.averageDeathAge,
             },
-            tileData: this._world.plotData.plotPoints,
+            tileData: tileData,
         }
     }
 

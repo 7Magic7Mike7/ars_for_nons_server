@@ -72,8 +72,8 @@ class CommunicationHandler {
         return item;
     }
 
-    getPlotData() {
-        return this._sim.getPlotData();     // {metaData-object, data items-list}
+    getPlotData(withTileData = false) {
+        return this._sim.getPlotData(withTileData);     // {metaData-object, data items-list}
     }
 }
 
@@ -324,13 +324,13 @@ function retrieve(req) {
     else return [null, false];
 }
 
-function getPlotData(req) {
+function getPlotData(req, withPlotData) {
     const simId = _getSimId(req);
     const simManager = _getTargetManager(req);
     const sim = simManager.getCommHandler(simId);
 
     if (sim) {
-        const response = sim.getPlotData();
+        const response = sim.getPlotData(withPlotData);
         return [{'infos': response.metaData, 'items': response.tileData}, true]
     }
     else return [null, false];
