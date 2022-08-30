@@ -1,6 +1,5 @@
 
 const {Configurable} = require("./configurable");
-const {hsvToRgb} = require("./util/util_functions");
 const Config = require("./util/config");
 const Coordinate = require("./util/coordinate");
 const Direction = require("./util/direction");
@@ -32,7 +31,7 @@ class EvolutionSimulation extends Configurable {
                     id: tile.id,
                     x: tile.pos.x,
                     y: tile.pos.y,
-                    color: hsvToRgb(tile.color),
+                    color: tile.color,
                     creator: tile.creator,
                     age: tile.age,
                     generation: tile.generation,

@@ -6,7 +6,7 @@ const Coordinate = require("../../util/coordinate");
 const Direction = require("../../util/direction");
 const Genome = require("./genome");
 const Brain = require("./brain");
-const {valueCheck} = require("../../util/util_functions");
+const {valueCheck, hsvToRgb} = require("../../util/util_functions");
 
 const drivenActuatorStats = [];
 let updateCounter = 0;
@@ -154,7 +154,7 @@ class Tile extends Configurable {
         else saturation = 0;
         const value = 1.0 - 0.6 * Math.tanh(this._age * 0.1);   // todo adapt function?
 
-        return [hue, saturation, value];
+        return hsvToRgb([hue, saturation, value]);
     }
 
     get isAlive() {
