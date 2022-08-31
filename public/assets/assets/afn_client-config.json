@@ -2,8 +2,8 @@
   "debug": false,
   "serverRoot": "https://www.arsfornons.com/",
 
-  "updatePeriod": 100,
-  "calculationsPerUpdate": 2,
+  "updatePeriod": 500,
+  "calculationsPerUpdate": 7,
   "loginPeriod": 2000,
 
   "maxSeed": 1000000000,
