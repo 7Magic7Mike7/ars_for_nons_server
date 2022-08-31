@@ -136,7 +136,7 @@ function startTesting(interval) {
     let nullChance = 0.7;
     let counter = 0;
     function _testSim() {
-        if (counter >= 100_000) return;
+        if (counter === 100_000) nullChance = 0.95;
         counter++;
 
         const data = DataGenerator.getRandomCacheData(nullChance);
