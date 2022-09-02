@@ -45,8 +45,12 @@ class CommunicationHandler {
         this._id = id;
         this._data = new Queue(1000);
 
-        const conf = Config.createConfig(12, id);
-        this._sim = new EvolSim(conf);
+        this._config = Config.createConfig(12, id);
+        this._sim = new EvolSim(this._config);
+    }
+
+    get config() {
+        return this._config;
     }
 
     get id() {
@@ -58,8 +62,16 @@ class CommunicationHandler {
     }
 
     addData(data, clientKey) {
-        //console.log("client #" + clientKey + " updates sim#" + this._id + " with data: " + data);
-        this._sim.addData(data, clientKey);
+        const commHandler = this;
+        function addAsync() {
+            if (commHandler._config.simulationSpeed < 0) {
+                for (let i = 0; i > commHandler._config.simulationSpeed; i--) {
+                    commHandler.processStep();
+                }
+            }
+            commHandler._sim.addData(data, clientKey);
+        }
+        setTimeout(addAsync, 10);
     }
 
     processStep() {
@@ -120,15 +132,19 @@ class SimManager {
 const manager = new Map();
 manager.set("sim", new SimManager(0));
 
-function startEvolution(interval) {
+function startEvolution() {
     const simManager = manager.get("sim");
-    function processStep() {
-        for (const id of simManager.getIds()) {
+    for (const id of simManager.getIds()) {
+        const interval = simManager.getCommHandler(id).config.simulationSpeed;
+        function test() {
             const commHandler = simManager.getCommHandler(id);
             commHandler.processStep();
         }
+        if (interval > 0) {
+            // negative numbers imply processing the absolut number of steps everytime some data is added
+            setInterval(test, interval);
+        }
     }
-    setInterval(processStep, interval);
 }
 
 function startTesting(interval) {
@@ -151,8 +167,8 @@ function startTesting(interval) {
     setInterval(_testSim, interval);
 }
 
-startEvolution(100);   // todo use config?
-startTesting(100);
+startEvolution();
+//startTesting(100);
 
 function numOfBufferedData() {
     let counter = 0;

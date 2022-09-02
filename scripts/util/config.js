@@ -33,6 +33,7 @@ class Config {
         const conf = new Config(seed);
         switch (index) {
             case 1:     // aggressive world
+                conf._simulationSpeed = -2;
                 conf._aggressionRange = new Range(0.6, 0.8);
                 conf._matePickRange = new Range(0.5, 0.7);
                 break;
@@ -68,7 +69,7 @@ class Config {
     }
 
     constructor(seed,
-                worldSize = 10, gravity = 1, simulationSpeed = 1, mutationChance = 0.01,
+                worldSize = 10, gravity = 1, simulationSpeed = 1000, mutationChance = 0.01,
                 passiveEnergyExpenses = 1, energyMultTurn = 1, energyMultMove = 1,
                 maxEnergyRange = new Range(850, 1000), weightRange = new Range(1, 1),
                 digestionRange = new Range(0.6, 0.8),
