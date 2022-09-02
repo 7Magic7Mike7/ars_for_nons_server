@@ -168,6 +168,22 @@ class PlotDataHandler extends DeathHandler {
     incParentKills() {
         this._parentKills++;
     }
+
+    serialize() {
+        return {
+            genDist: this._genDist,
+            spawnedCreatures: this._spawnedCreatures,
+            bornCreatures: this._bornCreatures,
+
+            producedCreatures: this._producedCreatures,
+            naturalDeaths: this._naturalDeaths,
+            kills: this._kills,
+            unbornDeaths: this._unbornDeaths,
+            parentKills: this._parentKills,
+
+            deathAgeSum: this._deathAgeSum,
+        };
+    }
 }
 
 
@@ -351,6 +367,20 @@ class World extends Configurable {
 
     getAllTiles() {
         return this._world.values();
+    }
+
+    serialize() {
+        const saveData = [];
+        const tiles = this._world.values();
+        for (const tile of tiles) {
+            saveData.push(tile.serialize());
+        }
+        return {
+            age: this._age,
+            coordinate: this._coordinate,
+            plotDataHandler: this._plotDataHandler.serialize(),
+            tiles: saveData,
+        }
     }
 }
 

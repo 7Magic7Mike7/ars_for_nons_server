@@ -43,6 +43,14 @@ class Child {
     get isFullyBred() {
         return this._isFullyBred;
     }
+
+    serialize() {
+        return {
+            genome: this._genome,
+            generation: this._generation,
+            isFullyBred: this._isFullyBred,
+        };
+    }
 }
 
 
@@ -73,6 +81,54 @@ class Tile extends Configurable {
             didAdapt: changedX || changedY,
             x: x,
             y: y,
+        }
+    }
+
+    static deserialize(config, deathHandler) {
+        // config
+        const creatorId = "";
+        const genome = "";
+        const id = 0;
+        const pos = new Coordinate(0, 0);
+        const generation = 0;
+        const isFullyBred = true;
+        // death handler
+
+        const age = 0;
+        const energy = 0;
+        const orientation = Direction.Up;
+
+        const deathTime = 0;
+        const eggLayTimer = 0;
+        const child = null;
+        const prevPos = pos;
+    }
+
+    serialize() {
+        let serializedChild;
+        if (this._child === null) serializedChild = "null";
+        else serializedChild = this._child.serialize();
+
+        let serializedPrevPos;
+        if (this._prevPos === null) serializedPrevPos = "null";
+        else serializedPrevPos = this._prevPos.serialize();
+
+        return {
+            creatorId: this._creatorId,
+            genome: this._genome,
+            id: this._id,
+            pos: this._pos.serialize(),
+            generation: this._generation,
+            isFullyBred: this._isFullyBred,
+
+            age: this._age,
+            energy: this._energy,
+            orientation: this._orientation,
+
+            deathTime: this._deathTime,
+            eggLayTimer: this._eggLayTimer,
+            child: serializedChild,
+            prevPos: serializedPrevPos,
         }
     }
 

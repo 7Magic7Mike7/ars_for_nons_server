@@ -39,6 +39,12 @@ class Coordinate {
         return new Coordinate(num * this._x, num * this._y);
     }
 
+    serialize() {
+        return {
+            x: this._x,
+            y: this._y,
+        }
+    }
 }
 
 module.exports = Coordinate;
