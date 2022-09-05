@@ -3,15 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <title>Ars For Nons - Magazine</title>
+    <style>
+        * {
+            background-color: #222222;
+        }
+
+        .highlighted {
+            color: white;
+        }
+
+        .stats {
+            color: white;
+        }
+
+        .statsLabel {
+            color: white;
+            text-underline: dash-long white;
+        }
+
+        .contribution {
+            color: white;
+            width: 80%;
+            height: 80%;
+            margin-left: 10%;
+            margin-right: 10%;
+
+            font-size: 40px;
+            text-align: justify;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+            word-break: break-word
+        }
+
+        .cont-button {
+            color: white;
+            width: 10%;
+            height: 10%;
+            font-size: 50px;
+        }
+
+        .row {
+            display: inline-block;
+            margin: 15px 5%;
+            align-content: center;
+        }
+
+    </style>
 </head>
 <body>
-    <button onclick="getText(0)"> Text 0</button>
-    <button onclick="getText(1)"> Text 1</button>
-    <button onclick="getText(2)"> Text 2</button>
-    <button onclick="getText(3)"> Text 3</button>
-    <button onclick="getText(4)"> Text 4</button>
+    <button class="cont-button" onclick="getText(0)"> Text 0</button>
+    <button class="cont-button" onclick="getText(1)"> Text 1</button>
+    <button class="cont-button" onclick="getText(2)"> Text 2</button>
+    <button class="cont-button" onclick="getText(3)"> Text 3</button>
+    <button class="cont-button" onclick="getText(4)"> Text 4</button>
 
-    <pre id="contribution"></pre>
+    <pre id="contribution" class="contribution"></pre>
 
     <script>
         const decoder = new TextDecoder();
