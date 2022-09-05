@@ -94,10 +94,17 @@
                 if (r.ok) {
                     const reader = r.body.getReader();
                     reader.read().then((result) => {
-                        const obj = JSON.parse(decoder.decode(result.value || new Uint8Array(result.value.length), {
-                            stream: !result.done,
-                        }));
-                        contribution.innerText = obj.data;
+                        try {
+                            const decoded = decoder.decode(result.value || new Uint8Array(result.value.length), {
+                                stream: !result.done,
+                            })
+                            console.log(decoded);
+                            const obj = JSON.parse(decoded);
+                            contribution.innerText = obj.data;
+                        }
+                        catch (e) {
+                            console.log(e);
+                        }
                     });
                 }
                 else {
