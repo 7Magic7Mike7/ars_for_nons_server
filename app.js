@@ -7,7 +7,7 @@ const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 
 const indexRouter = require('./routes/index');
-const simManager = require('./scripts/sim_manager.js')
+const simManager = require('./scripts/sim_manager.js');
 
 //const cors = require("cors");   //for flutter-compatability
 
@@ -21,6 +21,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use("/login", express.static(path.join(__dirname, 'public')));
+app.use("/magazine", express.static(path.join(__dirname, "views", "magazine.html")));
 app.use("/simulations", express.static(path.join(__dirname, "views", "simulations.html")));
 app.use("/Xp3ELU3WQNRCm4jzUT9h", express.static(path.join(__dirname, "views", "debug_sim.html")));
 
@@ -43,6 +44,18 @@ app.get('/stats', (req, res) => {
     console.log("Value = %s", val);
     res.send("Num of buffered data elements: " + val);
 });
+
+app.get('/magazine-text', (req, res) => {
+    const id = req.query.id;
+
+    try {
+        const data = fs.readFileSync(path.join(__dirname, "views", "contributions", id + ".txt"), 'utf8');
+        res.status(200).json({ data: data });
+    } catch (err) {
+        res.status(400).json();
+    }
+});
+
 const server = app.listen(port, function () {
     const host = server.address().address;
     const port = server.address().port;

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Ars For Nons - Magazine</title>
+</head>
+<body>
+    <button onclick="getText(0)"> Text 0</button>
+    <button onclick="getText(1)"> Text 1</button>
+    <button onclick="getText(2)"> Text 2</button>
+    <button onclick="getText(3)"> Text 3</button>
+    <button onclick="getText(4)"> Text 4</button>
+
+    <pre id="contribution"></pre>
+
+    <script>
+        const decoder = new TextDecoder();
+        const contribution = document.getElementById("contribution");
+
+        function getText(index) {
+            fetch("/magazine-text?id=" + index, {
+                mode: "cors",
+            })
+            .then((r) => {
+                if (r.ok) {
+                    const reader = r.body.getReader();
+                    reader.read().then((result) => {
+                        const obj = JSON.parse(decoder.decode(result.value || new Uint8Array(result.value.length), {
+                            stream: !result.done,
+                        }));
+                        contribution.innerText = obj.data;
+                    });
+                }
+                else {
+                    contribution.innerText = "ERROR #" + r.status + ": " + r.statusText + "!\n" +
+                        "Please try again or contact us.";
+                }
+            });
+        }
+    </script>
+</body>
+</html>
