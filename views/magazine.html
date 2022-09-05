@@ -62,12 +62,30 @@
     <script>
         const decoder = new TextDecoder();
         const contribution = document.getElementById("contribution");
+        const loadingMsg = "Loading text";
+        let loadingCounter = 0;
+        let isLoading = false;
+
+        function simpleLoading() {
+            if (isLoading) {
+                loadingCounter++;
+                if (loadingCounter > 3) loadingCounter = 0;
+
+                let dots = "";
+                for (let i = 0; i < loadingCounter; i++) dots += ".";
+                contribution.innerText = loadingMsg + dots;
+            }
+            else loadingCounter = 0;
+        }
+        setInterval(simpleLoading, 1000);
 
         function getText(index) {
+            isLoading = true;
             fetch("/magazine-text?id=" + index, {
                 mode: "cors",
             })
             .then((r) => {
+                isLoading = false;
                 if (r.ok) {
                     const reader = r.body.getReader();
                     reader.read().then((result) => {
