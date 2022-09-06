@@ -49,6 +49,11 @@ app.get('/magazine-text', (req, res) => {
     res.download(path.join(__dirname, "ARS FOR NONS MAGAZINE.pdf"));
 });
 
+app.get('/assets/SpaceGrotesk-Regular.ttf', (req, res) => {
+    res.sendFile(path.join(__dirname, "assets", "SpaceGrotesk-Regular.ttf"))
+});
+
+
 const server = app.listen(port, function () {
     const host = server.address().address;
     const port = server.address().port;
