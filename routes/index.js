@@ -106,6 +106,19 @@ router.get('/z3htXmWfWeKi99Vxc6fT', (req, res) => {
         res.status(400).json();
 });
 
+router.post('/au5a8JBH28RSBT6hDJo1', (req, res) => {
+    addCorsHeader(res);
+
+    let msg;
+    //different API-calls can have a different request-structure
+    if (req.msg) msg = req.msg;
+    else if (req.query.msg) msg = req.query.msg;
+    else if (req.body.msg) msg = req.body.msg;
+
+    console.log("Client error: " + msg)
+    res.status(200).json();
+});
+
 
 function addCorsHeader(res) {
     return;
