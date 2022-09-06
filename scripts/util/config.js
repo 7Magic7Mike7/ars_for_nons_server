@@ -33,7 +33,6 @@ class Config {
         const conf = new Config(seed);
         switch (index) {
             case 1:     // aggressive world
-                conf._simulationSpeed = -2;
                 conf._aggressionRange = new Range(0.6, 0.8);
                 conf._matePickRange = new Range(0.5, 0.7);
                 break;
@@ -44,8 +43,8 @@ class Config {
                 conf._incubationTimeRange = new Range(3, 5);
                 conf._eggLayDelayRange = new Range(2, 4);
                 break;
-            case 4:     // scavenger world
-                conf._maxEnergyRange = new Range(200, 300);
+            case 4:     // faster world
+                conf._simulationSpeed = -20;
                 break;
             case 5:     // bigger world with incest
                 conf._worldSize = 25;
@@ -55,8 +54,8 @@ class Config {
                 conf._aggressionRange = new Range(0.0, 0.1);
                 conf._matePickRange = new Range(0.1, 0.3);
                 break;
-            case 7:     // max perception world
-                conf._perceptionRange = new Range(conf._worldSize / 2, conf._worldSize / 2, true);
+            case 7:     // higher perception world
+                conf._perceptionRange = new Range(2, 4, true);
                 break;
             case 8:
                 conf._gravity = 3;
@@ -69,7 +68,7 @@ class Config {
     }
 
     constructor(seed,
-                worldSize = 10, gravity = 1, simulationSpeed = 1000, mutationChance = 0.01,
+                worldSize = 10, gravity = 1, simulationSpeed = -10, mutationChance = 0.01,
                 passiveEnergyExpenses = 1, energyMultTurn = 1, energyMultMove = 1,
                 maxEnergyRange = new Range(850, 1000), weightRange = new Range(1, 1),
                 digestionRange = new Range(0.6, 0.8),
