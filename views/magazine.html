@@ -51,126 +51,28 @@
             align-content: center;
         }
 
+        .magazine-download {
+            color: black;
+            background-color: white;
+
+            padding: 2%;
+            white-space: -moz-pre-wrap; /* Firefox */
+            white-space: -o-pre-wrap; /* Opera */
+            white-space: pre-wrap; /* Chrome */
+            word-wrap: break-word; /* IE */
+            align-content: center;
+            font-size: 5vw;
+
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            -webkit-transform: translate(-50%, -50%);
+            transform: translate(-50%, -50%)
+        }
+
     </style>
 </head>
 <body>
-    <!--
-    <div>
-        <button class="cont-button" onclick="getText(0)">Introduction</button>
-        <button class="cont-button" onclick="getText(1)">Patricia Kaishian</button>
-        <button class="cont-button" onclick="getText(2)"> Text 2</button>
-        <button class="cont-button" onclick="getText(3)"> Text 3</button>
-        <button class="cont-button" onclick="getText(4)"> Text 4</button>
-    </div>
-    -->
-    <button class="cont-button" onclick="downloadMagazine()">Download Magazine</button>
-    <a href="https://www.arsfornons.com/magazine-text">Download</a>
-
-    <pre id="contribution" class="contribution"></pre>
-
-    <script>
-        const decoder = new TextDecoder();
-        const contribution = document.getElementById("contribution");
-        const loadingMsg = "Loading text";
-        let loadingCounter = 0;
-        let isLoading = false;
-
-        function downloadMagazine() {
-            /*
-            isLoading = true;
-            let reqObj = new XMLHttpRequest();
-            reqObj.open('GET','magazine-text', true);
-            reqObj.send();
-
-            reqObj.onreadystatechange = function() {
-                let resObj = this;
-                if(resObj.readyState === resObj.DONE) {
-                    isLoading = false;
-                    contribution.innerText = "";
-                    if (resObj.status !== 200) {
-                        console.log("pdf can't be downloaded: " + resObj.status);
-                    } else if (resObj.status === 200){
-                        const resTxt = reqObj.responseText;
-                        window.location.assign(resTxt);    // Opens the pdf download prompt
-                        // NOTE: Ensure that the data to be downloaded has
-                        // already been packaged/created and is available
-                        window.open('/magazine-text'); //does the download
-                    }
-                    else {
-                        console.log("status = " + resObj.status);
-                    }
-                }
-                else if (resObj.readyState === resObj.LOADING) {
-                    console.log("loading");
-                }
-            }
-             */
-
-            fetch("/magazine-text", {
-                mode: "cors",
-            })
-            .then((r) => {
-                isLoading = false;
-                if (r.ok) {
-                    const reader = r.body.getReader();
-                    reader.read().then((result) => {
-                        try {
-                            console.log(result);
-                        }
-                        catch (e) {
-                            console.log(e);
-                        }
-                    });
-                }
-                else {
-                    contribution.innerText = "ERROR #" + r.status + ": " + r.statusText + "!\n" +
-                        "Please try again or contact us.";
-                }
-            });
-        }
-
-        function simpleLoading() {
-            if (isLoading) {
-                loadingCounter++;
-                if (loadingCounter > 3) loadingCounter = 0;
-
-                let dots = "";
-                for (let i = 0; i < loadingCounter; i++) dots += ".";
-                contribution.innerText = loadingMsg + dots;
-            }
-            else loadingCounter = 0;
-        }
-        setInterval(simpleLoading, 1000);
-
-        function getText(index) {
-            isLoading = true;
-            fetch("/magazine-text?id=" + index, {
-                mode: "cors",
-            })
-            .then((r) => {
-                isLoading = false;
-                if (r.ok) {
-                    const reader = r.body.getReader();
-                    reader.read().then((result) => {
-                        try {
-                            const decoded = decoder.decode(result.value || new Uint8Array(result.value.length), {
-                                stream: !result.done,
-                            })
-                            console.log(decoded);
-                            const obj = JSON.parse(decoded);
-                            contribution.innerText = obj.data;
-                        }
-                        catch (e) {
-                            console.log(e);
-                        }
-                    });
-                }
-                else {
-                    contribution.innerText = "ERROR #" + r.status + ": " + r.statusText + "!\n" +
-                        "Please try again or contact us.";
-                }
-            });
-        }
-    </script>
+    <a class="magazine-download" href="https://www.arsfornons.com/magazine-text">Download magazine</a>
 </body>
 </html>
