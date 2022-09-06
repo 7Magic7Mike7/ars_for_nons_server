@@ -46,7 +46,7 @@ app.get('/stats', (req, res) => {
 });
 
 app.get('/magazine-text', (req, res) => {
-    res.download(path.join(__dirname, "ARS FOR NONS MAGAZINE.pdf"));
+    res.download(path.join(__dirname, "assets", "ARS FOR NONS MAGAZINE.pdf"));
 });
 
 app.get('/assets/SpaceGrotesk-Regular.ttf', (req, res) => {
