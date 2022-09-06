@@ -46,14 +46,7 @@ app.get('/stats', (req, res) => {
 });
 
 app.get('/magazine-text', (req, res) => {
-    const id = req.query.id;
-
-    try {
-        const data = fs.readFileSync(path.join(__dirname, "views", "contributions", id + ".txt"), 'utf8');
-        res.status(200).json({ data: data });
-    } catch (err) {
-        res.status(400).json();
-    }
+    res.download(path.join(__dirname, "ARS FOR NONS MAGAZINE.pdf"));
 });
 
 const server = app.listen(port, function () {
@@ -61,7 +54,7 @@ const server = app.listen(port, function () {
     const port = server.address().port;
 
     console.log("Example app listening at http://%s:%s", host, port)
-})
+});
 
 
 function setupConfig(replacementMode) {

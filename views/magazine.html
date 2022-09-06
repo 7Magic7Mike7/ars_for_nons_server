@@ -54,6 +54,7 @@
     </style>
 </head>
 <body>
+    <!--
     <div>
         <button class="cont-button" onclick="getText(0)">Introduction</button>
         <button class="cont-button" onclick="getText(1)">Patricia Kaishian</button>
@@ -61,6 +62,9 @@
         <button class="cont-button" onclick="getText(3)"> Text 3</button>
         <button class="cont-button" onclick="getText(4)"> Text 4</button>
     </div>
+    -->
+    <button class="cont-button" onclick="downloadMagazine()">Download Magazine</button>
+    <a href="https://www.arsfornons.com/magazine-text">Download</a>
 
     <pre id="contribution" class="contribution"></pre>
 
@@ -70,6 +74,60 @@
         const loadingMsg = "Loading text";
         let loadingCounter = 0;
         let isLoading = false;
+
+        function downloadMagazine() {
+            /*
+            isLoading = true;
+            let reqObj = new XMLHttpRequest();
+            reqObj.open('GET','magazine-text', true);
+            reqObj.send();
+
+            reqObj.onreadystatechange = function() {
+                let resObj = this;
+                if(resObj.readyState === resObj.DONE) {
+                    isLoading = false;
+                    contribution.innerText = "";
+                    if (resObj.status !== 200) {
+                        console.log("pdf can't be downloaded: " + resObj.status);
+                    } else if (resObj.status === 200){
+                        const resTxt = reqObj.responseText;
+                        window.location.assign(resTxt);    // Opens the pdf download prompt
+                        // NOTE: Ensure that the data to be downloaded has
+                        // already been packaged/created and is available
+                        window.open('/magazine-text'); //does the download
+                    }
+                    else {
+                        console.log("status = " + resObj.status);
+                    }
+                }
+                else if (resObj.readyState === resObj.LOADING) {
+                    console.log("loading");
+                }
+            }
+             */
+
+            fetch("/magazine-text", {
+                mode: "cors",
+            })
+            .then((r) => {
+                isLoading = false;
+                if (r.ok) {
+                    const reader = r.body.getReader();
+                    reader.read().then((result) => {
+                        try {
+                            console.log(result);
+                        }
+                        catch (e) {
+                            console.log(e);
+                        }
+                    });
+                }
+                else {
+                    contribution.innerText = "ERROR #" + r.status + ": " + r.statusText + "!\n" +
+                        "Please try again or contact us.";
+                }
+            });
+        }
 
         function simpleLoading() {
             if (isLoading) {
