@@ -11,45 +11,12 @@
         }
 
         * {
-            background-color: #222222;
             font-family: SpaceGrotesk;
-        }
-
-        .highlighted {
-            color: white;
-        }
-
-        .stats {
-            color: white;
+            font-size: 18pt;
         }
 
         .statsLabel {
-            color: white;
             text-underline: dash-long white;
-        }
-
-        .contribution {
-            color: white;
-            width: 80%;
-            height: 80%;
-            margin-left: 10%;
-            margin-right: 10%;
-
-            font-size: 40px;
-            text-align: justify;
-            word-wrap: break-word;
-            white-space: pre-wrap;
-            word-break: break-word
-        }
-
-        .cont-button {
-            color: white;
-            width: 20%;
-            height: 10%;
-            margin: 20px;
-            padding: 10px;
-
-            font-size: 30px;
         }
 
         .row {
@@ -58,113 +25,183 @@
             align-content: center;
         }
 
-        .magazine-download {
-            color: black;
-            background-color: white;
+        .toggle-on {
+            color: #279d0f;
+            height: 70px;
+        }
 
-            padding: 2%;
-            white-space: -moz-pre-wrap; /* Firefox */
-            white-space: -o-pre-wrap; /* Opera */
-            white-space: pre-wrap; /* Chrome */
-            word-wrap: break-word; /* IE */
-            align-content: center;
-            font-size: 5vw;
+        .toggle-off {
+            color: #ab1600;
+            height: 70px;
+        }
 
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            -webkit-transform: translate(-50%, -50%);
-            transform: translate(-50%, -50%)
+        .show-graph-div {
+            width: 90%;
+            margin-right: 5%;
+            margin-left: 5%;
+            height: 70px;
+        }
+
+        .hide-graph-div {
+            width: 90%;
+            margin: 10px 5% 10px 5%;
+            height: 70px;
+        }
+
+        .graph-div {
+            width: 90%;
+            margin-right: 5%;
+            margin-left: 5%;
         }
 
     </style>
+
+    <!-- Load plotly.js into the DOM -->
+    <script src="https://cdn.plot.ly/plotly-2.14.0.min.js"></script>
 </head>
 <body>
-<label>
-    <span class="statsLabel">Choose your box</span>
-    <input class="highlighted" id="simId" type="number" value="0" min="0" max="7">
-    <!-- Rounded switch -->
-    <label class="switch">
-        <input id="autoUpdate" type="checkbox" onchange="onCheckboxChange()">
-        <span class="slider round"></span>
+<div class="graph-div">
+    <label>
+        <span class="statsLabel" style="margin-right: 10px">Choose your box</span>
+        <input id="simId" class="highlighted" style="width: 30%; height: 50px; align-content: center" type="number" value="0" min="0" max="7">
+        <!-- Rounded switch -->
+        <button id="autoUpdate" style="width: 20%" onclick="changeAutoUpdate()">Pause</button>
     </label>
-</label>
-<div id="infos">
-    <p>
-        <span class="statsLabel">Age of world:<br></span>
-        <span class="stats" id="worldAge">0</span>
-    </p>
-    <div>
-        <p class="row">
-            <span class="statsLabel">Produced creatures<br></span>
-            <span class="stats" id="producedCreatures">0</span>
-        </p>
-        <p class="row">
-            <span class="statsLabel">Avg. age on death<br></span>
-            <span class="stats" id="avgDeathAge">0</span>
-        </p>
-    </div>
-    <div>
-        <p class="row">
-            <span class="statsLabel">Natural deaths<br></span>
-            <span class="stats" id="naturalDeaths">0</span>
-        </p>
-        <p class="row">
-            <span class="statsLabel">Kills<br></span>
-            <span class="stats" id="kills">0</span>
-        </p>
-        <p class="row">
-            <span class="statsLabel">Unborn deaths:<br></span>
-            <span class="stats" id="unbornDeaths">0</span>
-        </p>
-    </div>
-    <p>
-        <span class="statsLabel">Generation distribution:<br></span>
-        <span class="stats" id="genDist">0: 0</span>
-    </p>
-    <p>
-        <span class="statsLabel">Parent kills:<br></span>
-        <span class="stats" id="parentKills">0</span>
-    </p>
-
-    <div>
-        <p class="row">
-            <span class="statsLabel">Spawned<br></span>
-            <span class="stats" id="spawnedCreatures">0</span>
-        </p>
-        <p class="row">
-            <span class="statsLabel">Fully bred<br></span>
-            <span class="stats" id="fullyBredCreatures">0</span>
-        </p>
-    </div>
 </div>
+<br>
+
+<button id="btnDistArea" class="hide-graph-div" onclick='toggleVisibility("Dist")'>Show distribution graph</button>
+<div id="divDistArea" class="graph-div" hidden="hidden">
+    <button id="btnPlotProdCreat" class="toggle-on" value="ON" onclick="toggle(this)">Plot produced creatures</button>
+    <button id="btnPlotSpawned" class="toggle-on" value="ON" onclick="toggle(this)">Plot spawned creatures</button>
+    <button id="btnPlotFullyBred" class="toggle-on" value="ON" onclick="toggle(this)">Plot fully bred creatures</button>
+    <div id="graphDistribution"></div>
+</div>
+<br>
+
+<button id="btnDeathTypeArea" class="hide-graph-div" onclick='toggleVisibility("DeathType")'>Show death type graph</button>
+<div id="divDeathTypeArea" class="graph-div" hidden="hidden">
+    <button id="btnPlotNatDeaths" class="toggle-on" value="ON" onclick="toggle(this)">Plot natural deaths</button>
+    <button id="btnPlotUnbornDeaths" class="toggle-on" value="ON" onclick="toggle(this)">Plot unborn deaths</button>
+    <button id="btnPlotKills" class="toggle-on" value="ON" onclick="toggle(this)">Plot kills</button>
+    <div id="graphDeathType"></div>
+</div>
+<br>
+
+<!--
+<button id="btnDeathAgeArea" class="hide-graph-div" onclick='toggleVisibility("DeathAge")'>Show death age graph</button>
+<div id="divDeathAgeArea" class="graph-div" hidden="hidden">
+    <div id="graphAge"></div>
+</div>
+<br>
+
+<button id="btnGenerationArea" class="hide-graph-div" onclick='toggleVisibility("Generation")'>Show ruling generation graph</button>
+<div id="divGenerationArea" class="graph-div" hidden="hidden">
+    <div id="graphGenerations"></div>
+</div>
+-->
 
 <script>
+    class Stats {
+        __SIZE = 100;
+
+        constructor() {
+            this._storage = {};
+            this._tail = 0;
+            this._storage[-1] = 0;  // for diffs the "last" element needs to be initialized with 0
+            this._isFull = false;
+        }
+
+        get isEmpty() {
+            return this._tail === 0 && !this._isFull;
+        }
+
+        get last() {
+            return this._storage[this._tail - 1];
+        }
+
+        add(value) {
+            this._storage[this._tail] = value;
+            this._tail++;
+            if (this._tail >= this.__SIZE) {
+                this._isFull = true;
+                // start over
+                this._storage[-1] = this._storage[this.__SIZE - 1];
+                this._tail = 0;
+            }
+        }
+
+        getValues() {
+            const values = [];
+            if (this._isFull) {
+                for (let i = this._tail; i < this.__SIZE; i++) {
+                    values.push(this._storage[i]);
+                }
+            }
+            for (let i = 0; i < this._tail; i++) {
+                values.push(this._storage[i]);
+            }
+            return values;
+        }
+    }
+
     const decoder = new TextDecoder();
     let intervalId = null;
+    let updateResponseCounter = 0;
+
+    const graphData = {
+        ages: new Stats(),
+        rulingGeneration: new Stats(),
+        spawnedCreatures: new Stats(),
+        fullyBredCreatures: new Stats(),
+        producedCreatures: new Stats(),
+        avgDeathAge: new Stats(),
+        naturalDeaths: new Stats(),
+        kills: new Stats(),
+        unbornDeaths: new Stats(),
+    };
 
     const simToRetrieveFrom = document.getElementById("simId");
     const autoUpdate = document.getElementById("autoUpdate");
 
-    const worldAge = document.getElementById("worldAge");
-    const genDist = document.getElementById("genDist");
-    const spawnedCreatures = document.getElementById("spawnedCreatures");
-    const fullyBredCreatures = document.getElementById("fullyBredCreatures");
+    const btnPlotProdCreat = document.getElementById("btnPlotProdCreat");
+    const btnPlotSpawned = document.getElementById("btnPlotSpawned");
+    const btnPlotFullyBred = document.getElementById("btnPlotFullyBred");
+    const graphDistribution = document.getElementById("graphDistribution");
 
-    const producedCreatures = document.getElementById("producedCreatures");
-    const avgDeathAge = document.getElementById("avgDeathAge");
-    const naturalDeaths = document.getElementById("naturalDeaths");
-    const kills = document.getElementById("kills");
-    const unbornDeaths = document.getElementById("unbornDeaths");
+    const btnPlotNatDeaths = document.getElementById("btnPlotNatDeaths");
+    const btnPlotUnbornDeaths = document.getElementById("btnPlotUnbornDeaths");
+    const btnPlotKills = document.getElementById("btnPlotKills");
+    const graphDeathType = document.getElementById("graphDeathType");
+
+    const btnDeathAgeArea = document.getElementById("btnDeathAgeArea");
+    const graphAge = document.getElementById("graphAge");
+
+    const btnGenerationArea = document.getElementById("btnGenerationArea");
+    const graphGenerations = document.getElementById("graphGenerations");
 
 
-    function onCheckboxChange() {
-        if (autoUpdate.checked) intervalId = setInterval(update, 1_000);
-        else clearInterval(intervalId);
+    function changeAutoUpdate() {
+        if (autoUpdate.pause) {
+            autoUpdate.innerHTML = "Continue"
+            intervalId = setInterval(update, 1_000);
+            autoUpdate.pause = false;
+        }
+        else {
+            autoUpdate.innerHTML = "Pause"
+            clearInterval(intervalId);
+            autoUpdate.pause = true;
+        }
     }
+    changeAutoUpdate();
+    intervalId = setInterval(update, 1_000);
 
     function update() {
         const simId = simToRetrieveFrom.value;
+
+        // only do the call if we are not still waiting for a response
+        if (updateResponseCounter < -1 || 1 < updateResponseCounter) return;
+        updateResponseCounter--;
 
         const startTime = Date.now();
         fetch("/getplot?simId=" + simId, {
@@ -173,28 +210,239 @@
         .then((r) => {
             const reader = r.body.getReader();
             reader.read().then((result) => {
-                console.log(simId + " --- response time: " + (Date.now() - startTime) + " ms");
+                //console.log(simId + " --- response time: " + (Date.now() - startTime) + " ms");
 
                 const obj = JSON.parse(decoder.decode(result.value || new Uint8Array(result.value.length), {
                     stream: !result.done,
                 }));
 
                 const infos = obj.data.infos;
-                worldAge.innerText = infos.age;
-                genDist.innerText = infos.genDistribution;
-                spawnedCreatures.innerText = infos.spawned;
-                fullyBredCreatures.innerText = infos.fullyBred;
+                if (graphData.ages.isEmpty || infos.age > graphData.ages.last) {
+                    // only create new plot and store data if the world aged
+                    graphData.ages.add(infos.age);
 
-                producedCreatures.innerText = infos.producedCreatures;
-                naturalDeaths.innerText = infos.naturalDeaths;
-                kills.innerText = infos.kills;
-                unbornDeaths.innerText = infos.unbornDeaths;
-                avgDeathAge.innerText = infos.avgDeathAge;
+                    let maxGen = 0;
+                    let maxVal = 0;
+                    for (const key in infos.genDistribution.keys) {
+                        if (infos.genDistribution[key] > maxVal) {
+                            maxGen = key;
+                            maxVal = infos.genDistribution[key];
+                        }
+                    }
+                    graphData.rulingGeneration.add(maxGen);
+
+                    graphData.spawnedCreatures.add(infos.spawned);
+                    graphData.fullyBredCreatures.add(infos.fullyBred);
+                    graphData.producedCreatures.add(infos.producedCreatures);
+                    graphData.naturalDeaths.add(infos.naturalDeaths);
+                    graphData.kills.add(infos.kills);
+                    graphData.unbornDeaths.add(infos.unbornDeaths);
+                    graphData.avgDeathAge.add(infos.avgDeathAge);
+
+                    createPlot();
+                }
+
+                updateResponseCounter++;
             });
         })
         .catch(() => {
             console.log("error?");
         });
+    }
+
+    function toggle(button) {
+        if (button.value === "ON") {
+            button.value = "OFF";
+            button.className = "toggle-off";
+        }
+        else {
+            button.value = "ON";
+            button.className = "toggle-on";
+        }
+    }
+
+    function toggleVisibility(idPart) {
+        const button = document.getElementById("btn" + idPart + "Area");
+        const div = document.getElementById("div" + idPart + "Area");
+        if (button.value === "ON") {
+            button.value = "OFF";
+            button.className = "hide-graph-div";
+            div.setAttribute("hidden", "hidden");
+            button.innerText = "Show" + button.innerText.substring("Hide".length);
+        }
+        else {
+            button.value = "ON";
+            button.className = "show-graph-div";
+            div.removeAttribute("hidden");
+            button.innerText = "Hide" + button.innerText.substring("Show".length);
+        }
+    }
+
+    function createPlot() {
+        const plotProdCreatColor = 'rgb(255,115,21)';
+        const plotSpawnedColor = 'rgb(206,84,84)';
+        const plotFullyBredColor = 'rgb(255,216,100)';
+
+        const plotNatDeathsColor = 'rgb(67,225,253)';
+        const plotUnbornDeathsColor = '#b25dff';
+        const plotKillsColor = '#d70073';
+
+        const plotAgeColor = '#aaa'
+        const plotGenerationsColor = '#44bb00'
+
+        const ages = graphData.ages.getValues();
+
+        const tracesDist = [];
+        if (btnPlotProdCreat.value === "ON") {
+            const trace = {
+                name: "Produced creatures",
+                x: ages,
+                y: graphData.producedCreatures.getValues(),
+                marker: {
+                    color: plotProdCreatColor,
+                    size: 8
+                },
+                line: {
+                    color: plotProdCreatColor,
+                    width: 1
+                },
+                mode: 'lines+markers',
+            };
+            tracesDist.push(trace);
+        }
+        if (btnPlotSpawned.value === "ON") {
+            const trace = {
+                name: "Spawned creatures",
+                x: ages,
+                y: graphData.spawnedCreatures.getValues(),
+                marker: {
+                    color: plotSpawnedColor,
+                    size: 8
+                },
+                line: {
+                    color: plotSpawnedColor,
+                    width: 1
+                },
+                mode: 'lines+markers',
+            };
+            tracesDist.push(trace);
+        }
+        if (btnPlotFullyBred.value === "ON") {
+            const trace = {
+                name: "Fully bred creatures",
+                x: ages,
+                y: graphData.fullyBredCreatures.getValues(),
+                marker: {
+                    color: plotFullyBredColor,
+                    size: 8
+                },
+                line: {
+                    color: plotFullyBredColor,
+                    width: 1
+                },
+                mode: 'lines+markers',
+            };
+            tracesDist.push(trace);
+        }
+        Plotly.newPlot('graphDistribution', tracesDist, { title: 'Distribution' });
+
+        const tracesDeathType = [];
+        if (btnPlotNatDeaths.value === "ON") {
+            const trace = {
+                name: "Natural deaths",
+                x: ages,
+                y: graphData.naturalDeaths.getValues(),
+                marker: {
+                    color: plotNatDeathsColor,
+                    size: 8
+                },
+                line: {
+                    color: plotNatDeathsColor,
+                    width: 1
+                },
+                mode: 'lines+markers',
+            };
+            tracesDeathType.push(trace);
+        }
+        if (btnPlotUnbornDeaths.value === "ON") {
+            const trace = {
+                name: "Unborn deaths",
+                x: ages,
+                y: graphData.unbornDeaths.getValues(),
+                marker: {
+                    color: plotUnbornDeathsColor,
+                    size: 8
+                },
+                line: {
+                    color: plotUnbornDeathsColor,
+                    width: 1
+                },
+                mode: 'lines+markers',
+            };
+            tracesDeathType.push(trace);
+        }
+        if (btnPlotKills.value === "ON") {
+            const trace = {
+                name: "Kills",
+                x: ages,
+                y: graphData.kills.getValues(),
+                marker: {
+                    color: plotKillsColor,
+                    size: 8
+                },
+                line: {
+                    color: plotKillsColor,
+                    width: 1
+                },
+                mode: 'lines+markers',
+            };
+            tracesDeathType.push(trace);
+        }
+        Plotly.newPlot('graphDeathType', tracesDeathType, { title: 'Death types' });
+
+
+        /*
+        if (btnDeathAgeArea.value === "ON") {
+            const trace = {
+                name: "Average age on death",
+                x: ages,
+                y: graphData.avgDeathAge.getValues(),
+                marker: {
+                    color: plotAgeColor,
+                    size: 8
+                },
+                line: {
+                    color: plotAgeColor,
+                    width: 1
+                },
+                mode: 'lines+markers',
+            };
+            Plotly.newPlot('graphAge', trace, {title: 'Average age on death'});
+        }
+
+        if (btnGenerationArea.value === "ON") {
+            const vals = graphData.rulingGeneration.getValues();
+            if (vals.length > 0) {
+                console.log("Vals = " + vals);
+                const trace = {
+                    name: "Ruling generations",
+                    x: ages,
+                    y: vals,
+                    marker: {
+                        color: plotGenerationsColor,
+                        size: 8
+                    },
+                    line: {
+                        color: plotGenerationsColor,
+                        width: 1
+                    },
+                    mode: 'lines+markers',
+                };
+                Plotly.newPlot('graphGenerations', trace, { title: 'Generation with highest population' });
+            }
+        }
+         */
+
     }
 </script>
 </body>
