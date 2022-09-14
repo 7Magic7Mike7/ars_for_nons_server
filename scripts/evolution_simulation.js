@@ -1,4 +1,7 @@
 
+const fs = require("fs");
+const path = require("path");
+
 const {Configurable} = require("./configurable");
 const Config = require("./util/config");
 const Coordinate = require("./util/coordinate");
@@ -57,6 +60,27 @@ class EvolutionSimulation extends Configurable {
         }
     }
 
+    save() {
+        const saveData = this._world.serialize();
+        const string = JSON.stringify(saveData);
+        const dateTime = new Date();
+        const t1 = dateTime.toUTCString();
+        let name = t1.substring(0, t1.indexOf("2022"));
+        const t2 = dateTime.toTimeString();
+        name += t2.substring(0, 8); // HH:MM:SS
+        const filePath = path.join(__dirname, "..", "save_data", name + ".json");
+
+
+        // todo store string to file
+        try {
+            fs.writeFile(filePath, JSON.stringify(saveData), function() {
+                console.log("File \"" + filePath + "\" saved");
+            });
+        } catch(e) {
+            const debug = true;
+        }
+    }
+
     toChannelTriple() {
         const tile = this._world.getNext();
         if (typeof tile === 'undefined') {
@@ -78,10 +102,11 @@ function staticTest() {
             sim.update();
         }
     }
+    sim.save();
     let c = sim.toChannelTriple();
     c = sim.toChannelTriple();
     const debugMe = true;
 }
-//staticTest();
+// staticTest();
 
 module.exports = EvolutionSimulation;
