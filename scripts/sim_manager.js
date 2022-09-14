@@ -45,8 +45,12 @@ class CommunicationHandler {
         this._id = id;
         this._data = new Queue(1000);
 
-        const conf = Config.createConfig(12, id);
-        this._sim = new EvolSim(conf);
+        this._config = Config.createConfig(12, id);
+        this._sim = new EvolSim(this._config);
+    }
+
+    get config() {
+        return this._config;
     }
 
     get id() {
@@ -58,8 +62,16 @@ class CommunicationHandler {
     }
 
     addData(data, clientKey) {
-        //console.log("client #" + clientKey + " updates sim#" + this._id + " with data: " + data);
-        this._sim.addData(data, clientKey);
+        const commHandler = this;
+        function addAsync() {
+            if (commHandler._config.simulationSpeed < 0) {
+                for (let i = 0; i > commHandler._config.simulationSpeed; i--) {
+                    commHandler.processStep();
+                }
+            }
+            commHandler._sim.addData(data, clientKey);
+        }
+        setTimeout(addAsync, 10);
     }
 
     processStep() {
@@ -72,8 +84,8 @@ class CommunicationHandler {
         return item;
     }
 
-    getPlotData() {
-        return this._sim.getPlotData();     // {metaData-object, data items-list}
+    getPlotData(withTileData = false) {
+        return this._sim.getPlotData(withTileData);     // {metaData-object, data items-list}
     }
 }
 
@@ -120,23 +132,27 @@ class SimManager {
 const manager = new Map();
 manager.set("sim", new SimManager(0));
 
-function startEvolution(interval) {
+function startEvolution() {
     const simManager = manager.get("sim");
-    function processStep() {
-        for (const id of simManager.getIds()) {
+    for (const id of simManager.getIds()) {
+        const interval = simManager.getCommHandler(id).config.simulationSpeed;
+        function test() {
             const commHandler = simManager.getCommHandler(id);
             commHandler.processStep();
         }
+        if (interval > 0) {
+            // negative numbers imply processing the absolut number of steps everytime some data is added
+            setInterval(test, interval);
+        }
     }
-    setInterval(processStep, interval);
 }
 
 function startTesting(interval) {
     const simManager = manager.get("sim");
-    let nullChance = 0.8;
+    let nullChance = 0.7;
     let counter = 0;
     function _testSim() {
-        if (counter >= 600_000) return;
+        if (counter === 100_000) nullChance = 0.95;
         counter++;
 
         const data = DataGenerator.getRandomCacheData(nullChance);
@@ -151,8 +167,8 @@ function startTesting(interval) {
     setInterval(_testSim, interval);
 }
 
-startEvolution(100);   // todo use config?
-startTesting(100);
+startEvolution();
+//startTesting(100);
 
 function numOfBufferedData() {
     let counter = 0;
@@ -308,7 +324,6 @@ function update(req) {
  * @returns {list[string]} data items
  */
 function retrieve(req) {
-    // todo: key?
     const simId = _getSimId(req);
     const numOfItems = _getNumOfItems(req);
     const simManager = _getTargetManager(req);
@@ -325,13 +340,13 @@ function retrieve(req) {
     else return [null, false];
 }
 
-function getPlotData(req) {
+function getPlotData(req, withPlotData) {
     const simId = _getSimId(req);
     const simManager = _getTargetManager(req);
     const sim = simManager.getCommHandler(simId);
 
     if (sim) {
-        const response = sim.getPlotData();
+        const response = sim.getPlotData(withPlotData);
         return [{'infos': response.metaData, 'items': response.tileData}, true]
     }
     else return [null, false];

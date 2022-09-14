@@ -6,7 +6,7 @@ const Coordinate = require("../../util/coordinate");
 const Direction = require("../../util/direction");
 const Genome = require("./genome");
 const Brain = require("./brain");
-const {valueCheck} = require("../../util/util_functions");
+const {valueCheck, hsvToRgb} = require("../../util/util_functions");
 
 const drivenActuatorStats = [];
 let updateCounter = 0;
@@ -43,6 +43,14 @@ class Child {
     get isFullyBred() {
         return this._isFullyBred;
     }
+
+    serialize() {
+        return {
+            genome: this._genome,
+            generation: this._generation,
+            isFullyBred: this._isFullyBred,
+        };
+    }
 }
 
 
@@ -76,6 +84,54 @@ class Tile extends Configurable {
         }
     }
 
+    static deserialize(config, deathHandler) {
+        // config
+        const creatorId = "";
+        const genome = "";
+        const id = 0;
+        const pos = new Coordinate(0, 0);
+        const generation = 0;
+        const isFullyBred = true;
+        // death handler
+
+        const age = 0;
+        const energy = 0;
+        const orientation = Direction.Up;
+
+        const deathTime = 0;
+        const eggLayTimer = 0;
+        const child = null;
+        const prevPos = pos;
+    }
+
+    serialize() {
+        let serializedChild;
+        if (this._child === null) serializedChild = "null";
+        else serializedChild = this._child.serialize();
+
+        let serializedPrevPos;
+        if (this._prevPos === null) serializedPrevPos = "null";
+        else serializedPrevPos = this._prevPos.serialize();
+
+        return {
+            creatorId: this._creatorId,
+            genome: this._genome,
+            id: this._id,
+            pos: this._pos.serialize(),
+            generation: this._generation,
+            isFullyBred: this._isFullyBred,
+
+            age: this._age,
+            energy: this._energy,
+            orientation: this._orientation,
+
+            deathTime: this._deathTime,
+            eggLayTimer: this._eggLayTimer,
+            child: serializedChild,
+            prevPos: serializedPrevPos,
+        }
+    }
+
     constructor(config, creatorId, genome, id = null, pos = null, generation = 0, isFullyBred = false,
                 deathHandler = null) {
         super(config);
@@ -99,9 +155,9 @@ class Tile extends Configurable {
                 Tile.__NextID = id + 1;
             }
         }
+        this._pos = pos;
         this._age = -genome.incubationTime;
         this._energy = genome.maxEnergy;
-        this._pos = pos;
         this._orientation = genome.orientation;
 
         this._brain = new Brain(genome);
@@ -154,7 +210,7 @@ class Tile extends Configurable {
         else saturation = 0;
         const value = 1.0 - 0.6 * Math.tanh(this._age * 0.1);   // todo adapt function?
 
-        return [hue, saturation, value];
+        return hsvToRgb([hue, saturation, value]);
     }
 
     get isAlive() {
@@ -279,10 +335,8 @@ class Tile extends Configurable {
         this._prevPos = this._pos;
         console.assert(typeof get === 'function', "get is not a function!");
 
-        this._age += 1;
-        if (this._age < 0) return true;     // hatching in progress
-
         if (this.isAlive) {
+            this._age++;    // now creatures no longer age after they died
             if (this._age < 0) return true;     // hatching in progress
 
             const ageLevel = Math.tanh(this.age);
@@ -342,7 +396,7 @@ class Tile extends Configurable {
     _getPerceptionInput(get) {
         const neighbors = [ Direction.Up, Direction.Right, Direction.Down, Direction.Left ];
 
-        const perceiveRange = 1;     // todo parameter!
+        const perceiveRange = this._genome.perceptionDistance;
         let perceiveCounts = [];
         for (const dir of neighbors.values()) {
             const positions = this._getConeCoordinates(dir, get, perceiveRange);
@@ -356,7 +410,7 @@ class Tile extends Configurable {
         }
 
         for (let i = 0; i < perceiveCounts.length; i++) {
-            // normalize to get ratio of occupied spots // todo maybe adapt if perception bias changes
+            // normalize to get ratio of occupied spots
             perceiveCounts[i] = perceiveCounts[i] / (perceiveRange * perceiveRange);
         }
         return perceiveCounts;

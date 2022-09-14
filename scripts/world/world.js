@@ -80,7 +80,6 @@ class PlotDataHandler extends DeathHandler {
         this._genDist = new Map();
         this._spawnedCreatures = 0;
         this._bornCreatures = 0;
-        this._plotPoints = [];
 
         this._producedCreatures = 0;    // number of new creatures produced via mating
         this._naturalDeaths = 0;        // number of deaths based on having no more energy
@@ -110,10 +109,6 @@ class PlotDataHandler extends DeathHandler {
         return this._bornCreatures;
     }
 
-    get plotPoints() {
-        return this._plotPoints;
-    }
-
     get numOfProducedCreatures() {
         return this._producedCreatures;
     }
@@ -135,7 +130,7 @@ class PlotDataHandler extends DeathHandler {
     }
 
     get averageDeathAge() {
-        return this._deathAgeSum / (this._naturalDeaths + this._kills);
+        return this._deathAgeSum / (this._naturalDeaths + this._kills + this._unbornDeaths);
     }
 
     handleDeath(tile) {
@@ -170,25 +165,24 @@ class PlotDataHandler extends DeathHandler {
         }
     }
 
-    clearPlotPoints() {
-        // clear the array: https://stackoverflow.com/questions/1232040/how-do-i-empty-an-array-in-javascript
-        this._plotPoints.length = 0;
-    }
-
-    addPlotPoint(tile) {
-        this._plotPoints.push({
-            id: tile.id,
-            x: tile.pos.x,
-            y: tile.pos.y,
-            color: hsvToRgb(tile.color),
-            creator: tile.creator,
-            age: tile.age,
-            generation: tile.generation,
-        });
-    }
-
     incParentKills() {
         this._parentKills++;
+    }
+
+    serialize() {
+        return {
+            genDist: this._genDist,
+            spawnedCreatures: this._spawnedCreatures,
+            bornCreatures: this._bornCreatures,
+
+            producedCreatures: this._producedCreatures,
+            naturalDeaths: this._naturalDeaths,
+            kills: this._kills,
+            unbornDeaths: this._unbornDeaths,
+            parentKills: this._parentKills,
+
+            deathAgeSum: this._deathAgeSum,
+        };
     }
 }
 
@@ -260,9 +254,6 @@ class World extends Configurable {
     _set(tile, world) {
         console.assert(!world.has(tile.pos) || !world.get(tile.pos).isAlive, "Space already occupied!");
         world.set(tile.pos, tile);
-
-        // todo flag if we should store plot points or not (we don't have to store them each update...)
-        this._plotDataHandler.addPlotPoint(tile);
     }
 
     _place(tile, world, isNew = false) {
@@ -348,7 +339,6 @@ class World extends Configurable {
     }
 
     update() {
-        this._plotDataHandler.clearPlotPoints();
         this._age++;
         const newWorld = new _MyMap(this.config.worldSize);
         const oldWorld = this._world;
@@ -377,6 +367,20 @@ class World extends Configurable {
 
     getAllTiles() {
         return this._world.values();
+    }
+
+    serialize() {
+        const saveData = [];
+        const tiles = this._world.values();
+        for (const tile of tiles) {
+            saveData.push(tile.serialize());
+        }
+        return {
+            age: this._age,
+            coordinate: this._coordinate,
+            plotDataHandler: this._plotDataHandler.serialize(),
+            tiles: saveData,
+        }
     }
 }
 

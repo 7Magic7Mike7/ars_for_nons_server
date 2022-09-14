@@ -117,7 +117,8 @@
         if (simId === -1) simId = "debug";
 
         const startTime = Date.now();
-        fetch("/getplot?simId=" + simId, {
+        // use secret path to also get data from the individual tiles
+        fetch("/z3htXmWfWeKi99Vxc6fT?simId=" + simId, {
             mode: "cors",
         })
         .then((r) => {
@@ -133,7 +134,6 @@
                 const ys = [];
                 const colors = [];
                 const texts = [];
-                const infos = obj.data.infos;
                 const data = obj.data.items;
                 for (const i in data) {
                     if (data[i] != null) {
@@ -144,7 +144,9 @@
                         texts.push("#" + data[i].id + ", gen" + data[i].generation + " | " + "age = " + data[i].age);
                     }
                 }
-                createPlot(simId, infos.width, infos.height, xs, ys, colors, texts);
+                createPlot(simId, obj.data.infos.width, obj.data.infos.height, xs, ys, colors, texts);
+
+                const infos = obj.data.infos;
                 worldAge.innerText = infos.age;
                 genDist.innerText = infos.genDistribution;
                 spawnedCreatures.innerText = infos.spawned;

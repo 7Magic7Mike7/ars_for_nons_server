@@ -54,7 +54,7 @@ router.post('/logout', (req, res) => {
  * }
  *
  */
-router.get('/retrieve', (req, res) => {
+router.get('/retrieve', (req, res) => { // todo "encrypt" path so no others can retrieve?
     addCorsHeader(res);
 
     const response = simManager.retrieve(req);
@@ -66,7 +66,7 @@ router.get('/retrieve', (req, res) => {
         res.status(400).json();
 });
 
-/**Sends back tile info for plotting
+/**Sends back some world stats
  *
  * Params: id of the simulation we want to access
  * Sends: {
@@ -77,13 +77,46 @@ router.get('/retrieve', (req, res) => {
 router.get('/getplot', (req, res) => {
     addCorsHeader(res);
 
-    const response = simManager.getPlotData(req);
+    const response = simManager.getPlotData(req, false);
     const data = response[0];
     const success = response[1];
     if (success)
         res.status(200).json({ data: data });
     else
         res.status(400).json();
+});
+
+/**Sends back tile info for plotting and world stats
+ *
+ * Params: id of the simulation we want to access
+ * Sends: {
+ *
+ * }
+ *
+ */
+router.get('/z3htXmWfWeKi99Vxc6fT', (req, res) => {
+    addCorsHeader(res);
+
+    const response = simManager.getPlotData(req, true);
+    const data = response[0];
+    const success = response[1];
+    if (success)
+        res.status(200).json({ data: data });
+    else
+        res.status(400).json();
+});
+
+router.post('/au5a8JBH28RSBT6hDJo1', (req, res) => {
+    addCorsHeader(res);
+
+    let msg;
+    //different API-calls can have a different request-structure
+    if (req.msg) msg = req.msg;
+    else if (req.query.msg) msg = req.query.msg;
+    else if (req.body.msg) msg = req.body.msg;
+
+    console.log("Client error: " + msg)
+    res.status(200).json();
 });
 
 

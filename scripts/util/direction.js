@@ -1,4 +1,5 @@
 const Coordinate = require('./coordinate.js');
+const {floor} = require("mathjs");
 
 
 const Direction = {
@@ -100,8 +101,22 @@ function toInt(direction) {
     }
 }
 
+function fromInt(value) {
+    switch (value) {
+        case 0: return Direction.Up;
+        case 1: return Direction.Right;
+        case 2: return Direction.Down;
+        case 3: return Direction.Left;
+    }
+    return Direction.Center;
+}
+
 function toFloat(direction) {
     return toInt(direction) / 4;
+}
+
+function fromFloat(value) {
+    return fromInt(floor(value * 4));
 }
 
 
@@ -135,6 +150,8 @@ module.exports.turnLeft = turnLeft;
 module.exports.toCoordinate = toCoordinate;
 module.exports.coord = toCoordinate;
 module.exports.toInt = toInt;
+module.exports.fromInt = fromInt;
 module.exports.toFloat = toFloat;
+module.exports.fromFloat = fromFloat;
 
 module.exports.direction = direction;

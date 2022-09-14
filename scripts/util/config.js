@@ -33,42 +33,42 @@ class Config {
         const conf = new Config(seed);
         switch (index) {
             case 1:     // aggressive world
-                conf._aggressionRange = new Range(0.2, 0.6);
+                conf._aggressionRange = new Range(0.6, 0.8);
                 conf._matePickRange = new Range(0.5, 0.7);
                 break;
             case 2:     // mutation world
                 conf._mutationChance = 0.25;
                 break;
             case 3:     // non-instant birth world
-                conf._incubationTimeRange = new Range(3, 7);
+                conf._incubationTimeRange = new Range(3, 5);
                 conf._eggLayDelayRange = new Range(2, 4);
                 break;
-            case 4:     // scavenger world
-                conf._decayRange = new Range(30, 50, true);
-                conf._seed += 44;
+            case 4:     // faster world
+                conf._simulationSpeed = -20;
                 break;
-            case 5:     // bigger world
-                conf._worldSize = 16;
+            case 5:     // bigger world with incest
+                conf._worldSize = 25;
+                conf._maxMateSimilarity = 1.0;  // >= 1 means we can do it with every one
                 break;
             case 6:     // love world
                 conf._aggressionRange = new Range(0.0, 0.1);
                 conf._matePickRange = new Range(0.1, 0.3);
                 break;
-            case 7:     // moon-gravity world
-                conf._gravity = 0.5;
+            case 7:     // higher perception world
+                conf._perceptionRange = new Range(2, 4, true);
                 break;
             case 8:
                 conf._gravity = 3;
                 break;
-            case 9:     // bad stomach world
-                conf._digestionRange = new Range(0.2, 0.4);
+            case 9:     // moon-gravity world
+                conf._gravity = 0.5;
                 break;
         }
         return conf;
     }
 
     constructor(seed,
-                worldSize = 10, gravity = 1, simulationSpeed = 1, mutationChance = 0.01,
+                worldSize = 10, gravity = 1, simulationSpeed = -10, mutationChance = 0.01,
                 passiveEnergyExpenses = 1, energyMultTurn = 1, energyMultMove = 1,
                 maxEnergyRange = new Range(850, 1000), weightRange = new Range(1, 1),
                 digestionRange = new Range(0.6, 0.8),
@@ -76,7 +76,9 @@ class Config {
                 eggLayDelayRange = new Range(1, 2, true),
                 decayRange = new Range(25, 30, true),
                 aggressionRange = new Range(0, 0.4), matePickRange = new Range(0.4, 0.5),
-                maxMateSimilarity = 0.9) {
+                maxMateSimilarity = 0.9,
+                perceptionRange = new Range(1, 3, true),
+                ) {
         // todo numOfNeuronsRange?
         this._worldSize = worldSize;    // influences maximum number of creatures that can live
         this._gravity = gravity;        // influences energy penalty based on weight
@@ -98,6 +100,8 @@ class Config {
         this._aggressionRange = aggressionRange;            //
         this._matePickRange = matePickRange;                // how similar the other creature must be for mating
         this._maxMateSimilarity = maxMateSimilarity;        // avoid incest
+
+        this._perceptionRange = perceptionRange;        // how far the creatrue can perceive
 
         this._rand = seedrandom(seed);
     }
@@ -164,6 +168,10 @@ class Config {
 
     matePickLevel(num) {
         return this._matePickRange.resolve(num);
+    }
+
+    perceptionDistance(num) {
+        return this._perceptionRange.resolve(num);
     }
 
     randomNumber() {

@@ -8,7 +8,7 @@ const NUM_OF_SENSORS = 9;
 const NUM_OF_NEURONS = 5;
 const NUM_OF_ACTUATORS = 7;
 const GENE_SIZE = 5;
-const NUM_OF_GENES = 19;
+const NUM_OF_GENES = 20;
 const NUM_OF_BRAIN_GENES = 16;
 const _MAX_GENE_VALUE = MathJS.pow(10, GENE_SIZE);
 
@@ -138,7 +138,13 @@ class Genome {
         this._matePickLevel = config.matePickLevel(geneB[0]);
         this._aggressionLevel = config.aggressionLevel(geneB[1]);
         this._strength = geneB[2];
-        //index += GENE_SIZE;
+        index += GENE_SIZE;
+
+        gene = data.substring(index, index + GENE_SIZE);
+        const geneP = this._splitGene(gene);    // perception gene
+        this._perceptionDistance = config.perceptionDistance(geneP[0]);
+        this._orientation = Direction.fromFloat(geneP[1]);
+
 
         // todo change how position is calculated?
         let x = this._data.substring(0, 10) / MathJS.pow(10, 10);
@@ -222,10 +228,6 @@ class Genome {
         return this._pos;
     }
 
-    get orientation() {
-        return Direction.Up;     // todo
-    }
-
     get maxEnergy() {
         return this._maxEnergy;
     }
@@ -260,6 +262,14 @@ class Genome {
 
     get strength() {
         return this._strength;
+    }
+
+    get perceptionDistance() {
+        return this._perceptionDistance;
+    }
+
+    get orientation() {
+        return this._orientation;
     }
 
     get value() {
