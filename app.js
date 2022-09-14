@@ -21,7 +21,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use("/login", express.static(path.join(__dirname, 'public')));
-app.use("/magazine", express.static(path.join(__dirname, "views", "magazine.html")));
+//app.use("/magazine", express.static(path.join(__dirname, "views", "magazine.html")));
 app.use("/simulations", express.static(path.join(__dirname, "views", "simulations.html")));
 app.use("/Xp3ELU3WQNRCm4jzUT9h", express.static(path.join(__dirname, "views", "debug_sim.html")));
 
