@@ -1,5 +1,11 @@
 //const data = new Map(); //saves the QDDVis-objects needed for simulation
 
+const UF = require("./util/util_functions");
+const Config = require("./util/config");
+const EvolSim = require("./evolution_simulation");
+const DataGenerator = require("./util/data_generator");
+
+
 class Queue {
     constructor(maxLength) {
         this._maxLength = maxLength;
@@ -34,151 +40,141 @@ class Queue {
     }
 }
 
-const DEACTIVATION_DURATION = 30_000;    // how many milliseconds without a request it takes to make an active Simulation passive
-class Simulation {
+class CommunicationHandler {
     constructor(id) {
         this._id = id;
         this._data = new Queue(1000);
 
-        this._clientKey = null;
-        this._lastActiveRequest = 0;    // timestamp for last request of an active client (login, data update,
-                                        // timestamp update - no data retrieval)
+        this._config = Config.createConfig(12, id);
+        this._sim = new EvolSim(this._config);
+    }
+
+    get config() {
+        return this._config;
     }
 
     get id() {
         return this._id;
     }
 
-    get clientKey() {
-        return this._clientKey;
-    }
-
-    get isActive() {
-        const stamp = _getTimeStamp();
-        const diff = stamp - this._lastActiveRequest;
-        return stamp - this._lastActiveRequest < DEACTIVATION_DURATION;
-    }
-
     get bufferLevel() {
         return this._data.length;
     }
 
-    setClient(key) {
-        this._lastActiveRequest = _getTimeStamp();
-        this._clientKey = key;
-        console.log("registered client #" + this._clientKey + " for simulation #" + this._id);
+    addData(data, clientKey) {
+        const commHandler = this;
+        function addAsync() {
+            if (commHandler._config.simulationSpeed < 0) {
+                for (let i = 0; i > commHandler._config.simulationSpeed; i--) {
+                    commHandler.processStep();
+                }
+            }
+            commHandler._sim.addData(data, clientKey);
+        }
+        setTimeout(addAsync, 10);
     }
 
-    resetClient() {
-        console.log("logged out client #" + this._clientKey);
-        this._clientKey = null;
-    }
-
-    update(data) {
-        this._lastActiveRequest = _getTimeStamp();
-        console.log("client #" + this._clientKey + " updates sim#" + this._id + " with data: " + data);
-        this._data.enqueue(data);
+    processStep() {
+        this._sim.update();
     }
 
     retrieve() {
-        const item = this._data.dequeue();
+        const item = this._sim.toChannelTriple();
         console.log("retrieving \"" + item + "\"from sim#" + this._id);
         return item;
+    }
+
+    getPlotData(withTileData = false) {
+        return this._sim.getPlotData(withTileData);     // {metaData-object, data items-list}
     }
 }
 
 const DEBUG_ID = 'debug';
-class DebugSimulation extends Simulation {
+class DebugCommHandler extends CommunicationHandler {
     constructor() {
         super(-1);
     }
-
-    get isActive() {
-        return true;
-    }
 }
 
-const NUM_OF_SIMULATIONS = 10;
+const NUM_OF_SIMULATIONS = 8;
 class SimManager {
-    constructor(objCode) {
-        this._objCode = objCode;
-        this._activeSims = new Map();   // are currently accessed by clients
-        this._allSims = new Map();  //are currently not used by clients
+    constructor(id) {
+        this._id = id;
+        this._commHandlers = new Map();  //are currently not used by clients
         for (let i = 0; i < NUM_OF_SIMULATIONS; i++) {
-            this._allSims[i] = new Simulation(i);
+            this._commHandlers.set(i.toString(), new CommunicationHandler(i));
         }
-        this._allSims[DEBUG_ID] = new DebugSimulation();    // static simulation used for debugging/testing
+        this._commHandlers.set(DEBUG_ID, new DebugCommHandler());    // static simulation used for debugging/testing
     }
 
-    get objCode() {
-        return this._objCode;
+    getIds() {
+        return this._commHandlers.keys();
     }
 
-    getSimulation(key, isActive = true) {
-        if (key === DEBUG_ID) return this._allSims[key];
+    getCommHandler(id) {
+        if (id === DEBUG_ID) return this._commHandlers.get(id);
 
-        if (isActive) {
-            if (key in this._activeSims) {
-                return this._activeSims[key];
-            }
-        }
-        else if (key in this._allSims) {
-            return this._allSims[key];
+        if (this._commHandlers.has(id)) {
+            return this._commHandlers.get(id);
         }
         return null;
     }
 
-    _logout(simulation) {
-        if (simulation.clientKey in this._activeSims) {
-            this._activeSims.delete(simulation.clientKey);
-            simulation.resetClient();
-        }
-    }
+    update(id, data, key) {
+        const commHandler = this.getCommHandler(id);
+        if (!UF.valueCheck(commHandler, "getCommHandler()")) return false;
 
-    logout(clientKey) {
-        if (clientKey in this._activeSims) {
-            const simulation = this._activeSims[clientKey];
-            this._logout(simulation);
-        }
-    }
-
-    login(simId, key) {
-        const simulation = this.getSimulation(simId, false);
-        if (simulation == null) return false;
-
-        if(simulation.isActive) {
-            return false;
-        }
-        else {
-            this._logout(simulation);
-
-            simulation.setClient(key);
-            this._activeSims[simulation.clientKey] = simulation;
-            return true;
-        }
-    }
-
-    update(data, key) {
-        const simulation = this.getSimulation(key, true);
-        if (simulation == null) return false;
-
-        if (simulation.isActive) {
-            simulation.update(data);
-            return true;
-        }
-        this._logout(simulation);
-        return false;
+        commHandler.addData(data, key);
+        return true;
     }
 }
 
 const manager = new Map();
 manager.set("sim", new SimManager(0));
 
+function startEvolution() {
+    const simManager = manager.get("sim");
+    for (const id of simManager.getIds()) {
+        const interval = simManager.getCommHandler(id).config.simulationSpeed;
+        function test() {
+            const commHandler = simManager.getCommHandler(id);
+            commHandler.processStep();
+        }
+        if (interval > 0) {
+            // negative numbers imply processing the absolut number of steps everytime some data is added
+            setInterval(test, interval);
+        }
+    }
+}
+
+function startTesting(interval) {
+    const simManager = manager.get("sim");
+    let nullChance = 0.7;
+    let counter = 0;
+    function _testSim() {
+        if (counter === 100_000) nullChance = 0.95;
+        counter++;
+
+        const data = DataGenerator.getRandomCacheData(nullChance);
+        if (data === null) return;
+
+        for (const id of simManager.getIds()) {
+            if (!simManager.update(id, data, "testSim")) {
+                console.log("failed to update");
+            }
+        }
+    }
+    setInterval(_testSim, interval);
+}
+
+startEvolution();
+//startTesting(100);
+
 function numOfBufferedData() {
     let counter = 0;
     const simManager = manager.get("sim")
-    for (const sim in simManager.sims) {
-        counter += simManager.sims[sim].bufferLevel;
+    for (const simId of simManager.getIds()) {
+        counter += simManager.get(simId).bufferLevel;
     }
     return counter;
 }
@@ -195,7 +191,7 @@ function _createKey(req) {
     if (req.headers["x-forwarded-for"])
         ipPart = req.headers["x-forwarded-for"].split(",")[0];
 
-    const randPart = String(Math.random()).substr(2); //remove the 0. at the beginning
+    const randPart = String(Math.random()).substring(2); //remove the 0. at the beginning
     return ipPart + randPart;
 }
 
@@ -294,17 +290,7 @@ function _getTargetManager(req) {
  * @returns {[string, boolean]} the key to allow the requester access to the simulation they registered for
  */
 function login(req) {
-    const simId = _getSimId(req);
     const key = _createKey(req);
-
-    //create an object in every simManager the requester might need
-    for (const item of manager) {
-        //item: [key, value]
-        const m = item[1];
-        if (!m.login(simId, key)) {
-            return [null, false];
-        }
-    }
     return [key, true];
 }
 
@@ -315,13 +301,6 @@ function login(req) {
  */
 function logout(req) {
     const key = _getKey(req);
-
-    //create an object in every simManager the requester might need
-    for (const item of manager) {
-        //item: [key, value]
-        const m = item[1];
-        m.logout(key);
-    }
     return [key, true];
 }
 
@@ -331,11 +310,12 @@ function logout(req) {
  * @returns true if the update was successfully, false otherwise
  */
 function update(req) {
-    const key = _getKey(req);
+    const simId = _getSimId(req);
     const data = _getData(req);
+    const key = _getKey(req);
     const simManager = _getTargetManager(req);
 
-    return simManager.update(data, key)
+    return simManager.update(simId, data, key)
 }
 
 /**Returns data items of the simulation that is associated with the requester if one exists. (else null is returned)
@@ -344,11 +324,10 @@ function update(req) {
  * @returns {list[string]} data items
  */
 function retrieve(req) {
-    // todo: key?
     const simId = _getSimId(req);
     const numOfItems = _getNumOfItems(req);
     const simManager = _getTargetManager(req);
-    const sim = simManager.getSimulation(simId, false);
+    const sim = simManager.getCommHandler(simId);
 
     if (sim) {
         let data = [];
@@ -361,9 +340,22 @@ function retrieve(req) {
     else return [null, false];
 }
 
+function getPlotData(req, withPlotData) {
+    const simId = _getSimId(req);
+    const simManager = _getTargetManager(req);
+    const sim = simManager.getCommHandler(simId);
+
+    if (sim) {
+        const response = sim.getPlotData(withPlotData);
+        return [{'infos': response.metaData, 'items': response.tileData}, true]
+    }
+    else return [null, false];
+}
+
 //external scripts may only log in/start, log out/pause, update simulations or retrieve data
 module.exports.login = login;
 module.exports.logout = logout;
 module.exports.update = update;
 module.exports.retrieve = retrieve;
 module.exports.numOfBufferedData = numOfBufferedData;
+module.exports.getPlotData = getPlotData;

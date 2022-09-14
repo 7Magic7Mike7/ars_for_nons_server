@@ -7,8 +7,7 @@ const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 
 const indexRouter = require('./routes/index');
-const debugRouter = require('./routes/debug');
-const simManager = require('./scripts/sim_manager.js')
+const simManager = require('./scripts/sim_manager.js');
 
 //const cors = require("cors");   //for flutter-compatability
 
@@ -21,6 +20,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use("/login", express.static(path.join(__dirname, 'public')));
+app.use("/magazine", express.static(path.join(__dirname, "views", "magazine.html")));
+app.use("/simulations", express.static(path.join(__dirname, "views", "simulations.html")));
+app.use("/Xp3ELU3WQNRCm4jzUT9h", express.static(path.join(__dirname, "views", "debug_sim.html")));
 
 app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
@@ -29,8 +32,6 @@ app.use(function(req, res, next) {
 });
 
 app.use('/', indexRouter);
-app.use('/debug', debugRouter);
-//app.use('/users', usersRouter);
 
 module.exports = app;
 
@@ -42,14 +43,23 @@ app.get('/stats', (req, res) => {
     const val = simManager.numOfBufferedData();
     console.log("Value = %s", val);
     res.send("Num of buffered data elements: " + val);
-    //res.sendFile('views/test.html', {root: __dirname })
 });
+
+app.get('/magazine-text', (req, res) => {
+    res.download(path.join(__dirname, "assets", "ARS FOR NONS MAGAZINE.pdf"));
+});
+
+app.get('/assets/SpaceGrotesk-Regular.ttf', (req, res) => {
+    res.sendFile(path.join(__dirname, "assets", "SpaceGrotesk-Regular.ttf"))
+});
+
+
 const server = app.listen(port, function () {
-    const host = server.address().address
-    const port = server.address().port
+    const host = server.address().address;
+    const port = server.address().port;
 
     console.log("Example app listening at http://%s:%s", host, port)
-})
+});
 
 
 function setupConfig(replacementMode) {
@@ -136,4 +146,4 @@ function setupConfig(replacementMode) {
 
     let debug = "Begin";
 }
-setupConfig(0);
+//setupConfig(0);

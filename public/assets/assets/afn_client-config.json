@@ -1,13 +1,10 @@
 {
   "debug": false,
-  "serverRoot": "https://a4n-test.herokuapp.com/",
-
-  "updatePeriod": 100,
-  "calculationsPerUpdate": 2,
+  "serverRoot": "https://www.arsfornons.com/",
+  "updatePeriod": 500,
+  "calculationsPerUpdate": 7,
   "loginPeriod": 2000,
-
   "maxSeed": 1000000000,
-
   "cacheSize": 10,
   "geneLength": 5,
   "numOfGenes": 20

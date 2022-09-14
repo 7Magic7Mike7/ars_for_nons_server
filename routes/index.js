@@ -13,13 +13,7 @@ const simManager = require('../scripts/sim_manager');
  */
 router.post('/login', (req, res) => {
     addCorsHeader(res);
-    const response = simManager.login(req);
-    const key = response[0];
-    const success = response[1];
-    if (success)
-        res.status(200).json({ key: key });
-    else
-        res.status(400).json();
+    res.status(400).json({msg: "Explicit login no longer supported!"});
 });
 
 /**Updates the simulation corresponding to the given key with the given data
@@ -49,13 +43,7 @@ router.post('/update', (req, res) => {
  */
 router.post('/logout', (req, res) => {
     addCorsHeader(res);
-    const response = simManager.logout(req);
-    const key = response[0];
-    const success = response[1];
-    if (success)
-        res.status(200).json({ key: key });
-    else
-        res.status(400).json();
+    res.status(400).json({msg: "Explicit logout no longer supported!"});
 });
 
 /**Sends back some data items
@@ -66,7 +54,7 @@ router.post('/logout', (req, res) => {
  * }
  *
  */
-router.get('/retrieve', (req, res) => {
+router.get('/retrieve', (req, res) => { // todo "encrypt" path so no others can retrieve?
     addCorsHeader(res);
 
     const response = simManager.retrieve(req);
@@ -76,6 +64,59 @@ router.get('/retrieve', (req, res) => {
         res.status(200).json({ data: data });
     else
         res.status(400).json();
+});
+
+/**Sends back some world stats
+ *
+ * Params: id of the simulation we want to access
+ * Sends: {
+ *
+ * }
+ *
+ */
+router.get('/getplot', (req, res) => {
+    addCorsHeader(res);
+
+    const response = simManager.getPlotData(req, false);
+    const data = response[0];
+    const success = response[1];
+    if (success)
+        res.status(200).json({ data: data });
+    else
+        res.status(400).json();
+});
+
+/**Sends back tile info for plotting and world stats
+ *
+ * Params: id of the simulation we want to access
+ * Sends: {
+ *
+ * }
+ *
+ */
+router.get('/z3htXmWfWeKi99Vxc6fT', (req, res) => {
+    addCorsHeader(res);
+
+    const response = simManager.getPlotData(req, true);
+    const data = response[0];
+    const success = response[1];
+    if (success)
+        res.status(200).json({ data: data });
+    else
+        res.status(400).json();
+});
+
+router.post('/au5a8JBH28RSBT6hDJo1', (req, res) => {
+    addCorsHeader(res);
+
+    let msg;
+    //different API-calls can have a different request-structure
+    if (req.msg) msg = req.msg;
+    else if (req.query.msg) msg = req.query.msg;
+    else if (req.body.msg) msg = req.body.msg;
+
+    console.log("Client error: " + msg)
+    res.status(200).json();
 });
 
 
